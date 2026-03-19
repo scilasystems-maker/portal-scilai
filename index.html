@@ -183,6 +183,21 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .export-btn{padding:6px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
 .export-btn:hover{border-color:var(--cyan);color:var(--cyan)}
 
+/* ACTION BUTTONS */
+.btn-add-record{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-bottom:16px}
+.btn-add-record:hover{opacity:.9}
+.card-actions{display:flex;gap:6px;flex-direction:column;align-items:flex-end;min-width:110px}
+.btn-card-action{padding:5px 12px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;width:100%;text-align:center;font-weight:500}
+.btn-card-action:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-card-action.danger:hover{border-color:var(--red);color:var(--red)}
+.status-select{padding:5px 10px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;width:100%;outline:none;transition:border-color .2s}
+.status-select:focus{border-color:var(--cyan)}
+.status-select option{background:var(--bg3);color:var(--text)}
+.tbl-actions{display:flex;gap:6px}
+.btn-tbl{padding:4px 10px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-tbl:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-tbl.danger:hover{border-color:var(--red);color:var(--red)}
+
 /* EMPTY & LOADING */
 .loading{padding:48px;text-align:center;color:var(--text3);font-size:14px}
 .spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
@@ -535,6 +550,18 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     </div>
     <div id="dynamic-pages"></div>
   </main>
+</div>
+
+<!-- MODAL AÑADIR/EDITAR REGISTRO -->
+<div class="overlay" id="overlay-record">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title" id="record-modal-title">Nuevo registro</div>
+    <div id="record-form-fields"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeRecordModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="saveRecord()">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -956,17 +983,20 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
       return;
     }
     const cols=sec.columnas.length?sec.columnas:Object.keys(filtered[0]);
-    const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
+    // Add button
+  const _secLabel=sec.titulo.replace(/^[Mm]is /,'');
+  const addBtn='<button class="btn-add-record" onclick="openAddRecord(\'' + sec.tabla + '\')">+ Añadir '+_secLabel+'</button>';
+  const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
 
     if(isCita){
       // CARD LAYOUT for appointments
-      cont.innerHTML=`<div class="cita-cards-grid">${filtered.map(row=>citaCard(row,cols)).join('')}</div>`;
+      cont.innerHTML=addBtn+`<div class="cita-cards-grid">${filtered.map(row=>citaCard(row,cols)).join('')}</div>`;
     } else {
       // PROFESSIONAL TABLE for other data
-      cont.innerHTML=`<div class="pro-table-wrap">
+      cont.innerHTML=addBtn+`<div class="pro-table-wrap">
         <table class="pro-table">
-          <thead><tr>${cols.map(c=>`<th onclick="sortTable(${idx},'${c}')" style="cursor:pointer">${fmtCol(c)} <span class="sort-icon">↕</span></th>`).join('')}</tr></thead>
-          <tbody>${filtered.map((row,i)=>`<tr style="animation-delay:${i*0.03}s">${cols.map(c=>`<td>${fmtCellPro(c,row[c])}</td>`).join('')}</tr>`).join('')}</tbody>
+          <thead><tr>${cols.map(c=>`<th onclick="sortTable(${idx},'${c}')" style="cursor:pointer">${fmtCol(c)} <span class="sort-icon">↕</span></th>`).join('')}<th>Acciones</th></tr></thead>
+          <tbody>${filtered.map((row,i)=>`<tr style="animation-delay:${i*0.03}s">${cols.map(c=>`<td>${fmtCellPro(c,row[c])}</td>`).join('')}<td><div class="tbl-actions"><button class="btn-tbl" onclick="openEditRecord('${sec.tabla}','${row.id}')">✏</button><button class="btn-tbl danger" onclick="deleteRecord('${sec.tabla}','${row.id}')">✕</button></div></td></tr>`).join('')}</tbody>
         </table>
         <div class="pro-table-footer"><span>${filtered.length} registro${filtered.length!==1?'s':''}</span><button onclick="exportCSV(${JSON.stringify(filtered).replace(/"/g,'&quot;')},'${sec.titulo}')" class="export-btn">↓ Exportar CSV</button></div>
       </div>`;
@@ -988,25 +1018,34 @@ function citaCard(row,cols){
   const estado=row.estado||'Pendiente';
   const nombre=row.paciente_nombre||row.nombre||'';
   const notas=row.notas||'';
-  const estadoClass='badge-'+estado.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const estadoClass='badge-'+estado.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const d=parseFecha(fecha);
   const dia=isNaN(d)?'-':d.getDate();
   const mes=isNaN(d)?'':d.toLocaleDateString('es-ES',{month:'short'}).replace('.','');
   const hoy=new Date();hoy.setHours(0,0,0,0);
   const esHoy=fmtDate(d)===iso(hoy);
+  const rowId=row.id||'';
   const ribbonHtml=esHoy?'<div class="hoy-ribbon">HOY</div>':'';
   const notasHtml=notas?'<span class="meta-chip">&#128221; '+notas.substring(0,35)+(notas.length>35?'...':'')+'</span>':'';
-  return '<div class="cita-card-pro'+(esHoy?' cita-hoy':'')+'">'+
-    ribbonHtml+
-    '<div class="cita-card-fecha"><div class="cita-dia-num">'+dia+'</div><div class="cita-mes-txt">'+mes.toUpperCase()+'</div></div>'+
-    '<div class="cita-card-body">'+
-      '<div class="cita-card-nombre">'+(nombre||'Sin nombre')+'</div>'+
-      '<div class="cita-card-hora-row">'+(hora?'<span class="hora-badge">&#128336; '+hora+'</span>':'')+
-      '<span class="tipo-label">'+tipo+'</span></div>'+
-      '<div class="cita-card-meta">'+notasHtml+'</div>'+
-    '</div>'+
-    '<div class="cita-card-estado"><span class="estado-badge '+estadoClass+'">'+estado+'</span></div>'+
-    '</div>';
+  const statusOpts=['Confirmada','Pendiente','Completada','Cancelada'].map(function(s){return '<option value="'+s+'"'+(s===estado?' selected':'')+'>'+s+'</option>';}).join('');
+  
+  const html=[
+    '<div class="cita-card-pro'+(esHoy?' cita-hoy':'')+'">',
+    ribbonHtml,
+    '<div class="cita-card-fecha"><div class="cita-dia-num">'+dia+'</div><div class="cita-mes-txt">'+mes.toUpperCase()+'</div></div>',
+    '<div class="cita-card-body">',
+      '<div class="cita-card-nombre">'+(nombre||'Sin nombre')+'</div>',
+      '<div class="cita-card-hora-row">'+(hora?'<span class="hora-badge">&#128336; '+hora+'</span>':'')+'<span class="tipo-label">'+tipo+'</span></div>',
+      '<div class="cita-card-meta">'+notasHtml+'</div>',
+    '</div>',
+    '<div class="card-actions">',
+      '<select class="status-select" data-tabla="citas" data-id="'+rowId+'" onchange="updateEstado(this,this.dataset.tabla,this.dataset.id)">'+statusOpts+'</select>',
+      '<button class="btn-card-action" data-tabla="citas" data-id="'+rowId+'" onclick="openEditRecord(this.dataset.tabla,this.dataset.id)">&#9998; Editar</button>',
+      '<button class="btn-card-action danger" data-tabla="citas" data-id="'+rowId+'" onclick="deleteRecord(this.dataset.tabla,this.dataset.id)">&#10005; Eliminar</button>',
+    '</div>',
+    '</div>'
+  ].join('');
+  return html;
 }
 
 function fmtCellPro(col,val){
@@ -1271,6 +1310,116 @@ async function checkAdminReplies(){
   if(dot){dot.style.display=(data?.length>0)?'block':'none'}
 }
 
+// ── CRUD OPERATIONS ──
+let recordModal={tabla:null,id:null,cols:[],row:{}};
+
+async function openAddRecord(tabla){
+  const dbClient=window.clientSb||sb;
+  let cols=schemaColumns[tabla]||[];
+  if(!cols.length){
+    const{data:r}=await dbClient.from(tabla).select('*').limit(1);
+    if(r&&r.length){cols=Object.keys(r[0]);schemaColumns[tabla]=cols;}
+  }
+  recordModal={tabla,id:null,cols,row:{}};
+  document.getElementById('record-modal-title').textContent='+ Nuevo registro';
+  renderRecordForm(cols,{});
+  document.getElementById('overlay-record').classList.add('open');
+}
+
+async function openEditRecord(tabla,id){
+  const dbClient=window.clientSb||sb;
+  const{data}=await dbClient.from(tabla).select('*').eq('id',id).single();
+  if(!data){alert('No se encontró el registro.');return}
+  const cols=Object.keys(data);
+  recordModal={tabla,id,cols,row:data};
+  document.getElementById('record-modal-title').textContent='Editar registro';
+  renderRecordForm(cols,data);
+  document.getElementById('overlay-record').classList.add('open');
+}
+
+function renderRecordForm(cols,row){
+  const skipCols=['id','fecha_creacion','created_at','recordatorio_24h','recordatorio_1h'];
+  const fields=cols.filter(c=>!skipCols.includes(c));
+  document.getElementById('record-form-fields').innerHTML=fields.map(col=>{
+    const val=row[col]||'';
+    const lbl=col.replace(/_/g,' ').replace(/^\w/,c=>c.toUpperCase());
+    if(col==='estado'){
+      const opts=['Confirmada','Pendiente','Completada','Cancelada'].map(s=>`<option value="${s}"${s===val?' selected':''}>${s}</option>`).join('');
+      return `<div class="form-group"><label class="lbl">${lbl}</label><select class="inp" id="rf-${col}" style="cursor:pointer">${opts}</select></div>`;
+    }
+    if(col.includes('fecha')&&!col.includes('creacion')){
+      return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="date" id="rf-${col}" value="${val}"></div>`;
+    }
+    if(col==='notas'){
+      return `<div class="form-group"><label class="lbl">${lbl}</label><textarea class="inp" id="rf-${col}" rows="3" style="resize:vertical">${val}</textarea></div>`;
+    }
+    return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="text" id="rf-${col}" value="${val}" placeholder="${lbl}..."></div>`;
+  }).join('');
+}
+
+function closeRecordModal(){
+  document.getElementById('overlay-record').classList.remove('open');
+  recordModal={tabla:null,id:null,cols:[],row:{}};
+}
+
+async function saveRecord(){
+  const dbClient=window.clientSb||sb;
+  const skipCols=['id','fecha_creacion','created_at','recordatorio_24h','recordatorio_1h'];
+  const fields=recordModal.cols.filter(c=>!skipCols.includes(c));
+  const data={};
+  fields.forEach(col=>{
+    const el=document.getElementById('rf-'+col);
+    if(el) data[col]=el.value||null;
+  });
+
+  let error;
+  if(recordModal.id){
+    // Update
+    ({error}=await dbClient.from(recordModal.tabla).update(data).eq('id',recordModal.id));
+  } else {
+    // Insert - generate ID
+    const prefix=recordModal.tabla.toUpperCase().substring(0,4);
+    data.id=prefix+'-'+Date.now();
+    // Auto-fill client info if citas
+    if(recordModal.tabla==='citas'&&clienteData){
+      if(!data.paciente_nombre) data.paciente_nombre=clienteData.nombre||'';
+      if(!data.paciente_telefono) data.paciente_telefono=clienteData.telefono||'';
+    }
+    ({error}=await dbClient.from(recordModal.tabla).insert(data));
+  }
+
+  if(error){alert('Error: '+error.message);return}
+  closeRecordModal();
+  // Refresh current section
+  clienteSecciones.forEach((s,i)=>{
+    if(s.tabla===recordModal.tabla) renderSecTable(s,i,currentFilter[i]||'todas');
+  });
+  loadHomeStats();
+}
+
+async function deleteRecord(tabla,id){
+  if(!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.'))return;
+  const dbClient=window.clientSb||sb;
+  const{error}=await dbClient.from(tabla).delete().eq('id',id);
+  if(error){alert('Error: '+error.message);return}
+  // Refresh
+  clienteSecciones.forEach((s,i)=>{
+    if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
+  });
+  loadHomeStats();
+}
+
+async function updateEstado(selectEl,tabla,id){
+  const nuevoEstado=selectEl.value;
+  const dbClient=window.clientSb||sb;
+  const{error}=await dbClient.from(tabla).update({estado:nuevoEstado}).eq('id',id);
+  if(error){alert('Error: '+error.message);return}
+  // Refresh
+  clienteSecciones.forEach((s,i)=>{
+    if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
+  });
+}
+
 // ── MOBILE MENU ──
 function toggleMobileMenu(){
   const menu=document.getElementById('mobile-menu-client');
@@ -1324,7 +1473,7 @@ function togglePass(){
   if(inp.type==='password'){inp.type='text';btn.textContent='🙈'}
   else{inp.type='password';btn.textContent='👁'}
 };
-['overlay-config','overlay-addsec','overlay-edit','overlay-pass','overlay-help'].forEach(id=>{
+['overlay-config','overlay-addsec','overlay-edit','overlay-pass','overlay-help','overlay-record'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
     if(e.target===document.getElementById(id)){
       if(id==='overlay-config')closeConfig();
@@ -1332,6 +1481,7 @@ function togglePass(){
       else if(id==='overlay-edit')closeEdit();
       else if(id==='overlay-pass')closePass();
       else if(id==='overlay-help')closeHelp();
+      else if(id==='overlay-record')closeRecordModal();
     }
   });
 });
