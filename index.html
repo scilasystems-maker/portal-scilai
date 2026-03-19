@@ -288,7 +288,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <label class="lbl">Email</label>
     <input class="inp" type="email" id="l-email" placeholder="tu@email.com" autocomplete="email">
     <label class="lbl">Contraseña</label>
-    <input class="inp" type="password" id="l-pass" placeholder="••••••••">
+    <div style="position:relative">
+      <input class="inp" type="password" id="l-pass" placeholder="••••••••" style="margin-bottom:0;padding-right:44px">
+      <button type="button" onclick="togglePass()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:0;line-height:1" id="eye-btn">👁</button>
+    </div>
+    <div style="height:18px"></div>
     <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
     <div class="err-box" id="l-err"></div>
   </div>
@@ -1217,7 +1221,13 @@ function updateMobileNav(){
 }
 
 // ── INIT ──
-document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()})
+function togglePass(){
+  const inp=document.getElementById('l-pass');
+  const btn=document.getElementById('eye-btn');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈'}
+  else{inp.type='password';btn.textContent='👁'}
+};
 ['overlay-config','overlay-addsec','overlay-edit','overlay-pass','overlay-help'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
     if(e.target===document.getElementById(id)){
