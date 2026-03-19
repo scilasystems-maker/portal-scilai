@@ -1802,8 +1802,13 @@ function renderActivity(){
 
 // ── CALENDAR ──
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
-function showCalendar(){
+async function showCalendar(){
   showClientPage('calendar',null);
+  if(!allCitasData||!allCitasData.length){
+    await loadCharts();
+  }
+  calYear=new Date().getFullYear();
+  calMonth=new Date().getMonth();
   renderCalendar();
 }
 
