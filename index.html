@@ -1816,48 +1816,63 @@ function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if
 
 function renderCalendar(){
   const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const dayNames=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+  const dayNames=['Lu','Ma','Mi','Ju','Vi','Sa','Do'];
   document.getElementById('cal-month-title').textContent=monthNames[calMonth]+' '+calYear;
-
-  // Day labels
-  document.getElementById('cal-labels').innerHTML=dayNames.map(function(d){
-    return '<div class="cal-day-label">'+d+'</div>';
-  }).join('');
+  document.getElementById('cal-labels').innerHTML=dayNames.map(function(d){return '<div class="cal-day-label">'+d+'</div>';}).join('');
 
   const firstDay=new Date(calYear,calMonth,1).getDay();
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
   const prevDays=new Date(calYear,calMonth,0).getDate();
-  const today=new Date();
-  const hoyStr=iso(today);
+  const hoyStr=iso(new Date());
   const startOffset=(firstDay+6)%7;
 
   // Group citas by date
-  const citasByDate={};
+  const byDate={};
   (allCitasData||[]).forEach(function(r){
     const d=parseFecha(r.fecha_cita);
     if(isNaN(d))return;
     const k=iso(d);
-    if(!citasByDate[k])citasByDate[k]=[];
-    citasByDate[k].push(r);
+    if(!byDate[k])byDate[k]=[];
+    byDate[k].push(r);
   });
 
-  function makeCell(dayNum,dateStr,isOther){
-    const citas=citasByDate[dateStr]||[];
-    const isToday=dateStr===hoyStr;
-    const classes=['cal-cell',isOther?'other-month':'',isToday?'today':'',citas.length?'has-events':''].filter(Boolean).join(' ');
-    const parts=['<div class="'+classes+'" data-date="'+dateStr+'" onclick="openCalPopup(this.dataset.date)">'];
-    parts.push('<div class="cal-day-num">'+dayNum+'</div>');
+  function cell(num,ds,other){
+    const citas=byDate[ds]||[];
+    const cls=['cal-cell',other?'other-month':'',ds===hoyStr?'today':''].filter(Boolean).join(' ');
+    var h='<div class="'+cls+'" data-date="'+ds+'" onclick="openCalPopup(this.dataset.date)">';
+    h+='<div class="cal-day-num">'+num+'</div>';
     citas.slice(0,2).forEach(function(c){
-      const cls=(c.estado||'pendiente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      const label=(c.hora_cita?c.hora_cita+' ':'')+(c.tipo_cita||c.paciente_nombre||'Cita');
-      parts.push('<div class="cal-event '+cls+'">'+label+'</div>');
+      var ec=(c.estado||'pendiente').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      var lbl=(c.hora_cita?c.hora_cita+' ':'')+(c.tipo_cita||c.paciente_nombre||'Cita');
+      h+='<div class="cal-event '+ec+'">'+lbl+'</div>';
     });
-    if(citas.length>2)parts.push('<div class="cal-more">+'+(citas.length-2)+' más</div>');
-    parts.push('</div>');
-    return parts.join('');
+    if(citas.length>2)h+='<div class="cal-more">+'+(citas.length-2)+' más</div>';
+    h+='</div>';
+    return h;
   }
 
+  var html='';
+  // Prev month padding
+  for(var i=startOffset-1;i>=0;i--){
+    var d=prevDays-i;
+    var pm=calMonth===0?11:calMonth-1;
+    var py=calMonth===0?calYear-1:calYear;
+    html+=cell(d,py+'-'+String(pm+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),true);
+  }
+  // Current month
+  for(var d=1;d<=daysInMonth;d++){
+    html+=cell(d,calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),false);
+  }
+  // Next month padding
+  var total=Math.ceil((startOffset+daysInMonth)/7)*7;
+  for(var d=1;d<=total-startOffset-daysInMonth;d++){
+    var nm=calMonth===11?0:calMonth+1;
+    var ny=calMonth===11?calYear+1:calYear;
+    html+=cell(d,ny+'-'+String(nm+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),true);
+  }
+  document.getElementById('cal-grid').innerHTML=html;
 }
+
 function calGoToday(){
   calYear=new Date().getFullYear();
   calMonth=new Date().getMonth();
