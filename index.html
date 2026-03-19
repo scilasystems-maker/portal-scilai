@@ -151,9 +151,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cita-card-fecha{text-align:center;padding:10px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border)}
 .cita-dia-num{font-family:'DM Serif Display',serif;font-size:26px;line-height:1;color:var(--text)}
 .cita-mes-txt{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:1px;margin-top:2px}
-.cita-card-tipo{font-size:15px;font-weight:600;margin-bottom:8px}
+.cita-card-nombre{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.cita-card-hora-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.hora-badge{font-size:13px;font-weight:600;color:var(--cyan);background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.15);padding:3px 10px;border-radius:20px;white-space:nowrap}
+.tipo-label{font-size:13px;color:var(--text2);font-weight:400}
 .cita-card-meta{display:flex;flex-wrap:wrap;gap:8px}
-.meta-chip{font-size:12px;padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:20px;color:var(--text2);white-space:nowrap}
+.meta-chip{font-size:12px;padding:3px 10px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;color:var(--text3);white-space:nowrap}
 .cita-card-estado{text-align:right}
 
 /* ESTADO BADGES */
@@ -984,14 +987,16 @@ function citaCard(row,cols){
   const hoy=new Date();hoy.setHours(0,0,0,0);
   const esHoy=fmtDate(d)===iso(hoy);
   const ribbonHtml=esHoy?'<div class="hoy-ribbon">HOY</div>':'';
-  const horaHtml=hora?'<span class="meta-chip">&#128336; '+hora+'</span>':'';
-  const nombreHtml=nombre?'<span class="meta-chip">&#128100; '+nombre+'</span>':'';
-  const notasHtml=notas?'<span class="meta-chip">&#128221; '+notas.substring(0,30)+(notas.length>30?'...':'')+'</span>':'';
+  const notasHtml=notas?'<span class="meta-chip">&#128221; '+notas.substring(0,35)+(notas.length>35?'...':'')+'</span>':'';
   return '<div class="cita-card-pro'+(esHoy?' cita-hoy':'')+'">'+
     ribbonHtml+
     '<div class="cita-card-fecha"><div class="cita-dia-num">'+dia+'</div><div class="cita-mes-txt">'+mes.toUpperCase()+'</div></div>'+
-    '<div class="cita-card-body"><div class="cita-card-tipo">'+tipo+'</div>'+
-    '<div class="cita-card-meta">'+horaHtml+nombreHtml+notasHtml+'</div></div>'+
+    '<div class="cita-card-body">'+
+      '<div class="cita-card-nombre">'+(nombre||'Sin nombre')+'</div>'+
+      '<div class="cita-card-hora-row">'+(hora?'<span class="hora-badge">&#128336; '+hora+'</span>':'')+
+      '<span class="tipo-label">'+tipo+'</span></div>'+
+      '<div class="cita-card-meta">'+notasHtml+'</div>'+
+    '</div>'+
     '<div class="cita-card-estado"><span class="estado-badge '+estadoClass+'">'+estado+'</span></div>'+
     '</div>';
 }
