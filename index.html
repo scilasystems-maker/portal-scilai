@@ -217,21 +217,52 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .activity-time{font-size:12px;color:var(--text3);white-space:nowrap}
 
 /* CALENDAR */
-.cal-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:20px}
-.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.cal-title{font-size:16px;font-weight:700}
-.cal-nav{display:flex;gap:8px}
-.cal-nav-btn{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cal-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.cal-title{font-size:18px;font-weight:700}
+.cal-nav{display:flex;gap:8px;align-items:center}
+.cal-today-btn{padding:5px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.cal-today-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.cal-nav-btn{width:30px;height:30px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .cal-nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal-day-label{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:6px 0;text-transform:uppercase;letter-spacing:.5px}
-.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;position:relative;padding:4px}
-.cal-day:hover{background:rgba(255,255,255,.05)}
-.cal-day.today{background:rgba(0,229,204,.1);color:var(--cyan);font-weight:700;border:1px solid rgba(0,229,204,.3)}
-.cal-day.has-cita::after{content:'';position:absolute;bottom:4px;width:5px;height:5px;background:var(--cyan);border-radius:50%}
-.cal-day.other-month{color:var(--text3)}
-.cal-day.selected{background:rgba(0,229,204,.15);border:1px solid var(--cyan)}
-
+.cal-labels{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)}
+.cal-day-label{text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:8px 0;text-transform:uppercase;letter-spacing:.8px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-cell{min-height:90px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 5px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.cal-cell:nth-child(7n){border-right:none}
+.cal-cell:hover{background:rgba(255,255,255,.03)}
+.cal-cell.today{background:rgba(0,229,204,.04)}
+.cal-cell.other-month{background:rgba(0,0,0,.15)}
+.cal-cell.other-month .cal-day-num{color:var(--text3);opacity:.4}
+.cal-day-num{font-size:12px;font-weight:600;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:3px;flex-shrink:0}
+.cal-cell.today .cal-day-num{background:var(--cyan);color:#050505;font-weight:800}
+.cal-event{font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-event.confirmada{background:rgba(0,229,176,.2);color:#00e5b0}
+.cal-event.pendiente{background:rgba(255,170,51,.18);color:#ffaa33}
+.cal-event.cancelada{background:rgba(255,77,106,.15);color:#ff4d6a;text-decoration:line-through;opacity:.7}
+.cal-event.completada{background:rgba(77,159,255,.15);color:#4d9fff}
+.cal-more{font-size:10px;color:var(--text3);font-weight:600;padding:1px 5px;cursor:pointer}
+.cal-more:hover{color:var(--cyan)}
+/* POPUP */
+.cal-popup{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:20px}
+.cal-popup.open{display:flex}
+.cal-popup-inner{background:#0d1220;border:1px solid var(--border2);border-radius:20px;width:100%;max-width:460px;max-height:85vh;overflow-y:auto;animation:fadeUp .25s ease;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.cal-popup-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0d1220;z-index:1;backdrop-filter:blur(10px)}
+.cal-popup-date{font-size:13px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.cal-popup-title{font-family:'DM Serif Display',serif;font-size:22px}
+.cal-popup-close{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:16px;cursor:pointer;padding:6px 10px;border-radius:8px;transition:all .2s;line-height:1}
+.cal-popup-close:hover{border-color:var(--red);color:var(--red)}
+.cal-popup-body{padding:16px 22px 22px}
+.cal-popup-cita{display:flex;gap:12px;align-items:flex-start;padding:14px;background:rgba(255,255,255,.04);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);transition:all .15s}
+.cal-popup-cita:hover{background:rgba(255,255,255,.07);border-color:var(--border2)}
+.cal-popup-hora{font-size:14px;font-weight:800;color:var(--cyan);min-width:52px;padding-top:1px}
+.cal-popup-info{flex:1;min-width:0}
+.cal-popup-tipo{font-size:15px;font-weight:600;margin-bottom:3px}
+.cal-popup-nombre{font-size:13px;color:var(--text2);margin-bottom:2px}
+.cal-popup-notas{font-size:12px;color:var(--text3);font-style:italic}
+.cal-popup-empty{text-align:center;padding:36px 20px;color:var(--text3)}
+.cal-popup-empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+@media(max-width:768px){.cal-cell{min-height:60px}.cal-event{display:none}.cal-cell.has-events::after{content:'●';font-size:8px;color:var(--cyan);display:block;text-align:center}}
 /* STATS ADVANCED */
 .stats-row-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
 .mini-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px}
@@ -724,13 +755,27 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <div class="cal-header">
           <div class="cal-title" id="cal-month-title">Marzo 2026</div>
           <div class="cal-nav">
-            <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
-            <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+            <button class="cal-today-btn" onclick="calGoToday()">Hoy</button>
+            <button class="cal-nav-btn" onclick="calNav(-1)">&#8249;</button>
+            <button class="cal-nav-btn" onclick="calNav(1)">&#8250;</button>
           </div>
         </div>
+        <div class="cal-labels" id="cal-labels"></div>
         <div class="cal-grid" id="cal-grid"></div>
       </div>
-      <div id="cal-day-citas" style="margin-top:8px"></div>
+      <!-- Calendar Day Popup -->
+      <div class="cal-popup" id="cal-popup" onclick="if(event.target===this)closeCalPopup()">
+        <div class="cal-popup-inner">
+          <div class="cal-popup-header">
+            <div>
+              <div class="cal-popup-date" id="cal-popup-date"></div>
+              <div class="cal-popup-title" id="cal-popup-title"></div>
+            </div>
+            <button class="cal-popup-close" onclick="closeCalPopup()">✕</button>
+          </div>
+          <div class="cal-popup-body" id="cal-popup-body"></div>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -1766,53 +1811,96 @@ function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if
 
 function renderCalendar(){
   const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dayNames=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
   document.getElementById('cal-month-title').textContent=monthNames[calMonth]+' '+calYear;
+
+  // Day labels
+  document.getElementById('cal-labels').innerHTML=dayNames.map(function(d){
+    return '<div class="cal-day-label">'+d+'</div>';
+  }).join('');
+
   const firstDay=new Date(calYear,calMonth,1).getDay();
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
   const today=new Date();
-  const hoy=iso(today);
+  const hoyStr=iso(today);
+  const startOffset=(firstDay+6)%7;
 
-  // Get citas for this month
-  const citasDates={};
-  (allCitasData||[]).forEach(r=>{
+  // Group citas by date
+  const citasByDate={};
+  (allCitasData||[]).forEach(function(r){
     const d=parseFecha(r.fecha_cita);
-    if(!isNaN(d)&&d.getMonth()===calMonth&&d.getFullYear()===calYear){
-      const k=iso(d);
-      if(!citasDates[k])citasDates[k]=[];
-      citasDates[k].push(r);
-    }
+    if(isNaN(d))return;
+    const k=iso(d);
+    if(!citasByDate[k])citasByDate[k]=[];
+    citasByDate[k].push(r);
   });
 
-  const dayLabels=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
-  let html=dayLabels.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
-
-  const startOffset=(firstDay+6)%7;
-  // Prev month days
-  const prevDays=new Date(calYear,calMonth,0).getDate();
-  for(let i=startOffset-1;i>=0;i--) html+=`<div class="cal-day other-month">${prevDays-i}</div>`;
-  // Current month
-  for(let d=1;d<=daysInMonth;d++){
-    const dateStr=calYear+'-'+(String(calMonth+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
-    const isToday=dateStr===hoy;
-    const hasCita=citasDates[dateStr]?.length>0;
-    const count=citasDates[dateStr]?.length||0;
-    html+=`<div class="cal-day${isToday?' today':''}${hasCita?' has-cita':''}" onclick="showCalDay('${dateStr}',${count})" title="${count>0?count+' cita(s)':''}">${d}${count>0?'<span style="font-size:9px;color:var(--cyan);display:block;line-height:1">'+count+'</span>':''}</div>`;
+  function makeCell(dayNum,dateStr,isOther){
+    const citas=citasByDate[dateStr]||[];
+    const isToday=dateStr===hoyStr;
+    const classes=['cal-cell',isOther?'other-month':'',isToday?'today':'',citas.length?'has-events':''].filter(Boolean).join(' ');
+    const parts=['<div class="'+classes+'" data-date="'+dateStr+'" onclick="openCalPopup(this.dataset.date)">'];
+    parts.push('<div class="cal-day-num">'+dayNum+'</div>');
+    citas.slice(0,2).forEach(function(c){
+      const cls=(c.estado||'pendiente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const label=(c.hora_cita?c.hora_cita+' ':'')+(c.tipo_cita||c.paciente_nombre||'Cita');
+      parts.push('<div class="cal-event '+cls+'">'+label+'</div>');
+    });
+    if(citas.length>2)parts.push('<div class="cal-more">+'+(citas.length-2)+' más</div>');
+    parts.push('</div>');
+    return parts.join('');
   }
-  // Next month days
-  const totalCells=Math.ceil((startOffset+daysInMonth)/7)*7;
-  for(let d=1;d<=totalCells-startOffset-daysInMonth;d++) html+=`<div class="cal-day other-month">${d}</div>`;
 
-  document.getElementById('cal-grid').innerHTML=html;
-  document.getElementById('cal-day-citas').innerHTML='';
+}
+function calGoToday(){
+  calYear=new Date().getFullYear();
+  calMonth=new Date().getMonth();
+  renderCalendar();
 }
 
-function showCalDay(dateStr,count){
-  if(!count)return;
-  const citas=(allCitasData||[]).filter(r=>fmtDate(parseFecha(r.fecha_cita))===dateStr);
-  const el=document.getElementById('cal-day-citas');
-  el.innerHTML=`<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Citas del ${dateStr}</div>`+
-    '<div class="cita-cards-grid">'+citas.map(r=>citaCard(r,Object.keys(r))).join('')+'</div>';
+function openCalPopup(dateStr){
+  const citas=(allCitasData||[]).filter(function(r){
+    return fmtDate(parseFecha(r.fecha_cita))===dateStr;
+  }).sort(function(a,b){
+    const ha=(a.hora_cita||'00:00').replace(':','');
+    const hb=(b.hora_cita||'00:00').replace(':','');
+    return parseInt(ha)-parseInt(hb);
+  });
+
+  const d=new Date(dateStr+'T12:00:00');
+  const dayNames2=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const monthNames2=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  document.getElementById('cal-popup-date').textContent=dayNames2[d.getDay()];
+  document.getElementById('cal-popup-title').textContent=d.getDate()+' de '+monthNames2[d.getMonth()]+' '+d.getFullYear();
+
+  let body='';
+  if(!citas.length){
+    body='<div class="cal-popup-empty"><div class="cal-popup-empty-icon">📅</div><div>Sin citas este día</div></div>';
+  } else {
+    citas.forEach(function(c){
+      const cls=(c.estado||'pendiente').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      const nombre=c.paciente_nombre||c.nombre||'';
+      body+='<div class="cal-popup-cita">'+
+        '<div class="cal-popup-hora">'+(c.hora_cita||'--:--')+'</div>'+
+        '<div class="cal-popup-info">'+
+          '<div class="cal-popup-tipo">'+(c.tipo_cita||'Cita')+'</div>'+
+          (nombre?'<div class="cal-popup-nombre">👤 '+nombre+'</div>':'')+
+          (c.notas?'<div class="cal-popup-notas">'+c.notas.substring(0,80)+(c.notas.length>80?'...':'')+'</div>':'')+
+        '</div>'+
+        '<span class="estado-badge badge-'+cls+'" style="font-size:11px;flex-shrink:0">'+(c.estado||'Pendiente')+'</span>'+
+      '</div>';
+    });
+  }
+  document.getElementById('cal-popup-body').innerHTML=body;
+  document.getElementById('cal-popup').classList.add('open');
 }
+
+function closeCalPopup(){
+  document.getElementById('cal-popup').classList.remove('open');
+}
+
 
 // ── ADVANCED STATS ──
 async function loadAdvancedStats(){
