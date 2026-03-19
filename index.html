@@ -1843,23 +1843,7 @@ async function loadAdvancedStats(){
   ].join('');
 
   // Upcoming 24h alert
-  const manana=new Date();manana.setDate(manana.getDate()+1);
-  const mananaStr=iso(manana);
-  const hoyStr=iso(hoy);
-  const proximas=all.filter(c=>{
-    const f=fmtDate(parseFecha(c.fecha_cita));
-    return (f===hoyStr||f===mananaStr)&&c.estado!=='Cancelada';
-  });
-  const alertEl=document.getElementById('alert-citas-prox');
-  if(alertEl&&proximas.length>0){
-    alertEl.innerHTML=`<div class="alert-banner">
-      <div class="alert-banner-icon">⏰</div>
-      <div class="alert-banner-text">
-        <div class="alert-banner-title">Tienes ${proximas.length} cita${proximas.length>1?'s':''} hoy o mañana</div>
-        <div class="alert-banner-sub">${proximas.map(c=>c.tipo_cita+' — '+c.fecha_cita+(c.hora_cita?' a las '+c.hora_cita:'')).join(' · ')}</div>
-      </div>
-    </div>`;
-  }
+
 }
 
 function miniStat(lbl,val,change,dir){
