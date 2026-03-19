@@ -92,6 +92,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .stat-card:hover{border-color:rgba(0,229,204,.3);transform:translateY(-3px)}
 .stat-card::after{content:'';position:absolute;inset:0;background:var(--gradient2);opacity:0;transition:opacity .25s}
 .stat-card:hover::after{opacity:1}
+.stat-card-wide{grid-column:span 2!important}
+@media(max-width:600px){.stat-card-wide{grid-column:span 1!important}}
 .stat-card-inner{position:relative;z-index:1}
 .stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
 .stat-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(0,229,204,.1);border:1px solid rgba(0,229,204,.15)}
@@ -681,7 +683,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
       <div class="section-label">Acceso rápido</div>
       <div class="nav-buttons" id="home-nav-buttons"></div>
-      <div id="alert-citas-prox" style="margin-bottom:16px"></div>
+
     </div>
     <div id="dynamic-pages"></div>
 
@@ -1334,23 +1336,55 @@ async function loadHomeStats(){
       const proxCount=fechaCol?all.filter(r=>parseFecha(r[fechaCol])>=hoy).length:null;
 
       const mainVal=hoyCount!==null?hoyCount:all.length;
-      const desc=hoyCount!==null?`${proxCount} próximas · ${all.length} total`:`${all.length} registros totales`;
-      const label=hoyCount!==null?`${s.titulo} hoy`:s.titulo;
-
       const iwClass=colors[i%colors.length]==='purple'?'purple':colors[i%colors.length]==='blue'?'blue':colors[i%colors.length]==='green'?'green':'';
-      statsHTML+=`<div class="stat-card" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
-        <div class="stat-card-inner">
-          <div class="stat-top">
-            <div class="stat-icon-wrap ${iwClass}">${icon}</div>
-            <span class="stat-arrow">→</span>
-          </div>
-          <div class="stat-num">${mainVal}</div>
-          <div class="stat-lbl">${label}</div>
-          <div class="stat-desc">${desc}</div>
-        </div>
-      </div>`;
+      const isCitaSec=hoyCount!==null;
 
-      const nbiClass='nbi-'+colors[i%colors.length];
+      if(isCitaSec){
+        const hoyStr2=iso(new Date());
+        const citasHoy=(allCitasData||[]).filter(function(c){return fmtDate(parseFecha(c.fecha_cita))===hoyStr2&&c.estado!=='Cancelada';});
+        const allSorted=(allCitasData||[]).filter(function(c){const d=parseFecha(c.fecha_cita);const h=new Date();h.setHours(0,0,0,0);return d>=h&&c.estado!=='Cancelada';}).sort(function(a,b){return parseFecha(a.fecha_cita)-parseFecha(b.fecha_cita);});
+        const nextCita=allSorted[0];
+        const citaRows=citasHoy.slice(0,3).map(function(c){
+          const cls='badge-'+(c.estado||'pendiente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+          return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border)">'+
+            '<span style="font-size:13px;font-weight:700;color:var(--cyan);min-width:44px">'+(c.hora_cita||'--:--')+'</span>'+
+            '<span style="font-size:14px;font-weight:600;flex:1">'+(c.tipo_cita||'Cita')+'</span>'+
+            '<span class="estado-badge '+cls+'" style="font-size:11px">'+(c.estado||'Pendiente')+'</span>'+
+            '</div>';
+        }).join('');
+        const moreRow=citasHoy.length>3?'<div style="font-size:12px;color:var(--text3);text-align:center;padding:4px">+'+( citasHoy.length-3)+' más</div>':'';
+        const emptyRow='<div style="padding:14px;background:rgba(255,255,255,.03);border-radius:10px;text-align:center;color:var(--text3);font-size:13px">Sin citas para hoy'+(nextCita?' · Próxima: '+nextCita.fecha_cita+(nextCita.hora_cita?' '+nextCita.hora_cita:''):'')+' </div>';
+        statsHTML+='<div class="stat-card stat-card-wide" style="animation-delay:'+i*0.08+'s" onclick="showClientPage(\'sec-'+i+'\',document.querySelectorAll(\'.nav-tab\')['+( i+1)+'])">'+
+          '<div class="stat-card-inner">'+
+            '<div class="stat-top">'+
+              '<div style="display:flex;align-items:center;gap:12px">'+
+                '<div class="stat-icon-wrap '+iwClass+'" style="width:52px;height:52px;font-size:22px">'+icon+'</div>'+
+                '<div>'+
+                  '<div class="stat-lbl">'+s.titulo+' de hoy</div>'+
+                  '<div class="stat-num" style="font-size:38px;line-height:1">'+hoyCount+'</div>'+
+                  '<div class="stat-desc">'+proxCount+' próximas · '+all.length+' total</div>'+
+                '</div>'+
+              '</div>'+
+              '<span class="stat-arrow" style="font-size:20px">→</span>'+
+            '</div>'+
+            '<div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">'+
+              (citasHoy.length>0?citaRows+moreRow:emptyRow)+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      } else {
+        statsHTML+='<div class="stat-card" style="animation-delay:'+i*0.08+'s" onclick="showClientPage(\'sec-'+i+'\',document.querySelectorAll(\'.nav-tab\')['+( i+1)+'])">'+
+          '<div class="stat-card-inner">'+
+            '<div class="stat-top">'+
+              '<div class="stat-icon-wrap '+iwClass+'">'+icon+'</div>'+
+              '<span class="stat-arrow">→</span>'+
+            '</div>'+
+            '<div class="stat-num">'+mainVal+'</div>'+
+            '<div class="stat-lbl">'+s.titulo+'</div>'+
+            '<div class="stat-desc">'+all.length+' registros totales</div>'+
+          '</div>'+
+        '</div>';
+      }
       navHTML+=`<div class="nav-btn" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
         <div class="nav-btn-left">
           <div class="nav-btn-icon ${nbiClass}">${icon}</div>
@@ -1842,24 +1876,7 @@ async function loadAdvancedStats(){
     miniStat('Cancelaciones',tasaCancelacion+'%',canceladas+' canceladas',canceladas>0?'down':''),
   ].join('');
 
-  // Upcoming 24h alert
-  const manana=new Date();manana.setDate(manana.getDate()+1);
-  const mananaStr=iso(manana);
-  const hoyStr=iso(hoy);
-  const proximas=all.filter(c=>{
-    const f=fmtDate(parseFecha(c.fecha_cita));
-    return (f===hoyStr||f===mananaStr)&&c.estado!=='Cancelada';
-  });
-  const alertEl=document.getElementById('alert-citas-prox');
-  if(alertEl&&proximas.length>0){
-    alertEl.innerHTML=`<div class="alert-banner">
-      <div class="alert-banner-icon">⏰</div>
-      <div class="alert-banner-text">
-        <div class="alert-banner-title">Tienes ${proximas.length} cita${proximas.length>1?'s':''} hoy o mañana</div>
-        <div class="alert-banner-sub">${proximas.map(c=>c.tipo_cita+' — '+c.fecha_cita+(c.hora_cita?' a las '+c.hora_cita:'')).join(' · ')}</div>
-      </div>
-    </div>`;
-  }
+
 }
 
 function miniStat(lbl,val,change,dir){
