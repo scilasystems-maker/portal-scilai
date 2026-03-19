@@ -969,61 +969,65 @@ function sortTable(idx,col){
 
 function citaCard(row,cols){
   const fecha=row.fecha_cita||row.fecha||'';
-  const hora=row.hora_cita||row.hora||''
+  const hora=row.hora_cita||row.hora||'';
   const tipo=row.tipo_cita||row.tipo||'Cita';
   const estado=row.estado||'Pendiente';
-  const nombre=row.paciente_nombre||row.nombre||'—';
+  const nombre=row.paciente_nombre||row.nombre||'';
   const notas=row.notas||'';
-  const estadoClass='badge-'+estado.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const estadoClass='badge-'+estado.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const d=parseFecha(fecha);
-  const dia=isNaN(d)?'—':d.getDate();
-  const mes=isNaN(d)?'—':d.toLocaleDateString('es-ES',{month:'short'}).replace('.','');
+  const dia=isNaN(d)?'-':d.getDate();
+  const mes=isNaN(d)?'':d.toLocaleDateString('es-ES',{month:'short'}).replace('.','');
   const hoy=new Date();hoy.setHours(0,0,0,0);
   const esHoy=fmtDate(d)===iso(hoy);
-  return `<div class="cita-card-pro${esHoy?' cita-hoy':''}">
-    ${esHoy?'<div class="hoy-ribbon">HOY</div>':''}
-    <div class="cita-card-fecha">
-      <div class="cita-dia-num">${dia}</div>
-      <div class="cita-mes-txt">${mes.toUpperCase()}</div>
-    </div>
-    <div class="cita-card-body">
-      <div class="cita-card-tipo">${tipo}</div>
-      <div class="cita-card-meta">
-        ${hora?`<span class="meta-chip">🕐 ${hora}</span>`:''}
-        ${nombre&&nombre!=='—'?`<span class="meta-chip">👤 ${nombre}</span>`:''}
-        ${notas?`<span class="meta-chip meta-chip-notes" title="${notas}">📝 ${notas.substring(0,30)}${notas.length>30?'…':''}</span>`:''}
-      </div>
-    </div>
-    <div class="cita-card-estado"><span class="estado-badge ${estadoClass}">${estado}</span></div>
-  </div>`;
+  const ribbonHtml=esHoy?'<div class="hoy-ribbon">HOY</div>':'';
+  const horaHtml=hora?'<span class="meta-chip">&#128336; '+hora+'</span>':'';
+  const nombreHtml=nombre?'<span class="meta-chip">&#128100; '+nombre+'</span>':'';
+  const notasHtml=notas?'<span class="meta-chip">&#128221; '+notas.substring(0,30)+(notas.length>30?'...':'')+'</span>':'';
+  return '<div class="cita-card-pro'+(esHoy?' cita-hoy':'')+'">'+
+    ribbonHtml+
+    '<div class="cita-card-fecha"><div class="cita-dia-num">'+dia+'</div><div class="cita-mes-txt">'+mes.toUpperCase()+'</div></div>'+
+    '<div class="cita-card-body"><div class="cita-card-tipo">'+tipo+'</div>'+
+    '<div class="cita-card-meta">'+horaHtml+nombreHtml+notasHtml+'</div></div>'+
+    '<div class="cita-card-estado"><span class="estado-badge '+estadoClass+'">'+estado+'</span></div>'+
+    '</div>';
 }
 
 function fmtCellPro(col,val){
-  if(val===null||val===undefined)return'<span class="cell-null">—</span>';
-  if(typeof val==='boolean')return val?'<span class="badge-confirmada">Sí</span>':`<span class="badge-cancelada">No</span>`;
+  if(val===null||val===undefined)return '<span class="cell-null">-</span>';
+  if(typeof val==='boolean')return val?'<span class="badge-confirmada">Si</span>':'<span class="badge-cancelada">No</span>';
   const v=String(val);
-  if(col.toLowerCase().includes('estado')){
-    const cls='badge-'+v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    return`<span class="estado-badge ${cls}">${v}</span>`;
+  const colL=col.toLowerCase();
+  if(colL.includes('estado')){
+    const cls='badge-'+v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    return '<span class="estado-badge '+cls+'">'+v+'</span>';
   }
-  if(col.toLowerCase().includes('email')&&v.includes('@'))return`<a href="mailto:${v}" style="color:var(--gold);text-decoration:none">${v}</a>`;
-  if(col.toLowerCase().includes('telefono')||col.toLowerCase().includes('phone'))return`<a href="tel:${v}" style="color:var(--text);text-decoration:none">📞 ${v}</a>`;
-  if(col.toLowerCase().includes('fecha')&&v.includes('T'))return`<span class="date-chip">${new Date(v).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</span>`;
-  if(col.toLowerCase().includes('fecha')&&v.length===10)return`<span class="date-chip">${v}</span>`;
-  return v.length>60?`<span title="${v}">${v.substring(0,60)}…</span>`:v;
+  if(colL.includes('email')&&v.includes('@'))return '<a href="mailto:'+v+'" style="color:var(--cyan);text-decoration:none">'+v+'</a>';
+  if(colL.includes('telefono')||colL.includes('phone'))return '<a href="tel:'+v+'" style="color:var(--text);text-decoration:none">&#9990; '+v+'</a>';
+  if(colL.includes('fecha')&&v.includes('T'))return '<span class="date-chip">'+new Date(v).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})+'</span>';
+  if(colL.includes('fecha')&&v.length===10)return '<span class="date-chip">'+v+'</span>';
+  if(v.length>60)return '<span title="'+v+'">'+v.substring(0,60)+'...</span>';
+  return v;
 }
 
 function exportCSV(data,title){
-  if(!data.length)return;
+  if(!data||!data.length)return;
   const cols=Object.keys(data[0]);
-  const csv=[cols.join(','),...data.map(r=>cols.map(c=>'"'+String(r[c]||'').replace(/"/g,'''')+'"').join(','))].join('\n');
+  const rows=[cols.join(',')];
+  data.forEach(function(r){
+    const row=cols.map(function(c){
+      const v=String(r[c]||'').replace(/"/g,'');
+      return '"'+v+'"';
+    });
+    rows.push(row.join(','));
+  });
+  const csv=rows.join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+csv);
   a.download=title+'_'+new Date().toISOString().split('T')[0]+'.csv';
   a.click();
 }
 
-let currentFilter={};
 
 async function loadHomeStats(){
   const statsEl=document.getElementById('home-stats');
