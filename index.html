@@ -6,6 +6,7 @@
 <title>Portal SCILA AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{
   --bg:#080c14;--bg2:#0d1220;--bg3:#121928;--card:#0f1622;
@@ -182,6 +183,21 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .pro-table-footer{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);background:rgba(255,255,255,.02);font-size:13px;color:var(--text3);flex-wrap:wrap;gap:8px}
 .export-btn{padding:6px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
 .export-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* CHARTS */
+.charts-section{margin-bottom:36px;animation:fadeUp .4s ease .35s both}
+.charts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.charts-title{font-size:14px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.chart-period-btns{display:flex;gap:6px}
+.cp-btn{padding:5px 14px;background:transparent;border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
+.cp-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.cp-btn.active{background:rgba(0,229,204,.08);border-color:var(--cyan);color:var(--cyan)}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.chart-card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.chart-card-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.chart-canvas-wrap{position:relative;height:200px}
+@media(max-width:768px){.charts-grid{grid-template-columns:1fr}.chart-canvas-wrap{height:180px}}
 
 /* ACTION BUTTONS */
 .btn-add-record{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-bottom:16px}
@@ -554,6 +570,32 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <div class="welcome-d" id="c-date"></div>
       </div>
       <div class="stats-grid" id="home-stats"></div>
+
+      <!-- CHARTS -->
+      <div class="charts-section">
+        <div class="charts-header">
+          <div class="charts-title">📊 Analítica</div>
+          <div class="chart-period-btns">
+            <button class="cp-btn active" onclick="setChartPeriod(7,this)">7 días</button>
+            <button class="cp-btn" onclick="setChartPeriod(30,this)">30 días</button>
+            <button class="cp-btn" onclick="setChartPeriod(90,this)">3 meses</button>
+            <button class="cp-btn" onclick="setChartPeriod(365,this)">1 año</button>
+          </div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-title">Citas por período</div>
+            <div class="chart-card-sub" id="chart-citas-sub">Últimos 7 días</div>
+            <div class="chart-canvas-wrap"><canvas id="chart-citas"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Clientes nuevos</div>
+            <div class="chart-card-sub" id="chart-clientes-sub">Últimos 7 días</div>
+            <div class="chart-canvas-wrap"><canvas id="chart-clientes"></canvas></div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-label">Acceso rápido</div>
       <div class="nav-buttons" id="home-nav-buttons"></div>
     </div>
@@ -867,6 +909,7 @@ async function initClient(user){
   buildDynamicPages();
   // Load home stats
   loadHomeStats();
+  loadCharts();
 }
 
 function buildClientNav(){
@@ -1459,6 +1502,137 @@ async function updateEstado(selectEl,tabla,id){
   // Refresh
   clienteSecciones.forEach((s,i)=>{
     if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
+  });
+}
+
+// ── CHARTS ──
+let chartCitas=null, chartClientes=null, chartPeriod=7;
+let allCitasData=[], allClientesData=[];
+
+function setChartPeriod(days,btn){
+  chartPeriod=days;
+  document.querySelectorAll('.cp-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const labels={7:'Últimos 7 días',30:'Últimos 30 días',90:'Últimos 3 meses',365:'Último año'};
+  document.getElementById('chart-citas-sub').textContent=labels[days]||'';
+  document.getElementById('chart-clientes-sub').textContent=labels[days]||'';
+  renderCharts();
+}
+
+async function loadCharts(){
+  const dbClient=window.clientSb||sb;
+  // Load citas
+  let qc=dbClient.from('citas').select('fecha_cita,estado');
+  if(clienteData?.telefono) qc=qc.eq('paciente_telefono',clienteData.telefono);
+  const{data:cData}=await qc;
+  allCitasData=cData||[];
+
+  // Load clientes
+  const{data:clData}=await dbClient.from('clientes').select('fecha_registro');
+  allClientesData=clData||[];
+
+  renderCharts();
+}
+
+function renderCharts(){
+  const days=chartPeriod;
+  const now=new Date();
+
+  // Generate date labels
+  let labels=[], fmt, groupFn;
+  if(days<=30){
+    // Daily
+    labels=Array.from({length:days},(_,i)=>{
+      const d=new Date(now);d.setDate(d.getDate()-(days-1-i));
+      return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'});
+    });
+    groupFn=(dateStr)=>{
+      const d=parseFecha(dateStr);
+      if(isNaN(d))return null;
+      return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'});
+    };
+  } else if(days<=90){
+    // Weekly
+    const weeks=Math.ceil(days/7);
+    labels=Array.from({length:weeks},(_,i)=>{
+      const d=new Date(now);d.setDate(d.getDate()-(weeks-1-i)*7);
+      return 'Sem '+d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'});
+    });
+    groupFn=(dateStr)=>{
+      const d=parseFecha(dateStr);
+      if(isNaN(d))return null;
+      const weeksDiff=Math.floor((now-d)/(7*24*60*60*1000));
+      const weekIdx=Math.ceil(days/7)-1-weeksDiff;
+      if(weekIdx<0||weekIdx>=labels.length)return null;
+      return labels[weekIdx];
+    };
+  } else {
+    // Monthly
+    labels=Array.from({length:12},(_,i)=>{
+      const d=new Date(now);d.setMonth(d.getMonth()-(11-i));
+      return d.toLocaleDateString('es-ES',{month:'short',year:'2-digit'});
+    });
+    groupFn=(dateStr)=>{
+      const d=parseFecha(dateStr);
+      if(isNaN(d))return null;
+      return d.toLocaleDateString('es-ES',{month:'short',year:'2-digit'});
+    };
+  }
+
+  // Count citas per label
+  const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-days);
+  const citasCounts=Object.fromEntries(labels.map(l=>[l,0]));
+  allCitasData.forEach(r=>{
+    const d=parseFecha(r.fecha_cita);
+    if(isNaN(d)||d<cutoff)return;
+    const key=groupFn(r.fecha_cita);
+    if(key&&citasCounts[key]!==undefined)citasCounts[key]++;
+  });
+
+  // Count clientes per label
+  const clientesCounts=Object.fromEntries(labels.map(l=>[l,0]));
+  allClientesData.forEach(r=>{
+    if(!r.fecha_registro)return;
+    const d=new Date(r.fecha_registro);
+    if(isNaN(d)||d<cutoff)return;
+    const key=groupFn(r.fecha_registro);
+    if(key&&clientesCounts[key]!==undefined)clientesCounts[key]++;
+  });
+
+  const chartDefaults={
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(10,15,26,.95)',titleColor:'#f0f4ff',bodyColor:'#7a8aaa',borderColor:'rgba(0,229,204,.2)',borderWidth:1,padding:10,cornerRadius:8}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#3a4560',font:{size:11},maxRotation:45}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#3a4560',font:{size:11},stepSize:1,precision:0},beginAtZero:true}
+    }
+  };
+
+  // Destroy old charts
+  if(chartCitas)chartCitas.destroy();
+  if(chartClientes)chartClientes.destroy();
+
+  const c1=document.getElementById('chart-citas');
+  const c2=document.getElementById('chart-clientes');
+  if(!c1||!c2)return;
+
+  chartCitas=new Chart(c1,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{data:labels.map(l=>citasCounts[l]),backgroundColor:'rgba(0,229,204,.25)',borderColor:'rgba(0,229,204,.8)',borderWidth:2,borderRadius:6,borderSkipped:false}]
+    },
+    options:chartDefaults
+  });
+
+  chartClientes=new Chart(c2,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{data:labels.map(l=>clientesCounts[l]),borderColor:'rgba(180,79,255,.9)',backgroundColor:'rgba(180,79,255,.08)',borderWidth:2.5,pointBackgroundColor:'rgba(180,79,255,.9)',pointRadius:4,pointHoverRadius:6,tension:.4,fill:true}]
+    },
+    options:chartDefaults
   });
 }
 
