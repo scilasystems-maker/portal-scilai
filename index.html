@@ -228,15 +228,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cal-labels{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)}
 .cal-day-label{text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:8px 0;text-transform:uppercase;letter-spacing:.8px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.cal-cell{min-height:90px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 5px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.cal-cell{min-height:130px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px 7px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
 .cal-cell:nth-child(7n){border-right:none}
 .cal-cell:hover{background:rgba(255,255,255,.03)}
 .cal-cell.today{background:rgba(0,229,204,.04)}
 .cal-cell.other-month{background:rgba(0,0,0,.15)}
 .cal-cell.other-month .cal-day-num{color:var(--text3);opacity:.4}
-.cal-day-num{font-size:12px;font-weight:600;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:3px;flex-shrink:0}
+.cal-day-num{font-size:13px;font-weight:700;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:5px;flex-shrink:0}
 .cal-cell.today .cal-day-num{background:var(--cyan);color:#050505;font-weight:800}
-.cal-event{font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-event{font-size:11px;font-weight:600;padding:3px 7px;border-radius:4px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-event.confirmada{background:rgba(0,229,176,.2);color:#00e5b0}
 .cal-event.pendiente{background:rgba(255,170,51,.18);color:#ffaa33}
 .cal-event.cancelada{background:rgba(255,77,106,.15);color:#ff4d6a;text-decoration:line-through;opacity:.7}
@@ -262,7 +262,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cal-popup-notas{font-size:12px;color:var(--text3);font-style:italic}
 .cal-popup-empty{text-align:center;padding:36px 20px;color:var(--text3)}
 .cal-popup-empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
-@media(max-width:768px){.cal-cell{min-height:60px}.cal-event{display:none}.cal-cell.has-events::after{content:'●';font-size:8px;color:var(--cyan);display:block;text-align:center}}
+@media(max-width:768px){.cal-cell{min-height:80px}.cal-event{display:none}.cal-cell.has-events::after{content:'●';font-size:8px;color:var(--cyan);display:block;text-align:center}}
 /* STATS ADVANCED */
 .stats-row-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
 .mini-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px}
