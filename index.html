@@ -193,10 +193,19 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .status-select{padding:5px 10px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;width:100%;outline:none;transition:border-color .2s}
 .status-select:focus{border-color:var(--cyan)}
 .status-select option{background:var(--bg3);color:var(--text)}
-.tbl-actions{display:flex;gap:6px}
+.tbl-actions{display:flex;gap:6px;flex-wrap:nowrap}
+.pro-table th:last-child,.pro-table td:last-child{position:sticky;right:0;background:var(--card);border-left:1px solid var(--border);min-width:140px}
 .btn-tbl{padding:4px 10px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .btn-tbl:hover{border-color:var(--cyan);color:var(--cyan)}
 .btn-tbl.danger:hover{border-color:var(--red);color:var(--red)}
+
+.record-cards-grid{display:flex;flex-direction:column;gap:10px}
+.rec-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;transition:border-color .2s,transform .15s}
+.rec-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.rec-card-body{flex:1;min-width:0}
+.rec-card-title{font-size:16px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.rec-card-sub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.rec-card-chips{display:flex;flex-wrap:wrap;gap:6px}
 
 /* EMPTY & LOADING */
 .loading{padding:48px;text-align:center;color:var(--text3);font-size:14px}
@@ -989,17 +998,9 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
   const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
 
     if(isCita){
-      // CARD LAYOUT for appointments
-      cont.innerHTML=addBtn+`<div class="cita-cards-grid">${filtered.map(row=>citaCard(row,cols)).join('')}</div>`;
+      cont.innerHTML=addBtn+'<div class="cita-cards-grid">'+filtered.map(row=>citaCard(row,cols)).join('')+'</div>';
     } else {
-      // PROFESSIONAL TABLE for other data
-      cont.innerHTML=addBtn+`<div class="pro-table-wrap">
-        <table class="pro-table">
-          <thead><tr>${cols.map(c=>`<th onclick="sortTable(${idx},'${c}')" style="cursor:pointer">${fmtCol(c)} <span class="sort-icon">↕</span></th>`).join('')}<th>Acciones</th></tr></thead>
-          <tbody>${filtered.map((row,i)=>`<tr style="animation-delay:${i*0.03}s">${cols.map(c=>`<td>${fmtCellPro(c,row[c])}</td>`).join('')}<td><div class="tbl-actions"><button class="btn-tbl" data-tabla="${sec.tabla}" data-id="${row.id||''}" onclick="openEditRecord(this.dataset.tabla,this.dataset.id)">&#9998; Editar</button><button class="btn-tbl danger" data-tabla="${sec.tabla}" data-id="${row.id||''}" onclick="deleteRecord(this.dataset.tabla,this.dataset.id)">&#10005; Eliminar</button></div></td></tr>`).join('')}</tbody>
-        </table>
-        <div class="pro-table-footer"><span>${filtered.length} registro${filtered.length!==1?'s':''}</span><button onclick="exportCSV(${JSON.stringify(filtered).replace(/"/g,'&quot;')},'${sec.titulo}')" class="export-btn">↓ Exportar CSV</button></div>
-      </div>`;
+      cont.innerHTML=addBtn+'<div class="record-cards-grid">'+filtered.map(function(row){return recordCard(row,cols,sec.tabla);}).join('')+'</div>';
     }
   }catch(e){cont.innerHTML=`<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Error</div><div class="pro-empty-sub">${e.message}</div></div>`}
 }
@@ -1046,6 +1047,34 @@ function citaCard(row,cols){
     '</div>'
   ].join('');
   return html;
+}
+
+function recordCard(row,cols,tabla){
+  const skipCols=['id','fecha_creacion','created_at','recordatorio_24h','recordatorio_1h'];
+  const visCols=cols.filter(c=>!skipCols.includes(c));
+  const rowId=row.id||'';
+  // First col as title, second as subtitle
+  const titleCol=visCols[0]||'';
+  const subCol=visCols[1]||'';
+  const title=row[titleCol]||'Sin nombre';
+  const sub=row[subCol]||'';
+  const rest=visCols.slice(2);
+  const chips=rest.filter(c=>row[c]).map(function(c){
+    return '<span class="meta-chip"><strong>'+fmtCol(c)+':</strong> '+fmtCellPro(c,row[c])+'</span>';
+  }).join('');
+  return [
+    '<div class="rec-card">',
+      '<div class="rec-card-body">',
+        '<div class="rec-card-title">'+title+'</div>',
+        sub?'<div class="rec-card-sub">'+fmtCellPro(subCol,sub)+'</div>':'',
+        chips?'<div class="rec-card-chips">'+chips+'</div>':'',
+      '</div>',
+      '<div class="card-actions">',
+        '<button class="btn-card-action" data-tabla="'+tabla+'" data-id="'+rowId+'" onclick="openEditRecord(this.dataset.tabla,this.dataset.id)">&#9998; Editar</button>',
+        '<button class="btn-card-action danger" data-tabla="'+tabla+'" data-id="'+rowId+'" onclick="deleteRecord(this.dataset.tabla,this.dataset.id)">&#10005; Eliminar</button>',
+      '</div>',
+    '</div>'
+  ].join('');
 }
 
 function fmtCellPro(col,val){
