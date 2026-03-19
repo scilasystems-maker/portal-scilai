@@ -184,6 +184,70 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .export-btn{padding:6px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
 .export-btn:hover{border-color:var(--cyan);color:var(--cyan)}
 
+/* ALERT BANNER */
+.alert-banner{background:linear-gradient(135deg,rgba(0,229,204,.1),rgba(180,79,255,.1));border:1px solid rgba(0,229,204,.25);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;animation:fadeUp .3s ease both}
+.alert-banner-icon{font-size:24px;flex-shrink:0}
+.alert-banner-text{flex:1}
+.alert-banner-title{font-size:14px;font-weight:700;color:var(--cyan);margin-bottom:2px}
+.alert-banner-sub{font-size:13px;color:var(--text2)}
+.alert-banner-close{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
+.alert-banner-close:hover{color:var(--text)}
+
+/* NOTIFICATION BADGE */
+.notif-dot{width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block;margin-left:4px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.2)}}
+
+/* PROFILE PAGE */
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;max-width:600px;margin-bottom:20px}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px;font-weight:700;color:#fff}
+.profile-name{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:4px}
+.profile-empresa{font-size:14px;color:var(--cyan);font-weight:600;margin-bottom:20px}
+
+/* ACTIVITY LOG */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.activity-dot.green{background:var(--green)}
+.activity-dot.red{background:var(--red)}
+.activity-dot.cyan{background:var(--cyan)}
+.activity-dot.amber{background:var(--amber)}
+.activity-text{font-size:14px;color:var(--text2);flex:1}
+.activity-text strong{color:var(--text)}
+.activity-time{font-size:12px;color:var(--text3);white-space:nowrap}
+
+/* CALENDAR */
+.cal-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:20px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-title{font-size:16px;font-weight:700}
+.cal-nav{display:flex;gap:8px}
+.cal-nav-btn{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cal-nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-label{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:6px 0;text-transform:uppercase;letter-spacing:.5px}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;position:relative;padding:4px}
+.cal-day:hover{background:rgba(255,255,255,.05)}
+.cal-day.today{background:rgba(0,229,204,.1);color:var(--cyan);font-weight:700;border:1px solid rgba(0,229,204,.3)}
+.cal-day.has-cita::after{content:'';position:absolute;bottom:4px;width:5px;height:5px;background:var(--cyan);border-radius:50%}
+.cal-day.other-month{color:var(--text3)}
+.cal-day.selected{background:rgba(0,229,204,.15);border:1px solid var(--cyan)}
+
+/* STATS ADVANCED */
+.stats-row-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px}
+.mini-stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:6px}
+.mini-stat-val{font-size:24px;font-weight:700;font-family:'DM Serif Display',serif}
+.mini-stat-change{font-size:12px;margin-top:2px}
+.mini-stat-change.up{color:var(--green)}
+.mini-stat-change.down{color:var(--red)}
+
+/* ADMIN SEARCH */
+.admin-search-wrap{margin-bottom:20px}
+.admin-search{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 16px;max-width:400px;transition:border-color .2s}
+.admin-search:focus-within{border-color:var(--cyan)}
+.admin-search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:14px}
+.admin-search input::placeholder{color:var(--text3)}
+
 /* CHARTS */
 .charts-section{margin-bottom:36px;animation:fadeUp .4s ease .35s both}
 .charts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
@@ -393,7 +457,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <button class="a-tab" onclick="switchAdminTab('nuevo',this)">➕ Nuevo cliente</button>
       <button class="a-tab" id="tab-msg-btn" onclick="switchAdminTab('mensajes',this)">💬 Mensajes <span id="msg-count" style="display:none;background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px">0</span></button>
     </div>
-    <div id="tab-clientes"><div id="clients-grid" class="clients-grid"><div class="loading"><div class="spin"></div>Cargando...</div></div></div>
+    <div id="tab-clientes">
+      <div class="admin-search-wrap">
+        <div class="admin-search">
+          <span style="color:var(--text3)">🔍</span>
+          <input type="text" id="admin-search-input" placeholder="Buscar cliente por nombre, email, empresa..." oninput="filterClients(this.value)">
+        </div>
+      </div>
+      <div id="clients-grid" class="clients-grid"><div class="loading"><div class="spin"></div>Cargando...</div></div>
+    </div>
     <div id="tab-nuevo" style="display:none">
       <div class="form-card">
         <div class="form-title">Crear nuevo cliente</div>
@@ -563,6 +635,16 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
   <nav class="client-nav" id="client-nav"></nav>
   <main class="main">
+    <!-- Realtime notification banner -->
+    <div class="alert-banner" id="alert-banner" style="display:none">
+      <div class="alert-banner-icon">🔔</div>
+      <div class="alert-banner-text">
+        <div class="alert-banner-title" id="alert-title">Nueva notificación</div>
+        <div class="alert-banner-sub" id="alert-sub"></div>
+      </div>
+      <button class="alert-banner-close" onclick="closeAlert()">✕</button>
+    </div>
+
     <div class="client-page active" id="page-home">
       <div class="welcome">
         <div class="welcome-greeting" id="c-greeting">Portal de cliente</div>
@@ -570,6 +652,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <div class="welcome-d" id="c-date"></div>
       </div>
       <div class="stats-grid" id="home-stats"></div>
+      <div class="stats-row-2" id="home-stats-2"></div>
 
       <!-- CHARTS -->
       <div class="charts-section">
@@ -598,8 +681,57 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
       <div class="section-label">Acceso rápido</div>
       <div class="nav-buttons" id="home-nav-buttons"></div>
+      <div id="alert-citas-prox" style="margin-bottom:16px"></div>
     </div>
     <div id="dynamic-pages"></div>
+
+    <!-- PROFILE PAGE -->
+    <div class="client-page" id="page-profile">
+      <div class="page-header">
+        <div class="back-btn" onclick="goHome()">←</div>
+        <div class="page-title-wrap">
+          <div class="page-title">Mi perfil</div>
+          <div class="page-subtitle">Gestiona tus datos personales</div>
+        </div>
+      </div>
+      <div id="profile-content"></div>
+    </div>
+
+    <!-- ACTIVITY PAGE -->
+    <div class="client-page" id="page-activity">
+      <div class="page-header">
+        <div class="back-btn" onclick="goHome()">←</div>
+        <div class="page-title-wrap">
+          <div class="page-title">Historial de actividad</div>
+          <div class="page-subtitle">Últimas acciones en tu portal</div>
+        </div>
+      </div>
+      <div class="profile-card" id="activity-content">
+        <div class="loading"><div class="spin"></div>Cargando...</div>
+      </div>
+    </div>
+
+    <!-- CALENDAR PAGE -->
+    <div class="client-page" id="page-calendar">
+      <div class="page-header">
+        <div class="back-btn" onclick="goHome()">←</div>
+        <div class="page-title-wrap">
+          <div class="page-title">Calendario</div>
+          <div class="page-subtitle">Vista mensual de tus citas</div>
+        </div>
+      </div>
+      <div class="cal-wrap">
+        <div class="cal-header">
+          <div class="cal-title" id="cal-month-title">Marzo 2026</div>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+            <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div id="cal-day-citas" style="margin-top:8px"></div>
+    </div>
   </main>
 </div>
 
@@ -910,12 +1042,23 @@ async function initClient(user){
   // Load home stats
   loadHomeStats();
   loadCharts();
+  loadAdvancedStats();
+  setupRealtime();
 }
 
 function buildClientNav(){
   const nav=document.getElementById('client-nav');
-  nav.innerHTML=`<button class="nav-tab active" onclick="showClientPage('home',this)">🏠 Inicio</button>`+
-    clienteSecciones.map((s,i)=>`<button class="nav-tab" onclick="showClientPage('sec-${i}',this)">${s.titulo}</button>`).join('');
+  nav.innerHTML=
+    `<button class="nav-tab active" onclick="showClientPage('home',this)">🏠 Inicio</button>`+
+    clienteSecciones.map((s,i)=>`<button class="nav-tab" onclick="showClientPage('sec-${i}',this)">${s.titulo}</button>`).join('')+
+    `<button class="nav-tab" onclick="showCalendar();setActiveNav(this)">📅 Calendario</button>`+
+    `<button class="nav-tab" onclick="showProfile();setActiveNav(this)">👤 Perfil</button>`+
+    `<button class="nav-tab" onclick="showActivity();setActiveNav(this)">📋 Actividad</button>`;
+}
+
+function setActiveNav(btn){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
 }
 
 function showClientPage(id,btn){
@@ -1505,6 +1648,261 @@ async function updateEstado(selectEl,tabla,id){
   });
 }
 
+// ── REALTIME NOTIFICATIONS ──
+let realtimeChannel=null;
+function setupRealtime(){
+  if(!currentUser)return;
+  realtimeChannel=sb.channel('portal-changes')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'citas'},payload=>{
+      const row=payload.new;
+      if(row.paciente_telefono===clienteData?.telefono){
+        showAlert('🔔 Cita actualizada','Tu cita del '+row.fecha_cita+' ha sido modificada: '+row.estado);
+        loadHomeStats();loadCharts();
+      }
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mensajes'},payload=>{
+      const row=payload.new;
+      if(row.de==='admin'&&row.email_cliente===currentUser.email){
+        showAlert('💬 Nuevo mensaje','Tienes un mensaje de soporte. Pulsa el botón de chat para verlo.');
+        document.getElementById('help-dot').style.display='block';
+      }
+    })
+    .subscribe();
+}
+
+function showAlert(title,sub){
+  document.getElementById('alert-title').textContent=title;
+  document.getElementById('alert-sub').textContent=sub;
+  const banner=document.getElementById('alert-banner');
+  banner.style.display='flex';
+  banner.style.animation='none';
+  setTimeout(()=>banner.style.animation='fadeUp .3s ease both',10);
+}
+function closeAlert(){document.getElementById('alert-banner').style.display='none';}
+
+// ── PROFILE PAGE ──
+function showProfile(){
+  showClientPage('profile',null);
+  renderProfile();
+}
+
+function renderProfile(){
+  const el=document.getElementById('profile-content');
+  if(!clienteData){el.innerHTML='<p style="color:var(--text2)">No se encontraron datos de perfil.</p>';return}
+  const initials=(clienteData.nombre||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  el.innerHTML=`
+    <div class="profile-card">
+      <div class="profile-avatar">${initials}</div>
+      <div class="profile-name">${clienteData.nombre||'Sin nombre'}</div>
+      <div class="profile-empresa">${clienteData.empresa||''}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        ${profileField('Teléfono','telefono',clienteData.telefono||'')}
+        ${profileField('Email','email',clienteData.email||'')}
+        ${profileField('Empresa','empresa',clienteData.empresa||'')}
+        ${profileField('Sector','sector',clienteData.sector||'')}
+      </div>
+      <div style="margin-bottom:16px">${profileField('Notas','notas',clienteData.notas||'','full')}</div>
+      <button class="btn-add-record" onclick="saveProfile()" style="width:auto">Guardar cambios</button>
+      <div id="profile-ok" style="display:none;margin-top:10px;font-size:13px;color:var(--green)">✓ Perfil actualizado</div>
+    </div>`;
+}
+
+function profileField(label,col,val,size){
+  return `<div style="${size==='full'?'grid-column:1/-1':''}">
+    <label class="lbl" style="margin-bottom:6px">${label}</label>
+    <input class="inp" id="pf-${col}" value="${val}" style="margin-bottom:0" ${col==='email'?'disabled style="opacity:.5;margin-bottom:0"':''}>
+  </div>`;
+}
+
+async function saveProfile(){
+  const dbClient=window.clientSb||sb;
+  const data={
+    nombre:document.getElementById('pf-nombre')?.value||clienteData.nombre,
+    telefono:document.getElementById('pf-telefono')?.value||clienteData.telefono,
+    empresa:document.getElementById('pf-empresa')?.value||clienteData.empresa,
+    sector:document.getElementById('pf-sector')?.value||clienteData.sector,
+    notas:document.getElementById('pf-notas')?.value||clienteData.notas,
+  };
+  const{error}=await dbClient.from('clientes').update(data).eq('email',currentUser.email.toLowerCase());
+  if(error){alert('Error: '+error.message);return}
+  Object.assign(clienteData,data);
+  document.getElementById('profile-ok').style.display='block';
+  setTimeout(()=>document.getElementById('profile-ok').style.display='none',3000);
+}
+
+// ── ACTIVITY LOG ──
+function showActivity(){
+  showClientPage('activity',null);
+  renderActivity();
+}
+
+function renderActivity(){
+  const el=document.getElementById('activity-content');
+  // Combine citas and clientes into activity log
+  const items=[];
+  (allCitasData||[]).forEach(r=>{
+    const d=parseFecha(r.fecha_cita);
+    const color=r.estado==='Confirmada'?'cyan':r.estado==='Cancelada'?'red':r.estado==='Completada'?'green':'amber';
+    items.push({time:d,color,text:`Cita <strong>${r.tipo_cita||'sin tipo'}</strong> — ${r.estado} el ${r.fecha_cita} a las ${r.hora_cita||'—'}`});
+  });
+  items.sort((a,b)=>b.time-a.time);
+  if(!items.length){el.innerHTML='<div style="color:var(--text2);font-size:14px">No hay actividad reciente.</div>';return}
+  el.innerHTML='<div class="activity-list">'+items.slice(0,30).map(i=>`
+    <div class="activity-item">
+      <div class="activity-dot ${i.color}"></div>
+      <div class="activity-text">${i.text}</div>
+      <div class="activity-time">${isNaN(i.time)?'':i.time.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</div>
+    </div>`).join('')+'</div>';
+}
+
+// ── CALENDAR ──
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+function showCalendar(){
+  showClientPage('calendar',null);
+  renderCalendar();
+}
+
+function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+function renderCalendar(){
+  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-month-title').textContent=monthNames[calMonth]+' '+calYear;
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+  const hoy=iso(today);
+
+  // Get citas for this month
+  const citasDates={};
+  (allCitasData||[]).forEach(r=>{
+    const d=parseFecha(r.fecha_cita);
+    if(!isNaN(d)&&d.getMonth()===calMonth&&d.getFullYear()===calYear){
+      const k=iso(d);
+      if(!citasDates[k])citasDates[k]=[];
+      citasDates[k].push(r);
+    }
+  });
+
+  const dayLabels=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+  let html=dayLabels.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+
+  const startOffset=(firstDay+6)%7;
+  // Prev month days
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  for(let i=startOffset-1;i>=0;i--) html+=`<div class="cal-day other-month">${prevDays-i}</div>`;
+  // Current month
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=calYear+'-'+(String(calMonth+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
+    const isToday=dateStr===hoy;
+    const hasCita=citasDates[dateStr]?.length>0;
+    const count=citasDates[dateStr]?.length||0;
+    html+=`<div class="cal-day${isToday?' today':''}${hasCita?' has-cita':''}" onclick="showCalDay('${dateStr}',${count})" title="${count>0?count+' cita(s)':''}">${d}${count>0?'<span style="font-size:9px;color:var(--cyan);display:block;line-height:1">'+count+'</span>':''}</div>`;
+  }
+  // Next month days
+  const totalCells=Math.ceil((startOffset+daysInMonth)/7)*7;
+  for(let d=1;d<=totalCells-startOffset-daysInMonth;d++) html+=`<div class="cal-day other-month">${d}</div>`;
+
+  document.getElementById('cal-grid').innerHTML=html;
+  document.getElementById('cal-day-citas').innerHTML='';
+}
+
+function showCalDay(dateStr,count){
+  if(!count)return;
+  const citas=(allCitasData||[]).filter(r=>fmtDate(parseFecha(r.fecha_cita))===dateStr);
+  const el=document.getElementById('cal-day-citas');
+  el.innerHTML=`<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Citas del ${dateStr}</div>`+
+    '<div class="cita-cards-grid">'+citas.map(r=>citaCard(r,Object.keys(r))).join('')+'</div>';
+}
+
+// ── ADVANCED STATS ──
+async function loadAdvancedStats(){
+  const dbClient=window.clientSb||sb;
+  let qCitas=dbClient.from('citas').select('estado,fecha_cita');
+  if(clienteData?.telefono) qCitas=qCitas.eq('paciente_telefono',clienteData.telefono);
+  const{data:citas}=await qCitas;
+  const all=citas||[];
+  const total=all.length;
+  const canceladas=all.filter(c=>c.estado==='Cancelada').length;
+  const completadas=all.filter(c=>c.estado==='Completada').length;
+  const tasaCancelacion=total>0?Math.round(canceladas/total*100):0;
+  const tasaExito=total>0?Math.round(completadas/total*100):0;
+
+  // This month
+  const hoy=new Date();
+  const mesActual=all.filter(c=>{const d=parseFecha(c.fecha_cita);return d.getMonth()===hoy.getMonth()&&d.getFullYear()===hoy.getFullYear();}).length;
+  const mesAnterior=all.filter(c=>{const d=parseFecha(c.fecha_cita);const prev=new Date(hoy.getFullYear(),hoy.getMonth()-1);return d.getMonth()===prev.getMonth()&&d.getFullYear()===prev.getFullYear();}).length;
+  const cambio=mesAnterior>0?Math.round((mesActual-mesAnterior)/mesAnterior*100):0;
+
+  const el=document.getElementById('home-stats-2');
+  if(!el)return;
+  el.innerHTML=[
+    miniStat('Total citas',total,'Histórico completo',''),
+    miniStat('Este mes',mesActual,cambio>=0?'↑ '+Math.abs(cambio)+'% vs mes anterior':'↓ '+Math.abs(cambio)+'% vs mes anterior',cambio>=0?'up':'down'),
+    miniStat('Tasa de éxito',tasaExito+'%',completadas+' completadas','up'),
+    miniStat('Cancelaciones',tasaCancelacion+'%',canceladas+' canceladas',canceladas>0?'down':''),
+  ].join('');
+
+  // Upcoming 24h alert
+  const manana=new Date();manana.setDate(manana.getDate()+1);
+  const mananaStr=iso(manana);
+  const hoyStr=iso(hoy);
+  const proximas=all.filter(c=>{
+    const f=fmtDate(parseFecha(c.fecha_cita));
+    return (f===hoyStr||f===mananaStr)&&c.estado!=='Cancelada';
+  });
+  const alertEl=document.getElementById('alert-citas-prox');
+  if(alertEl&&proximas.length>0){
+    alertEl.innerHTML=`<div class="alert-banner">
+      <div class="alert-banner-icon">⏰</div>
+      <div class="alert-banner-text">
+        <div class="alert-banner-title">Tienes ${proximas.length} cita${proximas.length>1?'s':''} hoy o mañana</div>
+        <div class="alert-banner-sub">${proximas.map(c=>c.tipo_cita+' — '+c.fecha_cita+(c.hora_cita?' a las '+c.hora_cita:'')).join(' · ')}</div>
+      </div>
+    </div>`;
+  }
+}
+
+function miniStat(lbl,val,change,dir){
+  return `<div class="mini-stat"><div class="mini-stat-lbl">${lbl}</div><div class="mini-stat-val">${val}</div>${change?`<div class="mini-stat-change ${dir}">${change}</div>`:''}</div>`;
+}
+
+// ── ADMIN SEARCH ──
+let allClientsData=[];
+async function loadClients(){
+  const{data}=await sb.from('portal_clientes').select('*').order('created_at',{ascending:false});
+  allClientsData=data||[];
+  renderClientsGrid(allClientsData);
+}
+
+function filterClients(q){
+  if(!q.trim()){renderClientsGrid(allClientsData);return;}
+  const ql=q.toLowerCase();
+  const filtered=allClientsData.filter(c=>
+    (c.nombre||'').toLowerCase().includes(ql)||
+    (c.email||'').toLowerCase().includes(ql)||
+    (c.empresa||'').toLowerCase().includes(ql)
+  );
+  renderClientsGrid(filtered);
+}
+
+function renderClientsGrid(data){
+  const grid=document.getElementById('clients-grid');
+  if(!data?.length){grid.innerHTML=`<div style="color:var(--text2);font-size:14px">No se encontraron clientes.</div>`;return}
+  grid.innerHTML=data.map(c=>`
+    <div class="client-card">
+      ${c.empresa?`<div class="cc-empresa">${c.empresa}</div>`:''}
+      <div class="cc-name">${c.nombre||'Sin nombre'}</div>
+      <div class="cc-email">${c.email}</div>
+      <div class="cc-tags">${(c.config?.secciones||[]).map(s=>`<span class="cc-tag">📋 ${s.titulo}</span>`).join('')||'<span class="cc-tag" style="color:var(--text3)">Sin secciones</span>'}</div>
+      <div class="cc-actions">
+        <button class="btn-action" onclick="openConfig('${c.id}','${esc(c.empresa||c.nombre||'')}')">⚙ Portal</button>
+        <button class="btn-action" onclick="openEdit('${c.id}','${esc(c.empresa||'')}','${esc(c.nombre||'')}','${esc(c.email||'')}','${esc(c.supabase_url||'')}','${esc(c.supabase_key||'')}')">✏ Editar</button>
+        <button class="btn-action" onclick="openPass('${esc(c.email||'')}')">🔑</button>
+        <button class="btn-action danger" onclick="deleteClient('${c.id}','${esc(c.email||'')}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
 // ── CHARTS ──
 let chartCitas=null, chartClientes=null, chartPeriod=7;
 let allCitasData=[], allClientesData=[];
@@ -1526,6 +1924,11 @@ async function loadCharts(){
   if(clienteData?.telefono) qc=qc.eq('paciente_telefono',clienteData.telefono);
   const{data:cData}=await qc;
   allCitasData=cData||[];
+  // Also load all fields for calendar/activity
+  let qcFull=dbClient.from('citas').select('*');
+  if(clienteData?.telefono) qcFull=qcFull.eq('paciente_telefono',clienteData.telefono);
+  const{data:cFull}=await qcFull;
+  allCitasData=cFull||[];
 
   // Load clientes
   const{data:clData}=await dbClient.from('clientes').select('fecha_registro');
@@ -1678,7 +2081,10 @@ function updateMobileNav(){
   const navItems=document.getElementById('mobile-nav-items');
   if(!navItems) return;
   navItems.innerHTML=`<button class="mobile-menu-item" onclick="showClientPage('home',document.querySelector('.nav-tab'));closeMobileMenus()">🏠 Inicio</button>`+
-    clienteSecciones.map((s,i)=>`<button class="mobile-menu-item" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}]);closeMobileMenus()">${s.titulo}</button>`).join('');
+    clienteSecciones.map((s,i)=>`<button class="mobile-menu-item" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}]);closeMobileMenus()">${s.titulo}</button>`).join('')+
+    `<button class="mobile-menu-item" onclick="showCalendar();closeMobileMenus()">📅 Calendario</button>`+
+    `<button class="mobile-menu-item" onclick="showProfile();closeMobileMenus()">👤 Mi perfil</button>`+
+    `<button class="mobile-menu-item" onclick="showActivity();closeMobileMenus()">📋 Actividad</button>`;
 }
 
 // ── INIT ──
