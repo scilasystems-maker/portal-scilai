@@ -179,7 +179,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .pro-table tbody tr:hover{background:rgba(255,255,255,.025)}
 .cell-null{color:var(--text3)}
 .date-chip{font-size:13px;color:var(--text2);white-space:nowrap}
-.pro-table-footer{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);background:rgba(255,255,255,.02);font-size:13px;color:var(--text3)}
+.pro-table-footer{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);background:rgba(255,255,255,.02);font-size:13px;color:var(--text3);flex-wrap:wrap;gap:8px}
 .export-btn{padding:6px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
 .export-btn:hover{border-color:var(--cyan);color:var(--cyan)}
 
@@ -996,7 +996,7 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
       cont.innerHTML=addBtn+`<div class="pro-table-wrap">
         <table class="pro-table">
           <thead><tr>${cols.map(c=>`<th onclick="sortTable(${idx},'${c}')" style="cursor:pointer">${fmtCol(c)} <span class="sort-icon">↕</span></th>`).join('')}<th>Acciones</th></tr></thead>
-          <tbody>${filtered.map((row,i)=>`<tr style="animation-delay:${i*0.03}s">${cols.map(c=>`<td>${fmtCellPro(c,row[c])}</td>`).join('')}<td><div class="tbl-actions"><button class="btn-tbl" onclick="openEditRecord('${sec.tabla}','${row.id}')">✏</button><button class="btn-tbl danger" onclick="deleteRecord('${sec.tabla}','${row.id}')">✕</button></div></td></tr>`).join('')}</tbody>
+          <tbody>${filtered.map((row,i)=>`<tr style="animation-delay:${i*0.03}s">${cols.map(c=>`<td>${fmtCellPro(c,row[c])}</td>`).join('')}<td><div class="tbl-actions"><button class="btn-tbl" data-tabla="${sec.tabla}" data-id="${row.id||''}" onclick="openEditRecord(this.dataset.tabla,this.dataset.id)">&#9998; Editar</button><button class="btn-tbl danger" data-tabla="${sec.tabla}" data-id="${row.id||''}" onclick="deleteRecord(this.dataset.tabla,this.dataset.id)">&#10005; Eliminar</button></div></td></tr>`).join('')}</tbody>
         </table>
         <div class="pro-table-footer"><span>${filtered.length} registro${filtered.length!==1?'s':''}</span><button onclick="exportCSV(${JSON.stringify(filtered).replace(/"/g,'&quot;')},'${sec.titulo}')" class="export-btn">↓ Exportar CSV</button></div>
       </div>`;
