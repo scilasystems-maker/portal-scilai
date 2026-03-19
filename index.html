@@ -93,6 +93,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .stat-card::after{content:'';position:absolute;inset:0;background:var(--gradient2);opacity:0;transition:opacity .25s}
 .stat-card:hover::after{opacity:1}
 .stat-card-wide{grid-column:span 2!important}
+.btn-ver-todas{background:transparent;border:none;color:var(--cyan);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;padding:8px 16px;border-radius:8px;transition:background .2s}
+.btn-ver-todas:hover{background:rgba(0,229,204,.08)}
 @media(max-width:600px){.stat-card-wide{grid-column:span 1!important}}
 .stat-card-inner{position:relative;z-index:1}
 .stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
@@ -1307,7 +1309,6 @@ async function loadHomeStats(){
   const colors=['cyan','purple','blue','green'];
   const icons=['📋','👥','📦','📊'];
 
-  // Stats per section
   let statsHTML='';
   let navHTML='';
 
@@ -1315,6 +1316,8 @@ async function loadHomeStats(){
     const s=clienteSecciones[i];
     const color=colors[i%colors.length];
     const icon=icons[i%icons.length];
+    const iwClass=color==='purple'?'purple':color==='blue'?'blue':color==='green'?'green':'';
+    const nbiClass='nbi-'+color;
 
     try{
       const dbClient=window.clientSb||sb;
@@ -1326,612 +1329,100 @@ async function loadHomeStats(){
       const{data:rows}=await q;
       const all=rows||[];
 
-      // Check if date-based
-      // Only show "hoy" stats for appointment-type tables
-      const isCitaTable=s.tabla.toLowerCase().includes('cita')||s.titulo.toLowerCase().includes('cita')||s.titulo.toLowerCase().includes('reuni')||s.titulo.toLowerCase().includes('appointment');
-      const fechaCol=isCitaTable?(s.columnas.find(c=>c.includes('fecha_cita')||c==='fecha')||null):null;
+      const isCitaSec=s.tabla.includes('cita')||s.titulo.toLowerCase().includes('cita')||s.titulo.toLowerCase().includes('reuni');
+      const fechaCol=isCitaSec?(s.columnas.find(c=>c.includes('fecha_cita')||c==='fecha')||null):null;
       const hoy=new Date();hoy.setHours(0,0,0,0);
       const hoyStr=iso(hoy);
-      const hoyCount=fechaCol?all.filter(r=>fmtDate(r[fechaCol])===hoyStr).length:null;
-      const proxCount=fechaCol?all.filter(r=>parseFecha(r[fechaCol])>=hoy).length:null;
-
-      const mainVal=hoyCount!==null?hoyCount:all.length;
-      const iwClass=colors[i%colors.length]==='purple'?'purple':colors[i%colors.length]==='blue'?'blue':colors[i%colors.length]==='green'?'green':'';
-      const isCitaSec=hoyCount!==null;
+      const hoyCount=fechaCol?all.filter(r=>fmtDate(parseFecha(r[fechaCol]))===hoyStr).length:null;
+      const proxCount=fechaCol?all.filter(r=>{const f=parseFecha(r[fechaCol]);return f>=hoy&&r.estado!=='Cancelada';}).length:null;
 
       if(isCitaSec){
-        const hoyStr2=iso(new Date());
-        const citasHoy=(allCitasData||[]).filter(function(c){return fmtDate(parseFecha(c.fecha_cita))===hoyStr2&&c.estado!=='Cancelada';});
-        const allSorted=(allCitasData||[]).filter(function(c){const d=parseFecha(c.fecha_cita);const h=new Date();h.setHours(0,0,0,0);return d>=h&&c.estado!=='Cancelada';}).sort(function(a,b){return parseFecha(a.fecha_cita)-parseFecha(b.fecha_cita);});
-        const nextCita=allSorted[0];
-        const citaRows=citasHoy.slice(0,3).map(function(c){
+        // Get next 3 upcoming from NOW (not just today)
+        const now=new Date();
+        const proximas=all.filter(function(c){
+          const d=parseFecha(c.fecha_cita||c.fecha||'');
+          return d>=hoy&&(c.estado==='Confirmada'||c.estado==='Pendiente');
+        }).sort(function(a,b){
+          const da=parseFecha(a.fecha_cita||a.fecha||'');
+          const db=parseFecha(b.fecha_cita||b.fecha||'');
+          if(da.getTime()===db.getTime()){
+            const ha=(a.hora_cita||'00:00').replace(':','');
+            const hb=(b.hora_cita||'00:00').replace(':','');
+            return parseInt(ha)-parseInt(hb);
+          }
+          return da-db;
+        }).slice(0,3);
+
+        const citaRows=proximas.map(function(c){
+          const d=parseFecha(c.fecha_cita||c.fecha||'');
+          const isToday=fmtDate(d)===hoyStr;
+          const fechaLabel=isToday?'HOY':d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'});
           const cls='badge-'+(c.estado||'pendiente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-          return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border)">'+
-            '<span style="font-size:13px;font-weight:700;color:var(--cyan);min-width:44px">'+(c.hora_cita||'--:--')+'</span>'+
-            '<span style="font-size:14px;font-weight:600;flex:1">'+(c.tipo_cita||'Cita')+'</span>'+
-            '<span class="estado-badge '+cls+'" style="font-size:11px">'+(c.estado||'Pendiente')+'</span>'+
-            '</div>';
+          const nombre=c.paciente_nombre||c.nombre||'';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border);transition:background .15s">'+
+            '<div style="text-align:center;min-width:44px">'+
+              '<div style="font-size:10px;font-weight:700;color:'+(isToday?'var(--cyan)':'var(--text3)')+';letter-spacing:.5px">'+fechaLabel+'</div>'+
+              (c.hora_cita?'<div style="font-size:13px;font-weight:700;color:var(--text)">'+c.hora_cita+'</div>':'')+'</div>'+
+            '<div style="flex:1;min-width:0">'+
+              '<div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(nombre||c.tipo_cita||'Cita')+'</div>'+
+              (nombre?'<div style="font-size:12px;color:var(--text2)">'+( c.tipo_cita||'')+'</div>':'')+'</div>'+
+            '<span class="estado-badge '+cls+'" style="font-size:11px;white-space:nowrap">'+(c.estado||'Pendiente')+'</span>'+
+          '</div>';
         }).join('');
-        const moreRow=citasHoy.length>3?'<div style="font-size:12px;color:var(--text3);text-align:center;padding:4px">+'+( citasHoy.length-3)+' más</div>':'';
-        const emptyRow='<div style="padding:14px;background:rgba(255,255,255,.03);border-radius:10px;text-align:center;color:var(--text3);font-size:13px">Sin citas para hoy'+(nextCita?' · Próxima: '+nextCita.fecha_cita+(nextCita.hora_cita?' '+nextCita.hora_cita:''):'')+' </div>';
-        statsHTML+='<div class="stat-card stat-card-wide" style="animation-delay:'+i*0.08+'s" onclick="showClientPage(\'sec-'+i+'\',document.querySelectorAll(\'.nav-tab\')['+( i+1)+'])">'+
+
+        const emptyRow=proximas.length===0?'<div style="padding:16px;text-align:center;color:var(--text3);font-size:13px">No hay citas próximas</div>':'';
+        const verTodasBtn='<div style="margin-top:12px;text-align:center"><button class="btn-ver-todas" data-i="'+i+'" onclick="_showSec(this.dataset.i)">Ver todas &#8594;</button></div>';
+
+        statsHTML+='<div class="stat-card stat-card-wide" style="animation-delay:'+i*0.08+'s">'+
           '<div class="stat-card-inner">'+
-            '<div class="stat-top">'+
+            '<div class="stat-top" style="margin-bottom:14px">'+
               '<div style="display:flex;align-items:center;gap:12px">'+
-                '<div class="stat-icon-wrap '+iwClass+'" style="width:52px;height:52px;font-size:22px">'+icon+'</div>'+
+                '<div class="stat-icon-wrap '+iwClass+'" style="width:48px;height:48px;font-size:20px">'+icon+'</div>'+
                 '<div>'+
-                  '<div class="stat-lbl">'+s.titulo+' de hoy</div>'+
-                  '<div class="stat-num" style="font-size:38px;line-height:1">'+hoyCount+'</div>'+
-                  '<div class="stat-desc">'+proxCount+' próximas · '+all.length+' total</div>'+
+                  '<div class="stat-lbl">'+s.titulo+'</div>'+
+                  '<div style="display:flex;align-items:baseline;gap:8px">'+
+                    '<div class="stat-num" style="font-size:36px;line-height:1">'+( hoyCount||0)+'</div>'+
+                    '<div style="font-size:13px;color:var(--text2)">hoy · <span style="color:var(--cyan)">'+( proxCount||0)+'</span> próximas</div>'+
+                  '</div>'+
                 '</div>'+
               '</div>'+
-              '<span class="stat-arrow" style="font-size:20px">→</span>'+
             '</div>'+
-            '<div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">'+
-              (citasHoy.length>0?citaRows+moreRow:emptyRow)+
-            '</div>'+
+            '<div style="display:flex;flex-direction:column;gap:8px">'+citaRows+emptyRow+'</div>'+
+            verTodasBtn+
           '</div>'+
         '</div>';
+
       } else {
-        statsHTML+='<div class="stat-card" style="animation-delay:'+i*0.08+'s" onclick="showClientPage(\'sec-'+i+'\',document.querySelectorAll(\'.nav-tab\')['+( i+1)+'])">'+
+        // Simple card for non-appointment sections
+        statsHTML+='<div class="stat-card" data-i="'+i+'" style="animation-delay:'+i*0.08+'s" onclick="_showSec(this.dataset.i)">'+
           '<div class="stat-card-inner">'+
             '<div class="stat-top">'+
               '<div class="stat-icon-wrap '+iwClass+'">'+icon+'</div>'+
               '<span class="stat-arrow">→</span>'+
             '</div>'+
-            '<div class="stat-num">'+mainVal+'</div>'+
+            '<div class="stat-num">'+all.length+'</div>'+
             '<div class="stat-lbl">'+s.titulo+'</div>'+
-            '<div class="stat-desc">'+all.length+' registros totales</div>'+
+            '<div class="stat-desc">registros totales</div>'+
           '</div>'+
         '</div>';
       }
-      navHTML+=`<div class="nav-btn" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
-        <div class="nav-btn-left">
-          <div class="nav-btn-icon ${nbiClass}">${icon}</div>
-          <div><div class="nav-btn-name">${s.titulo}</div><div class="nav-btn-count">${all.length} registros</div></div>
-        </div>
-        <span class="nav-btn-arr">→</span>
-      </div>`;
+
+      const _nbiC='nbi-'+color;
+      navHTML+='<div class="nav-btn" data-i="'+i+'" style="animation-delay:'+i*0.08+'s" onclick="_showSec(this.dataset.i)">'+
+
+        '<div class="nav-btn-left">'+
+          '<div class="nav-btn-icon '+_nbiC+'">'+icon+'</div>'+
+          '<div><div class="nav-btn-name">'+s.titulo+'</div><div class="nav-btn-count">'+all.length+' registros</div></div>'+
+        '</div>'+
+        '<span class="nav-btn-arr">→</span>'+
+      '</div>';
+
     }catch(e){
-      statsHTML+=`<div class="stat-card ${color}"><div class="stat-lbl">${s.titulo}</div><div class="stat-val">—</div></div>`;
+      statsHTML+='<div class="stat-card"><div class="stat-card-inner"><div class="stat-lbl">'+s.titulo+'</div><div class="stat-val">—</div></div></div>';
     }
   }
   statsEl.innerHTML=statsHTML;
   navEl.innerHTML=navHTML;
-}
-
-// ── UTILS ──
-function parseFecha(s){
-  if(!s)return new Date(0);
-  if(typeof s==='string'&&s.includes('/')) {const[d,m,y]=s.split('/');return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T00:00:00`)}
-  return new Date(String(s).length===10?s+'T00:00:00':s);
-}
-function iso(d){return d.toISOString().split('T')[0]}
-function fmtDate(v){if(!v)return'';const d=parseFecha(v);return isNaN(d)?'':iso(d)}
-function fmtCol(c){return c.replace(/_/g,' ').replace(/^\w/,x=>x.toUpperCase())}
-function fmtCell(col,val){
-  if(val===null||val===undefined)return`<span style="color:var(--text3)">—</span>`;
-  if(typeof val==='boolean')return val?'<span class="badge b-confirmada">Sí</span>':'<span class="badge b-cancelada">No</span>';
-  const v=String(val);
-  if(col.toLowerCase().includes('estado')){
-    const cls='b-'+v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    return`<span class="badge ${cls}">${v}</span>`;
-  }
-  if(col.toLowerCase().includes('fecha')&&v.includes('T')) return new Date(v).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
-  return v.length>60?v.substring(0,60)+'…':v;
-}
-
-// ── CHAT SYSTEM ──
-let activeConvEmail=null;
-
-// CLIENT: open chat
-async function openHelp(){
-  document.getElementById('overlay-help').classList.add('open');
-  await loadClientChat();
-}
-function closeHelp(){document.getElementById('overlay-help').classList.remove('open')}
-
-async function loadClientChat(){
-  const el=document.getElementById('chat-messages');
-  el.innerHTML=`<div class="loading"><div class="spin"></div></div>`;
-  const email=currentUser?.email||'';
-  const{data}=await sb.from('mensajes').select('*').eq('email_cliente',email).order('created_at',{ascending:true});
-  const msgs=data||[];
-  // Mark admin messages as read
-  const unread=msgs.filter(m=>m.de==='admin'&&!m.leido).map(m=>m.id);
-  if(unread.length) await sb.from('mensajes').update({leido:true}).in('id',unread);
-  if(!msgs.length){
-    el.innerHTML=`<div style="text-align:center;color:var(--text3);font-size:13px;padding:20px">Escríbenos, estamos aquí para ayudarte 👋</div>`;
-    return;
-  }
-  el.innerHTML=msgs.map(m=>chatBubble(m.contenido,m.de==='cliente',m.created_at)).join('');
-  el.scrollTop=el.scrollHeight;
-}
-
-function chatBubble(txt,isClient,ts){
-  const time=new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  if(isClient) return `<div style="display:flex;justify-content:flex-end"><div style="max-width:75%"><div style="background:var(--gold);color:#0f0e0d;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);text-align:right;margin-top:4px">${time}</div></div></div>`;
-  return `<div style="display:flex;justify-content:flex-start"><div style="max-width:75%"><div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:14px 14px 14px 4px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);margin-top:4px">ScilaAI · ${time}</div></div></div>`;
-}
-
-async function sendChat(){
-  const inp=document.getElementById('chat-input');
-  const txt=inp.value.trim();
-  if(!txt)return;
-  inp.value='';
-  const empresa=clienteData?.empresa||clienteData?.nombre||'';
-  const{error}=await sb.from('mensajes').insert({empresa,email_cliente:currentUser?.email||'',contenido:txt,de:'cliente',leido:false});
-  if(!error) await loadClientChat();
-}
-
-// ADMIN: load conversations list
-async function loadMensajes(){
-  const el=document.getElementById('conv-list');
-  el.innerHTML=`<div class="loading"><div class="spin"></div></div>`;
-  // Get unique conversations
-  const{data}=await sb.from('mensajes').select('*').order('created_at',{ascending:false});
-  if(!data?.length){el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No hay conversaciones</div>`;return}
-  // Group by email
-  const convs={};
-  data.forEach(m=>{
-    if(!convs[m.email_cliente]) convs[m.email_cliente]={email:m.email_cliente,empresa:m.empresa,last:m.contenido,time:m.created_at,unread:0};
-    if(m.de==='cliente'&&!m.leido) convs[m.email_cliente].unread++;
-  });
-  const list=Object.values(convs);
-  el.innerHTML=list.map(c=>`
-    <div onclick="openConv('${c.email}')" style="padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;${activeConvEmail===c.email?'background:var(--bg3)':''}" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='${activeConvEmail===c.email?'var(--bg3)':'transparent'}'">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div style="font-size:14px;font-weight:500">${c.empresa||c.email.split('@')[0]}</div>
-        ${c.unread>0?`<span style="background:var(--gold);color:#0f0e0d;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px">${c.unread}</span>`:''}
-      </div>
-      <div style="font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${c.last}</div>
-    </div>`).join('');
-  updateUnreadBadge(data);
-}
-
-async function openConv(email){
-  activeConvEmail=email;
-  const{data}=await sb.from('mensajes').select('*').eq('email_cliente',email).order('created_at',{ascending:true});
-  const msgs=data||[];
-  const empresa=msgs[0]?.empresa||email;
-  // Mark client messages as read
-  const unread=msgs.filter(m=>m.de==='cliente'&&!m.leido).map(m=>m.id);
-  if(unread.length) await sb.from('mensajes').update({leido:true}).in('id',unread);
-
-  document.getElementById('chat-header-admin').innerHTML=`
-    <div>
-      <div style="font-size:15px;font-weight:500">${empresa}</div>
-      <div style="font-size:12px;color:var(--text2)">${email}</div>
-    </div>`;
-  document.getElementById('admin-chat-messages').innerHTML=msgs.map(m=>adminChatBubble(m.contenido,m.de==='admin',m.created_at)).join('');
-  document.getElementById('admin-chat-messages').scrollTop=99999;
-  document.getElementById('admin-chat-input-wrap').style.display='block';
-  document.getElementById('admin-chat-input').focus();
-  loadMensajes();
-}
-
-function adminChatBubble(txt,isAdmin,ts){
-  const time=new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  if(isAdmin) return `<div style="display:flex;justify-content:flex-end"><div style="max-width:75%"><div style="background:var(--purple);color:#fff;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);text-align:right;margin-top:4px">Tú · ${time}</div></div></div>`;
-  return `<div style="display:flex;justify-content:flex-start"><div style="max-width:75%"><div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:14px 14px 14px 4px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);margin-top:4px">${activeConvEmail?.split('@')[0]} · ${time}</div></div></div>`;
-}
-
-async function sendAdminChat(){
-  const inp=document.getElementById('admin-chat-input');
-  const txt=inp.value.trim();
-  if(!txt||!activeConvEmail)return;
-  inp.value='';
-  const{data:cfg}=await sb.from('portal_clientes').select('empresa,nombre').eq('email',activeConvEmail).single();
-  const empresa=cfg?.empresa||cfg?.nombre||'';
-  await sb.from('mensajes').insert({empresa,email_cliente:activeConvEmail,contenido:txt,de:'admin',leido:false});
-  openConv(activeConvEmail);
-}
-
-async function deleteConv(){
-  if(!activeConvEmail)return;
-  if(!confirm(`¿Eliminar toda la conversación con ${activeConvEmail}?`))return;
-  await sb.from('mensajes').delete().eq('email_cliente',activeConvEmail);
-  activeConvEmail=null;
-  document.getElementById('admin-chat-messages').innerHTML='';
-  document.getElementById('admin-chat-input-wrap').style.display='none';
-  document.getElementById('chat-header-admin').innerHTML=`<div style="font-size:14px;color:var(--text2)">Selecciona una conversación</div>`;
-  loadMensajes();
-}
-
-function updateUnreadBadge(data){
-  const count=(data||[]).filter(m=>m.de==='cliente'&&!m.leido).length;
-  const el=document.getElementById('msg-count');
-  if(el){if(count>0){el.textContent=count;el.style.display='inline'}else el.style.display='none'}
-}
-
-async function checkUnreadMessages(){
-  const{data}=await sb.from('mensajes').select('id,leido,de').eq('de','cliente').eq('leido',false);
-  const count=(data||[]).length;
-  const el=document.getElementById('msg-count');
-  if(el){if(count>0){el.textContent=count;el.style.display='inline'}else el.style.display='none'}
-}
-
-// Client: check for admin replies
-async function checkAdminReplies(){
-  if(!currentUser)return;
-  const{data}=await sb.from('mensajes').select('id').eq('email_cliente',currentUser.email).eq('de','admin').eq('leido',false);
-  const dot=document.getElementById('help-dot');
-  if(dot){dot.style.display=(data?.length>0)?'block':'none'}
-}
-
-// ── CRUD OPERATIONS ──
-let recordModal={tabla:null,id:null,cols:[],row:{}};
-
-async function openAddRecord(tabla){
-  const dbClient=window.clientSb||sb;
-  let cols=schemaColumns[tabla]||[];
-  if(!cols.length){
-    const{data:r}=await dbClient.from(tabla).select('*').limit(1);
-    if(r&&r.length){cols=Object.keys(r[0]);schemaColumns[tabla]=cols;}
-  }
-  recordModal={tabla,id:null,cols,row:{}};
-  document.getElementById('record-modal-title').textContent='+ Nuevo registro';
-  renderRecordForm(cols,{});
-  document.getElementById('overlay-record').classList.add('open');
-}
-
-async function openEditRecord(tabla,id){
-  const dbClient=window.clientSb||sb;
-  const{data}=await dbClient.from(tabla).select('*').eq('id',id).single();
-  if(!data){alert('No se encontró el registro.');return}
-  const cols=Object.keys(data);
-  recordModal={tabla,id,cols,row:data};
-  document.getElementById('record-modal-title').textContent='Editar registro';
-  renderRecordForm(cols,data);
-  document.getElementById('overlay-record').classList.add('open');
-}
-
-function renderRecordForm(cols,row){
-  const skipCols=['id','fecha_creacion','created_at','recordatorio_24h','recordatorio_1h'];
-  const fields=cols.filter(c=>!skipCols.includes(c));
-  document.getElementById('record-form-fields').innerHTML=fields.map(col=>{
-    const val=row[col]||'';
-    const lbl=col.replace(/_/g,' ').replace(/^\w/,c=>c.toUpperCase());
-    if(col==='estado'){
-      const opts=['Confirmada','Pendiente','Completada','Cancelada'].map(s=>`<option value="${s}"${s===val?' selected':''}>${s}</option>`).join('');
-      return `<div class="form-group"><label class="lbl">${lbl}</label><select class="inp" id="rf-${col}" style="cursor:pointer">${opts}</select></div>`;
-    }
-    if(col.includes('fecha')&&!col.includes('creacion')){
-      // Convert DD/MM/YYYY to YYYY-MM-DD for date input
-      let dateVal=val;
-      if(dateVal&&dateVal.includes('/')){
-        const p=dateVal.split('/');
-        dateVal=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
-      }
-      return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="date" id="rf-${col}" value="${dateVal}"></div>`;
-    }
-    if(col==='notas'){
-      return `<div class="form-group"><label class="lbl">${lbl}</label><textarea class="inp" id="rf-${col}" rows="3" style="resize:vertical">${val}</textarea></div>`;
-    }
-    return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="text" id="rf-${col}" value="${val}" placeholder="${lbl}..."></div>`;
-  }).join('');
-}
-
-function closeRecordModal(){
-  document.getElementById('overlay-record').classList.remove('open');
-  recordModal={tabla:null,id:null,cols:[],row:{}};
-}
-
-async function saveRecord(){
-  const dbClient=window.clientSb||sb;
-  const skipCols=['id','fecha_creacion','created_at','recordatorio_24h','recordatorio_1h'];
-  const fields=recordModal.cols.filter(c=>!skipCols.includes(c));
-  const data={};
-  fields.forEach(col=>{
-    const el=document.getElementById('rf-'+col);
-    if(!el){return;}
-    let val=el.value||null;
-    // Convert YYYY-MM-DD to DD/MM/YYYY for date fields
-    if(val&&col.toLowerCase().includes('fecha')&&val.match(/^\d{4}-\d{2}-\d{2}$/)){
-      const parts=val.split('-');
-      val=parts[2]+'/'+parts[1]+'/'+parts[0];
-    }
-    data[col]=val;
-  });
-
-  let error;
-  if(recordModal.id){
-    // Update
-    ({error}=await dbClient.from(recordModal.tabla).update(data).eq('id',recordModal.id));
-  } else {
-    // Insert - generate ID
-    const prefix=recordModal.tabla.toUpperCase().substring(0,4);
-    data.id=prefix+'-'+Date.now();
-    // Auto-fill client info if citas
-    if(recordModal.tabla==='citas'&&clienteData){
-      if(!data.paciente_nombre) data.paciente_nombre=clienteData.nombre||'';
-      if(!data.paciente_telefono) data.paciente_telefono=clienteData.telefono||'';
-    }
-    ({error}=await dbClient.from(recordModal.tabla).insert(data));
-  }
-
-  if(error){alert('Error: '+error.message);return}
-  closeRecordModal();
-  // Refresh current section
-  clienteSecciones.forEach((s,i)=>{
-    if(s.tabla===recordModal.tabla) renderSecTable(s,i,currentFilter[i]||'todas');
-  });
-  loadHomeStats();
-}
-
-async function deleteRecord(tabla,id){
-  if(!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.'))return;
-  const dbClient=window.clientSb||sb;
-  const{error}=await dbClient.from(tabla).delete().eq('id',id);
-  if(error){alert('Error: '+error.message);return}
-  // Refresh
-  clienteSecciones.forEach((s,i)=>{
-    if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
-  });
-  loadHomeStats();
-}
-
-async function updateEstado(selectEl,tabla,id){
-  const nuevoEstado=selectEl.value;
-  const dbClient=window.clientSb||sb;
-  const{error}=await dbClient.from(tabla).update({estado:nuevoEstado}).eq('id',id);
-  if(error){alert('Error: '+error.message);return}
-  // Refresh
-  clienteSecciones.forEach((s,i)=>{
-    if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
-  });
-}
-
-// ── REALTIME NOTIFICATIONS ──
-let realtimeChannel=null;
-function setupRealtime(){
-  if(!currentUser)return;
-  realtimeChannel=sb.channel('portal-changes')
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'citas'},payload=>{
-      const row=payload.new;
-      if(row.paciente_telefono===clienteData?.telefono){
-        showAlert('🔔 Cita actualizada','Tu cita del '+row.fecha_cita+' ha sido modificada: '+row.estado);
-        loadHomeStats();loadCharts();
-      }
-    })
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mensajes'},payload=>{
-      const row=payload.new;
-      if(row.de==='admin'&&row.email_cliente===currentUser.email){
-        showAlert('💬 Nuevo mensaje','Tienes un mensaje de soporte. Pulsa el botón de chat para verlo.');
-        document.getElementById('help-dot').style.display='block';
-      }
-    })
-    .subscribe();
-}
-
-function showAlert(title,sub){
-  document.getElementById('alert-title').textContent=title;
-  document.getElementById('alert-sub').textContent=sub;
-  const banner=document.getElementById('alert-banner');
-  banner.style.display='flex';
-  banner.style.animation='none';
-  setTimeout(()=>banner.style.animation='fadeUp .3s ease both',10);
-}
-function closeAlert(){document.getElementById('alert-banner').style.display='none';}
-
-// ── PROFILE PAGE ──
-function showProfile(){
-  showClientPage('profile',null);
-  renderProfile();
-}
-
-function renderProfile(){
-  const el=document.getElementById('profile-content');
-  if(!clienteData){el.innerHTML='<p style="color:var(--text2)">No se encontraron datos de perfil.</p>';return}
-  const initials=(clienteData.nombre||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-  el.innerHTML=`
-    <div class="profile-card">
-      <div class="profile-avatar">${initials}</div>
-      <div class="profile-name">${clienteData.nombre||'Sin nombre'}</div>
-      <div class="profile-empresa">${clienteData.empresa||''}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-        ${profileField('Teléfono','telefono',clienteData.telefono||'')}
-        ${profileField('Email','email',clienteData.email||'')}
-        ${profileField('Empresa','empresa',clienteData.empresa||'')}
-        ${profileField('Sector','sector',clienteData.sector||'')}
-      </div>
-      <div style="margin-bottom:16px">${profileField('Notas','notas',clienteData.notas||'','full')}</div>
-      <button class="btn-add-record" onclick="saveProfile()" style="width:auto">Guardar cambios</button>
-      <div id="profile-ok" style="display:none;margin-top:10px;font-size:13px;color:var(--green)">✓ Perfil actualizado</div>
-    </div>`;
-}
-
-function profileField(label,col,val,size){
-  return `<div style="${size==='full'?'grid-column:1/-1':''}">
-    <label class="lbl" style="margin-bottom:6px">${label}</label>
-    <input class="inp" id="pf-${col}" value="${val}" style="margin-bottom:0" ${col==='email'?'disabled style="opacity:.5;margin-bottom:0"':''}>
-  </div>`;
-}
-
-async function saveProfile(){
-  const dbClient=window.clientSb||sb;
-  const data={
-    nombre:document.getElementById('pf-nombre')?.value||clienteData.nombre,
-    telefono:document.getElementById('pf-telefono')?.value||clienteData.telefono,
-    empresa:document.getElementById('pf-empresa')?.value||clienteData.empresa,
-    sector:document.getElementById('pf-sector')?.value||clienteData.sector,
-    notas:document.getElementById('pf-notas')?.value||clienteData.notas,
-  };
-  const{error}=await dbClient.from('clientes').update(data).eq('email',currentUser.email.toLowerCase());
-  if(error){alert('Error: '+error.message);return}
-  Object.assign(clienteData,data);
-  document.getElementById('profile-ok').style.display='block';
-  setTimeout(()=>document.getElementById('profile-ok').style.display='none',3000);
-}
-
-// ── ACTIVITY LOG ──
-function showActivity(){
-  showClientPage('activity',null);
-  renderActivity();
-}
-
-function renderActivity(){
-  const el=document.getElementById('activity-content');
-  // Combine citas and clientes into activity log
-  const items=[];
-  (allCitasData||[]).forEach(r=>{
-    const d=parseFecha(r.fecha_cita);
-    const color=r.estado==='Confirmada'?'cyan':r.estado==='Cancelada'?'red':r.estado==='Completada'?'green':'amber';
-    items.push({time:d,color,text:`Cita <strong>${r.tipo_cita||'sin tipo'}</strong> — ${r.estado} el ${r.fecha_cita} a las ${r.hora_cita||'—'}`});
-  });
-  items.sort((a,b)=>b.time-a.time);
-  if(!items.length){el.innerHTML='<div style="color:var(--text2);font-size:14px">No hay actividad reciente.</div>';return}
-  el.innerHTML='<div class="activity-list">'+items.slice(0,30).map(i=>`
-    <div class="activity-item">
-      <div class="activity-dot ${i.color}"></div>
-      <div class="activity-text">${i.text}</div>
-      <div class="activity-time">${isNaN(i.time)?'':i.time.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</div>
-    </div>`).join('')+'</div>';
-}
-
-// ── CALENDAR ──
-let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
-function showCalendar(){
-  showClientPage('calendar',null);
-  renderCalendar();
-}
-
-function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
-
-function renderCalendar(){
-  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  document.getElementById('cal-month-title').textContent=monthNames[calMonth]+' '+calYear;
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const today=new Date();
-  const hoy=iso(today);
-
-  // Get citas for this month
-  const citasDates={};
-  (allCitasData||[]).forEach(r=>{
-    const d=parseFecha(r.fecha_cita);
-    if(!isNaN(d)&&d.getMonth()===calMonth&&d.getFullYear()===calYear){
-      const k=iso(d);
-      if(!citasDates[k])citasDates[k]=[];
-      citasDates[k].push(r);
-    }
-  });
-
-  const dayLabels=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
-  let html=dayLabels.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
-
-  const startOffset=(firstDay+6)%7;
-  // Prev month days
-  const prevDays=new Date(calYear,calMonth,0).getDate();
-  for(let i=startOffset-1;i>=0;i--) html+=`<div class="cal-day other-month">${prevDays-i}</div>`;
-  // Current month
-  for(let d=1;d<=daysInMonth;d++){
-    const dateStr=calYear+'-'+(String(calMonth+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
-    const isToday=dateStr===hoy;
-    const hasCita=citasDates[dateStr]?.length>0;
-    const count=citasDates[dateStr]?.length||0;
-    html+=`<div class="cal-day${isToday?' today':''}${hasCita?' has-cita':''}" onclick="showCalDay('${dateStr}',${count})" title="${count>0?count+' cita(s)':''}">${d}${count>0?'<span style="font-size:9px;color:var(--cyan);display:block;line-height:1">'+count+'</span>':''}</div>`;
-  }
-  // Next month days
-  const totalCells=Math.ceil((startOffset+daysInMonth)/7)*7;
-  for(let d=1;d<=totalCells-startOffset-daysInMonth;d++) html+=`<div class="cal-day other-month">${d}</div>`;
-
-  document.getElementById('cal-grid').innerHTML=html;
-  document.getElementById('cal-day-citas').innerHTML='';
-}
-
-function showCalDay(dateStr,count){
-  if(!count)return;
-  const citas=(allCitasData||[]).filter(r=>fmtDate(parseFecha(r.fecha_cita))===dateStr);
-  const el=document.getElementById('cal-day-citas');
-  el.innerHTML=`<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Citas del ${dateStr}</div>`+
-    '<div class="cita-cards-grid">'+citas.map(r=>citaCard(r,Object.keys(r))).join('')+'</div>';
-}
-
-// ── ADVANCED STATS ──
-async function loadAdvancedStats(){
-  const dbClient=window.clientSb||sb;
-  let qCitas=dbClient.from('citas').select('estado,fecha_cita');
-  if(clienteData?.telefono) qCitas=qCitas.eq('paciente_telefono',clienteData.telefono);
-  const{data:citas}=await qCitas;
-  const all=citas||[];
-  const total=all.length;
-  const canceladas=all.filter(c=>c.estado==='Cancelada').length;
-  const completadas=all.filter(c=>c.estado==='Completada').length;
-  const tasaCancelacion=total>0?Math.round(canceladas/total*100):0;
-  const tasaExito=total>0?Math.round(completadas/total*100):0;
-
-  // This month
-  const hoy=new Date();
-  const mesActual=all.filter(c=>{const d=parseFecha(c.fecha_cita);return d.getMonth()===hoy.getMonth()&&d.getFullYear()===hoy.getFullYear();}).length;
-  const mesAnterior=all.filter(c=>{const d=parseFecha(c.fecha_cita);const prev=new Date(hoy.getFullYear(),hoy.getMonth()-1);return d.getMonth()===prev.getMonth()&&d.getFullYear()===prev.getFullYear();}).length;
-  const cambio=mesAnterior>0?Math.round((mesActual-mesAnterior)/mesAnterior*100):0;
-
-  const el=document.getElementById('home-stats-2');
-  if(!el)return;
-  el.innerHTML=[
-    miniStat('Total citas',total,'Histórico completo',''),
-    miniStat('Este mes',mesActual,cambio>=0?'↑ '+Math.abs(cambio)+'% vs mes anterior':'↓ '+Math.abs(cambio)+'% vs mes anterior',cambio>=0?'up':'down'),
-    miniStat('Tasa de éxito',tasaExito+'%',completadas+' completadas','up'),
-    miniStat('Cancelaciones',tasaCancelacion+'%',canceladas+' canceladas',canceladas>0?'down':''),
-  ].join('');
-
-
-}
-
-function miniStat(lbl,val,change,dir){
-  return `<div class="mini-stat"><div class="mini-stat-lbl">${lbl}</div><div class="mini-stat-val">${val}</div>${change?`<div class="mini-stat-change ${dir}">${change}</div>`:''}</div>`;
-}
-
-// ── ADMIN SEARCH ──
-let allClientsData=[];
-async function loadClients(){
-  const{data}=await sb.from('portal_clientes').select('*').order('created_at',{ascending:false});
-  allClientsData=data||[];
-  renderClientsGrid(allClientsData);
-}
-
-function filterClients(q){
-  if(!q.trim()){renderClientsGrid(allClientsData);return;}
-  const ql=q.toLowerCase();
-  const filtered=allClientsData.filter(c=>
-    (c.nombre||'').toLowerCase().includes(ql)||
-    (c.email||'').toLowerCase().includes(ql)||
-    (c.empresa||'').toLowerCase().includes(ql)
-  );
-  renderClientsGrid(filtered);
-}
-
-function renderClientsGrid(data){
-  const grid=document.getElementById('clients-grid');
-  if(!data?.length){grid.innerHTML=`<div style="color:var(--text2);font-size:14px">No se encontraron clientes.</div>`;return}
-  grid.innerHTML=data.map(c=>`
-    <div class="client-card">
-      ${c.empresa?`<div class="cc-empresa">${c.empresa}</div>`:''}
-      <div class="cc-name">${c.nombre||'Sin nombre'}</div>
-      <div class="cc-email">${c.email}</div>
-      <div class="cc-tags">${(c.config?.secciones||[]).map(s=>`<span class="cc-tag">📋 ${s.titulo}</span>`).join('')||'<span class="cc-tag" style="color:var(--text3)">Sin secciones</span>'}</div>
-      <div class="cc-actions">
-        <button class="btn-action" onclick="openConfig('${c.id}','${esc(c.empresa||c.nombre||'')}')">⚙ Portal</button>
-        <button class="btn-action" onclick="openEdit('${c.id}','${esc(c.empresa||'')}','${esc(c.nombre||'')}','${esc(c.email||'')}','${esc(c.supabase_url||'')}','${esc(c.supabase_key||'')}')">✏ Editar</button>
-        <button class="btn-action" onclick="openPass('${esc(c.email||'')}')">🔑</button>
-        <button class="btn-action danger" onclick="deleteClient('${c.id}','${esc(c.email||'')}')">✕</button>
-      </div>
-    </div>`).join('');
-}
-
-// ── CHARTS ──
-let chartCitas=null, chartClientes=null, chartPeriod=7;
-let allCitasData=[], allClientesData=[];
-
-function setChartPeriod(days,btn){
-  chartPeriod=days;
-  document.querySelectorAll('.cp-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const labels={7:'Últimos 7 días',30:'Últimos 30 días',90:'Últimos 3 meses',365:'Último año'};
-  document.getElementById('chart-citas-sub').textContent=labels[days]||'';
-  document.getElementById('chart-clientes-sub').textContent=labels[days]||'';
-  renderCharts();
 }
 
 async function loadCharts(){
@@ -2054,6 +1545,12 @@ function renderCharts(){
     },
     options:chartDefaults
   });
+}
+
+function _showSec(idx){
+  const i=parseInt(idx);
+  const tabs=document.querySelectorAll('.nav-tab');
+  showClientPage('sec-'+i, tabs[i+1]||null);
 }
 
 // ── MOBILE MENU ──
