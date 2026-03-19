@@ -926,6 +926,14 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
     if(error)throw error;
     let filtered=rows||[];
     const fechaCol=sec.columnas.find(c=>c.includes('fecha'))||null;
+    // Sort by time for today's appointments
+    if(filtro==='hoy'){
+      filtered.sort((a,b)=>{
+        const ha=(a.hora_cita||a.hora||'00:00').replace(':','');
+        const hb=(b.hora_cita||b.hora||'00:00').replace(':','');
+        return parseInt(ha)-parseInt(hb);
+      });
+    }
     if(fechaCol&&filtro!=='todas'){
       const hoy=new Date();hoy.setHours(0,0,0,0);
       const hoyStr=iso(hoy);
