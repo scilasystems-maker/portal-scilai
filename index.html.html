@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal ScilaAI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#080c14;--bg2:#0d1220;--bg3:#121928;--card:#0f1622;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --gold:#00e5cc;--gold2:#2dffd6;
+  --accent:#b44fff;--accent2:#d280ff;
+  --text:#f0f4ff;--text2:#7a8aaa;--text3:#3a4560;
+  --green:#00e5b0;--red:#ff4d6a;--blue:#4d9fff;--amber:#ffaa33;--purple:#b44fff;
+  --r:12px;--rs:8px;
+  --gradient:linear-gradient(135deg,#00e5cc,#b44fff);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(0,229,204,.06) 0%,transparent 50%),radial-gradient(ellipse 60% 40% at 80% 0%,rgba(180,79,255,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* LOGIN */
+#v-login{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:20px;background:var(--bg)}
+.login-box{width:100%;max-width:420px;padding:52px 44px;background:var(--card);border:1px solid var(--border2);border-radius:20px;animation:fadeUp .5s ease both;margin:0 auto;box-shadow:0 0 60px rgba(0,229,204,.04),0 0 60px rgba(180,79,255,.04)}
+.brand{font-family:'DM Serif Display',serif;font-size:30px;color:#ffffff;margin-bottom:6px}
+.brand-sub{font-size:14px;color:var(--text2);font-weight:300;margin-bottom:38px}
+.lbl{display:block;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+.inp{width:100%;padding:13px 15px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:18px}
+.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.btn-primary{width:100%;padding:14px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s,box-shadow .2s;letter-spacing:.3px;box-shadow:0 4px 24px rgba(0,229,204,.2)}
+.btn-primary:hover{opacity:.9;box-shadow:0 6px 32px rgba(0,229,204,.35);transform:translateY(-1px)} .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.err-box{margin-top:12px;padding:11px 14px;background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:var(--rs);font-size:13px;color:var(--red);display:none}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(8,12,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.h-logo{font-family:'DM Serif Display',serif;font-size:20px;color:#ffffff;cursor:pointer}
+.h-right{display:flex;align-items:center;gap:12px}
+.h-user{font-size:13px;color:var(--text2)}
+.h-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.h-badge.admin{background:rgba(155,127,232,.15);border:1px solid rgba(155,127,232,.3);color:var(--purple)}
+.h-badge.client{background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);color:var(--gold)}
+.btn-sm{padding:7px 14px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-sm:hover{border-color:var(--text2);color:var(--text)}
+
+/* CLIENT NAV */
+.client-nav{background:rgba(8,12,20,.8);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:4px}
+.nav-tab{padding:12px 20px;background:transparent;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.nav-tab:hover{color:var(--text)} .nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:linear-gradient(180deg,rgba(0,229,204,.05) 0%,transparent 100%)}
+
+/* MAIN */
+.main{max-width:1120px;margin:0 auto;padding:36px 32px 80px;position:relative;z-index:1}
+
+/* VIEWS */
+#v-login,#v-admin,#v-client{display:none}
+.client-page{display:none}
+.client-page.active{display:block}
+
+/* WELCOME */
+.welcome{margin-bottom:36px;animation:fadeUp .4s ease .1s both}
+.welcome-h{font-family:'DM Serif Display',serif;font-size:38px;letter-spacing:-.5px;margin-bottom:6px}
+.welcome-d{font-size:14px;color:var(--text2);font-weight:300}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:40px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;cursor:pointer;animation:fadeUp .4s ease both}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.gold::before{background:var(--gradient)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-icon{font-size:24px;margin-bottom:12px;opacity:.8}
+.stat-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-val{font-family:'DM Serif Display',serif;font-size:44px;line-height:1;margin-bottom:4px}
+.stat-desc{font-size:12px;color:var(--text2)}
+.stat-arrow{position:absolute;bottom:16px;right:16px;font-size:18px;color:var(--text3);transition:color .2s,transform .2s}
+.stat-card:hover .stat-arrow{color:var(--gold);transform:translateX(3px)}
+
+/* SECTION NAV BUTTONS */
+.nav-buttons{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:40px}
+.nav-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;animation:fadeUp .4s ease both}
+.nav-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.nav-btn-left{display:flex;align-items:center;gap:12px}
+.nav-btn-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nav-btn-icon.gold{background:rgba(201,168,76,.12)}
+.nav-btn-icon.blue{background:rgba(92,155,224,.12)}
+.nav-btn-icon.green{background:rgba(76,175,125,.12)}
+.nav-btn-icon.purple{background:rgba(155,127,232,.12)}
+.nav-btn-name{font-size:15px;font-weight:500}
+.nav-btn-count{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fadeUp .3s ease both}
+.back-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;flex-shrink:0}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+.page-title-wrap{}
+.page-title{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-.3px}
+.page-subtitle{font-size:13px;color:var(--text2);margin-top:3px}
+
+/* FILTERS BAR */
+.filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .3s ease .1s both}
+.f-btn{padding:7px 16px;background:transparent;border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.f-btn:hover{border-color:var(--gold);color:var(--gold)}
+.f-btn.active{background:rgba(0,229,204,.08);border-color:var(--gold);color:var(--gold)}
+.f-date{padding:7px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;outline:none}
+.f-date:focus{border-color:var(--gold)}
+
+/* DATA TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:fadeUp .3s ease .15s both}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:12px 16px;text-align:left;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.data-table td{padding:14px 16px;font-size:14px;color:var(--text);border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500}
+.b-confirmada{background:rgba(76,175,125,.12);color:var(--green);border:1px solid rgba(76,175,125,.2)}
+.b-pendiente{background:rgba(224,168,92,.12);color:var(--amber);border:1px solid rgba(224,168,92,.2)}
+.b-cancelada{background:rgba(224,92,92,.12);color:var(--red);border:1px solid rgba(224,92,92,.2)}
+.b-completada{background:rgba(92,155,224,.12);color:var(--blue);border:1px solid rgba(92,155,224,.2)}
+.table-footer{padding:12px 16px;font-size:13px;color:var(--text3);border-top:1px solid var(--border);background:var(--bg3)}
+
+/* EMPTY & LOADING */
+.loading{padding:48px;text-align:center;color:var(--text3);font-size:14px}
+.spin{width:22px;height:22px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+.empty{padding:60px 20px;text-align:center;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+
+/* ADMIN */
+.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.a-tab{padding:10px 20px;background:transparent;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.a-tab:hover{color:var(--text)} .a-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.client-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s}
+.client-card:hover{border-color:var(--border2)}
+.cc-empresa{font-size:11px;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.cc-name{font-size:16px;font-weight:500;margin-bottom:3px}
+.cc-email{font-size:13px;color:var(--text2);margin-bottom:14px}
+.cc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.cc-tag{font-size:11px;padding:3px 9px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text2)}
+.cc-actions{display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--border)}
+.btn-action{flex:1;padding:8px;background:transparent;border:1px solid var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;text-align:center}
+.btn-action:hover{border-color:var(--gold);color:var(--gold)}
+.btn-action.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* FORM */
+.form-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:28px;max-width:700px}
+.form-title{font-size:18px;font-weight:500;margin-bottom:22px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:16px}
+.form-group .lbl{margin-bottom:7px}
+.form-group .inp{margin-bottom:0}
+.btn-crear{padding:13px 28px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-crear:hover{background:var(--gold2)} .btn-crear:disabled{opacity:.5;cursor:not-allowed}
+.success-msg{margin-top:12px;padding:11px 14px;background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.3);border-radius:var(--rs);font-size:13px;color:var(--green);display:none}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;animation:fadeUp .3s ease}
+.modal-title{font-size:18px;font-weight:500;margin-bottom:20px}
+.modal-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{padding:10px 20px;background:transparent;border:1px solid var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer}
+.btn-cancel:hover{border-color:var(--text2);color:var(--text)}
+.btn-confirm{padding:10px 20px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.btn-confirm:hover{background:var(--gold2)}
+
+/* CONFIG MODAL */
+.sec-item{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px}
+.sec-item-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.sec-item-name{font-size:14px;font-weight:500}
+.sec-item-meta{font-size:12px;color:var(--text3);margin-top:2px}
+.btn-del{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;transition:color .2s}
+.btn-del:hover{color:var(--red)}
+.btn-add-sec{width:100%;padding:11px;background:transparent;border:1px dashed var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-add-sec:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ADD SECTION MODAL */
+.cols-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px}
+.col-check{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s}
+.col-check:hover{border-color:var(--gold);color:var(--text)}
+.col-check input{accent-color:var(--gold);width:14px;height:14px;flex-shrink:0}
+.sec-inp{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.sec-inp:focus{border-color:var(--gold)}
+.sec-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* MOBILE MENU */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:transparent;border:none}
+.hamburger span{width:22px;height:2px;background:#ffffff;border-radius:2px;transition:all .3s}
+.mobile-menu{display:none;position:fixed;top:54px;right:0;left:0;background:rgba(20,30,50,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.15);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:99;padding:16px;flex-direction:column;gap:8px}
+.mobile-menu.open{display:flex}
+.mobile-menu-item{padding:12px 16px;border-radius:var(--rs);font-size:14px;color:#d0d8f0;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;background:transparent;border:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left}
+.mobile-menu-item:hover{background:var(--bg3);color:var(--text)}
+.mobile-menu-divider{height:1px;background:var(--border);margin:4px 0}
+.mobile-user-info{padding:12px 16px;font-size:13px;color:var(--text3)}
+
+@media(max-width:768px){
+  /* Layout */
+  .main{padding:16px 14px 80px}
+  .header{padding:0 14px;height:54px}
+  .client-nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .client-nav::-webkit-scrollbar{display:none}
+  .nav-tab{padding:10px 14px;font-size:13px;white-space:nowrap}
+
+  /* Welcome */
+  .welcome-h{font-size:22px}
+  .welcome-d{font-size:13px}
+  .welcome{margin-bottom:20px}
+
+  /* Stats */
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+  .stat-val{font-size:32px}
+  .stat-card{padding:16px}
+
+  /* Nav buttons */
+  .nav-buttons{grid-template-columns:1fr 1fr;gap:10px}
+  .nav-btn{padding:14px}
+  .nav-btn-icon{width:34px;height:34px;font-size:16px}
+  .nav-btn-name{font-size:13px}
+
+  /* Tables */
+  .table-wrap{border-radius:10px;overflow-x:auto}
+  .data-table th,.data-table td{padding:10px 12px;font-size:13px}
+  .page-title{font-size:20px}
+  .filters-bar{gap:6px}
+  .f-btn{padding:6px 12px;font-size:12px}
+
+  /* Login */
+  .login-box{padding:32px 22px;border-radius:16px}
+  .brand{font-size:24px}
+
+  /* Admin */
+  .clients-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .admin-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .admin-tabs::-webkit-scrollbar{display:none}
+  .a-tab{white-space:nowrap;padding:10px 14px}
+
+  /* Chat mensajes - stack on mobile */
+  #tab-mensajes > div{grid-template-columns:1fr !important;height:auto !important}
+  #tab-mensajes > div > div:first-child{border-right:none !important;border-bottom:1px solid var(--border);max-height:200px}
+  #tab-mensajes > div > div:last-child{height:400px}
+
+  /* Help float button */
+  #help-float{bottom:16px;right:16px}
+
+  /* Modal */
+  .modal{padding:22px 18px;border-radius:14px;margin:10px}
+  .modal-footer{flex-direction:column-reverse}
+  .modal-footer button{width:100%}
+
+  /* Page header */
+  .page-header{margin-bottom:16px}
+  .back-btn{width:32px;height:32px;font-size:14px}
+
+  /* H-logo text */
+  .h-logo span{display:none}
+
+  /* Hide desktop header right, show hamburger */
+  .h-right{display:none !important}
+  .hamburger{display:flex !important}
+  .h-logo{font-size:15px !important;white-space:nowrap}
+  .h-logo span{display:inline !important}
+  .header{height:54px}
+}
+
+@media(max-width:400px){
+  .stats-grid{grid-template-columns:1fr}
+  .nav-buttons{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="v-login">
+  <div class="login-box">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--gold);margin-bottom:20px">⚡ Portal exclusivo para clientes</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <img src="https://i.imgur.com/h8PyJKX.png" alt="SCILA AI" style="height:32px;object-fit:contain" onerror="this.style.display='none'">
+      <div class="brand">SCILA AI</div>
+    </div>
+    <div class="brand-sub">Portal de clientes — accede a tu espacio</div>
+    <label class="lbl">Email</label>
+    <input class="inp" type="email" id="l-email" placeholder="tu@email.com" autocomplete="email">
+    <label class="lbl">Contraseña</label>
+    <input class="inp" type="password" id="l-pass" placeholder="••••••••">
+    <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="err-box" id="l-err"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="v-admin">
+  <header class="header">
+    <div class="h-logo" style="display:flex;align-items:center;gap:8px">
+      <img src="https://i.imgur.com/h8PyJKX.png" alt="" style="height:24px;object-fit:contain;flex-shrink:0" onerror="this.style.display='none'">
+      <span>SCILA AI</span>
+    </div>
+    <div class="h-right">
+      <span class="h-badge admin">Administrador</span>
+      
+      <button class="btn-sm" onclick="doLogout()">Salir</button>
+    </div>
+    <button class="hamburger" onclick="toggleAdminMenu()" id="hamburger-admin" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+  <!-- Mobile menu (admin) -->
+  <div class="mobile-menu" id="mobile-menu-admin">
+    <div class="mobile-user-info" id="m-admin-info"></div>
+    <div class="mobile-menu-divider"></div>
+    <button class="mobile-menu-item" onclick="switchAdminTab('clientes',this);closeMobileMenus()">👥 Clientes</button>
+    <button class="mobile-menu-item" onclick="switchAdminTab('nuevo',this);closeMobileMenus()">➕ Nuevo cliente</button>
+    <button class="mobile-menu-item" onclick="switchAdminTab('mensajes',this);closeMobileMenus()">💬 Mensajes</button>
+    <div class="mobile-menu-divider"></div>
+    <button class="mobile-menu-item" onclick="doLogout()">🚪 Cerrar sesión</button>
+  </div>
+  <main class="main">
+    <div class="welcome" style="margin-bottom:28px">
+      <div class="welcome-h">Panel de administración</div>
+      <div class="welcome-d">Gestiona tus clientes y sus portales</div>
+    </div>
+    <div class="admin-tabs">
+      <button class="a-tab active" onclick="switchAdminTab('clientes',this)">Clientes</button>
+      <button class="a-tab" onclick="switchAdminTab('nuevo',this)">+ Nuevo cliente</button>
+      <button class="a-tab" id="tab-msg-btn" onclick="switchAdminTab('mensajes',this)">💬 Mensajes <span id="msg-count" style="display:none;background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px">0</span></button>
+    </div>
+    <div id="tab-clientes">
+      <div id="clients-grid" class="clients-grid"><div class="loading"><div class="spin"></div>Cargando...</div></div>
+    </div>
+    <div id="tab-mensajes" style="display:none">
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;height:600px">
+        <!-- Conversaciones -->
+        <div style="border-right:1px solid var(--border);display:flex;flex-direction:column">
+          <div style="padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.8px">Conversaciones</div>
+          <div id="conv-list" style="flex:1;overflow-y:auto"><div class="loading"><div class="spin"></div></div></div>
+        </div>
+        <!-- Chat activo -->
+        <div style="display:flex;flex-direction:column">
+          <div id="chat-header-admin" style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:14px;color:var(--text2)">Selecciona una conversación</div>
+          </div>
+          <div id="admin-chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">
+          </div>
+          <div id="admin-chat-input-wrap" style="display:none;padding:14px;border-top:1px solid var(--border)">
+            <div style="display:flex;gap:10px;align-items:flex-end">
+              <textarea id="admin-chat-input" placeholder="Escribe tu respuesta..." rows="2" style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminChat()}"></textarea>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <button onclick="sendAdminChat()" style="width:42px;height:42px;background:var(--gold);border:none;border-radius:10px;cursor:pointer;font-size:16px">→</button>
+                <button onclick="deleteConv()" style="width:42px;height:42px;background:transparent;border:1px solid var(--border2);border-radius:10px;cursor:pointer;font-size:14px;color:var(--red)" title="Eliminar conversación">🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-nuevo" style="display:none">
+      <div class="form-card">
+        <div class="form-title">Crear nuevo cliente</div>
+        <div class="form-row">
+          <div class="form-group"><label class="lbl">Nombre de empresa</label><input class="inp" id="nc-empresa" placeholder="Ej: Peluquería Cristóbal"></div>
+          <div class="form-group"><label class="lbl">Nombre del contacto</label><input class="inp" id="nc-nombre" placeholder="Nombre y apellidos"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="lbl">Email de acceso</label><input class="inp" id="nc-email" type="email" placeholder="cliente@email.com"></div>
+          <div class="form-group"><label class="lbl">Contraseña inicial</label><input class="inp" id="nc-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
+        </div>
+        <div style="padding:16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);margin-bottom:18px">
+          <div style="font-size:11px;color:var(--gold);font-weight:500;margin-bottom:14px;text-transform:uppercase;letter-spacing:.8px">Proyecto Supabase del cliente</div>
+          <div class="form-row" style="margin-bottom:8px">
+            <div class="form-group" style="margin-bottom:0"><label class="lbl">Supabase URL</label><input class="inp" id="nc-surl" placeholder="https://xxxx.supabase.co" style="margin-bottom:0"></div>
+            <div class="form-group" style="margin-bottom:0"><label class="lbl">Anon Key</label><input class="inp" id="nc-skey" placeholder="eyJhbGci..." style="margin-bottom:0"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text3)">Obligatorio — credenciales del proyecto Supabase del cliente</div>
+        </div>
+        <button class="btn-crear" id="btn-crear" onclick="crearCliente()">Crear cliente</button>
+        <div class="success-msg" id="nc-ok"></div>
+        <div class="err-box" id="nc-err" style="display:none"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- FLOATING HELP BUTTON (client only) -->
+<div id="help-float" style="display:none;position:fixed;bottom:28px;right:28px;z-index:300">
+  <button onclick="openHelp()" style="width:54px;height:54px;background:var(--gold);border:none;border-radius:50%;cursor:pointer;font-size:22px;box-shadow:0 4px 20px rgba(201,168,76,.4);transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">💬</button>
+  <div id="help-dot" style="display:none;position:absolute;top:2px;right:2px;width:12px;height:12px;background:var(--red);border-radius:50%;border:2px solid var(--bg)"></div>
+</div>
+
+<!-- CHAT MODAL (client) -->
+<div class="overlay" id="overlay-help">
+  <div class="modal" style="max-width:500px;padding:0;overflow:hidden;display:flex;flex-direction:column;height:580px;max-height:90vh">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:16px;font-weight:500">💬 Soporte ScilaAI</div>
+        <div style="font-size:12px;color:var(--green);margin-top:2px">● En línea</div>
+      </div>
+      <button onclick="closeHelp()" style="background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px">✕</button>
+    </div>
+    <div id="chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <div style="text-align:center;font-size:12px;color:var(--text3);padding:8px">Inicio de la conversación</div>
+    </div>
+    <div style="padding:16px;border-top:1px solid var(--border);flex-shrink:0">
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <textarea id="chat-input" placeholder="Escribe tu mensaje..." rows="2" style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none;transition:border-color .2s;line-height:1.5" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+        <button onclick="sendChat()" style="width:42px;height:42px;background:var(--gradient);border:none;border-radius:10px;cursor:pointer;font-size:18px;flex-shrink:0">→</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Enter para enviar · Shift+Enter para nueva línea</div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT PORTAL -->
+<div id="v-client">
+  <header class="header">
+    <div class="h-logo" onclick="goHome()" style="display:flex;align-items:center;gap:8px">
+      <img src="https://i.imgur.com/h8PyJKX.png" alt="" style="height:24px;object-fit:contain;flex-shrink:0" onerror="this.style.display='none'">
+      <span>SCILA AI</span>
+    </div>
+    <div class="h-right">
+      <span class="h-badge client" id="c-empresa-badge"></span>
+      
+      <button class="btn-sm" onclick="doLogout()">Salir</button>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu()" id="hamburger-btn" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+  <!-- Mobile menu (client) -->
+  <div class="mobile-menu" id="mobile-menu-client">
+    <div class="mobile-user-info" id="m-user-info"></div>
+    <div class="mobile-menu-divider"></div>
+    <div id="mobile-nav-items"></div>
+    <div class="mobile-menu-divider"></div>
+    <button class="mobile-menu-item" onclick="doLogout()">🚪 Cerrar sesión</button>
+  </div>
+  <nav class="client-nav" id="client-nav"></nav>
+  <main class="main">
+    <!-- HOME PAGE -->
+    <div class="client-page active" id="page-home">
+      <div class="welcome">
+        <div class="welcome-h" id="c-name">Hola 👋</div>
+        <div class="welcome-d" id="c-date"></div>
+      </div>
+      <div class="stats-grid" id="home-stats"></div>
+      <div style="margin-bottom:16px;font-size:13px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.8px">Acceso rápido</div>
+      <div class="nav-buttons" id="home-nav-buttons"></div>
+    </div>
+    <!-- DYNAMIC SECTION PAGES -->
+    <div id="dynamic-pages"></div>
+  </main>
+</div>
+
+<!-- MODAL CONFIG SECCIONES -->
+<div class="overlay" id="overlay-config">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-title">⚙ Configurar portal de <span id="cfg-nombre"></span></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Define qué tablas y columnas verá este cliente.</p>
+    <div id="cfg-loading" style="padding:20px;text-align:center;color:var(--text2);font-size:13px"><div class="spin" style="margin:0 auto 8px"></div>Conectando...</div>
+    <div id="cfg-error" style="display:none;padding:11px 14px;background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:var(--rs);font-size:13px;color:var(--red);margin-bottom:14px"></div>
+    <div id="cfg-content" style="display:none">
+      <div id="sec-list" style="margin-bottom:4px"></div>
+      <button class="btn-add-sec" onclick="openAddSec()">+ Añadir sección</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeConfig()">Cancelar</button>
+      <button class="btn-confirm" id="btn-save-cfg" onclick="saveConfig()" style="display:none">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AÑADIR SECCIÓN -->
+<div class="overlay" id="overlay-addsec">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title">Nueva sección</div>
+    <div class="form-group"><label class="lbl">Título que verá el cliente</label><input class="inp" id="as-titulo" placeholder="Ej: Mis citas, Mis pedidos..."></div>
+    <div class="form-group">
+      <label class="lbl">Tabla de Supabase</label>
+      <select class="inp" id="as-tabla" onchange="onTablaChange()" style="cursor:pointer">
+        <option value="">-- Selecciona tabla --</option>
+      </select>
+    </div>
+    <div id="as-cols-wrap" style="display:none">
+      <label class="lbl" style="margin-bottom:10px">Columnas a mostrar</label>
+      <div class="cols-grid" id="as-cols-list"></div>
+    </div>
+    <div id="as-filtro-wrap" style="display:none;padding:14px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);margin-bottom:16px">
+      <div style="font-size:11px;color:var(--gold);font-weight:500;margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px">Filtro por cliente</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><div class="sec-lbl">Campo de esta tabla</div><select class="sec-inp" id="as-f-campo"><option value="">Sin filtro</option></select></div>
+        <div><div class="sec-lbl">Campo de tabla clientes</div><select class="sec-inp" id="as-f-valor"><option value="">--</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddSec()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarSeccion()">Añadir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="overlay" id="overlay-edit">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-title">✏ Editar cliente</div>
+    <input type="hidden" id="edit-id">
+    <div class="form-group"><label class="lbl">Nombre de empresa</label><input class="inp" id="edit-empresa" style="margin-bottom:0"></div>
+    <div class="form-group"><label class="lbl">Nombre del contacto</label><input class="inp" id="edit-nombre" style="margin-bottom:0"></div>
+    <div class="form-group"><label class="lbl">Email</label><input class="inp" id="edit-email" style="margin-bottom:0" disabled style="opacity:.6"></div>
+    <div class="form-group"><label class="lbl">Supabase URL</label><input class="inp" id="edit-surl" style="margin-bottom:0"></div>
+    <div class="form-group"><label class="lbl">Anon Key</label><input class="inp" id="edit-skey" style="margin-bottom:0"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEdit()">Cancelar</button>
+      <button class="btn-confirm" onclick="saveEdit()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTRASEÑA -->
+<div class="overlay" id="overlay-pass">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">🔑 Cambiar contraseña</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Cliente: <span id="pass-email" style="color:var(--gold)"></span></p>
+    <div class="form-group"><label class="lbl">Nueva contraseña</label><input class="inp" id="pass-nueva" type="text" placeholder="Mínimo 6 caracteres" style="margin-bottom:0"></div>
+    <div id="pass-sql-box" style="display:none;margin-top:16px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Copia este SQL en <strong style="color:var(--text)">Supabase → SQL Editor</strong> y ejecútalo:</div>
+      <div style="position:relative">
+        <pre id="pass-sql" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:14px;font-size:12px;color:var(--green);font-family:monospace;white-space:pre-wrap;word-break:break-all;line-height:1.7"></pre>
+        <button onclick="copiarSQL()" style="position:absolute;top:8px;right:8px;padding:5px 12px;background:var(--gold);color:#0f0e0d;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Copiar</button>
+      </div>
+      <div id="copy-ok" style="display:none;margin-top:8px;font-size:13px;color:var(--green)">✓ Copiado al portapapeles</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePass()">Cerrar</button>
+      <button class="btn-confirm" onclick="generarSQL()">Generar SQL</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SURL='https://imsyvvwqurmchlflwhvr.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imltc3l2dndxdXJtY2hsZmx3aHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTUzMDIsImV4cCI6MjA4ODk5MTMwMn0.QoPK9b-QJiZKaUmwB-tZBODo7kJKpVONIx56zcz1IWA';
+const ADMIN_EMAIL='scilasystems@gmail.com';
+const sb=supabase.createClient(SURL,SKEY);
+
+let currentUser=null,configClienteId=null,clienteSb=null;
+let schemaTables=[],schemaColumns={},clientesColumns=[];
+let configSecciones=[],clienteData=null,clienteSecciones=[];
+let currentFilter='proximas',currentDateFilter=null;
+
+// ── VIEWS ──
+function show(v){['v-login','v-admin','v-client'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById(v).style.display=v==='v-login'?'flex':'block'}
+show('v-login');
+
+// ── AUTH ──
+async function doLogin(){
+  const email=document.getElementById('l-email').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+  const btn=document.getElementById('btn-login');
+  const err=document.getElementById('l-err');
+  if(!email||!pass){showErr(err,'Rellena todos los campos.');return}
+  btn.disabled=true;btn.textContent='Entrando...';err.style.display='none';
+  const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){showErr(err,'Email o contraseña incorrectos.');btn.disabled=false;btn.textContent='Entrar';return}
+  currentUser=data.user;
+  if(email===ADMIN_EMAIL) initAdmin(data.user);
+  else initClient(data.user);
+}
+async function doLogout(){await sb.auth.signOut();currentUser=null;show('v-login');document.getElementById('l-pass').value='';document.getElementById('help-float').style.display='none'}
+function showErr(el,msg){el.textContent=msg;el.style.display='block'}
+
+// ── ADMIN ──
+async function initAdmin(user){
+  show('v-admin');
+  
+  const mInfo=document.getElementById('m-admin-info');if(mInfo)mInfo.textContent=user.email;
+  loadClients();
+  checkUnreadMessages();
+  setInterval(checkUnreadMessages,30000);
+}
+
+async function loadClients(){
+  const{data}=await sb.from('portal_clientes').select('*').order('created_at',{ascending:false});
+  const grid=document.getElementById('clients-grid');
+  if(!data?.length){grid.innerHTML=`<div style="color:var(--text2);font-size:14px">No hay clientes. Crea el primero.</div>`;return}
+  grid.innerHTML=data.map(c=>`
+    <div class="client-card">
+      ${c.empresa?`<div class="cc-empresa">${c.empresa}</div>`:''}
+      <div class="cc-name">${c.nombre||'Sin nombre'}</div>
+      <div class="cc-email">${c.email}</div>
+      <div class="cc-tags">${(c.config?.secciones||[]).map(s=>`<span class="cc-tag">📋 ${s.titulo}</span>`).join('')||'<span class="cc-tag" style="color:var(--text3)">Sin secciones</span>'}</div>
+      <div class="cc-actions">
+        <button class="btn-action" onclick="openConfig('${c.id}','${esc(c.empresa||c.nombre||'')}')">⚙ Portal</button>
+        <button class="btn-action" onclick="openEdit('${c.id}','${esc(c.empresa||'')}','${esc(c.nombre||'')}','${esc(c.email||'')}','${esc(c.supabase_url||'')}','${esc(c.supabase_key||'')}')">✏ Editar</button>
+        <button class="btn-action" onclick="openPass('${esc(c.email||'')}')">🔑</button>
+        <button class="btn-action danger" onclick="deleteClient('${c.id}','${esc(c.email||'')}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function esc(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+
+async function crearCliente(){
+  const empresa=document.getElementById('nc-empresa').value.trim();
+  const nombre=document.getElementById('nc-nombre').value.trim();
+  const email=document.getElementById('nc-email').value.trim().toLowerCase();
+  const pass=document.getElementById('nc-pass').value;
+  const surl=document.getElementById('nc-surl').value.trim();
+  const skey=document.getElementById('nc-skey').value.trim();
+  const btn=document.getElementById('btn-crear');
+  const ok=document.getElementById('nc-ok');
+  const err=document.getElementById('nc-err');
+  ok.style.display='none';err.style.display='none';
+  if(!nombre||!email||!pass){showErr(err,'Rellena nombre, email y contraseña.');return}
+  if(pass.length<6){showErr(err,'La contraseña debe tener al menos 6 caracteres.');return}
+  if(!surl||!skey){showErr(err,'La Supabase URL y la Anon Key son obligatorias.');return}
+  btn.disabled=true;btn.textContent='Creando...';
+  const{error:authError}=await sb.auth.signUp({email,password:pass});
+  if(authError&&!authError.message.toLowerCase().includes('already')){
+    showErr(err,'Error: '+authError.message);btn.disabled=false;btn.textContent='Crear cliente';return;
+  }
+  const{error:dbErr}=await sb.from('portal_clientes').upsert({email,nombre,empresa,supabase_url:surl,supabase_key:skey,config:{secciones:[]}},{onConflict:'email'});
+  if(dbErr){showErr(err,'Error guardando: '+dbErr.message);btn.disabled=false;btn.textContent='Crear cliente';return}
+  ok.textContent=`✓ Cliente "${empresa||nombre}" creado. Email: ${email} | Contraseña: ${pass}`;
+  ok.style.display='block';
+  btn.disabled=false;btn.textContent='Crear cliente';
+  ['nc-empresa','nc-nombre','nc-email','nc-pass','nc-surl','nc-skey'].forEach(id=>document.getElementById(id).value='');
+  loadClients();
+}
+
+async function deleteClient(id,email){
+  if(!confirm(`¿Eliminar ${email}? No se puede deshacer.`))return;
+  await sb.from('portal_clientes').delete().eq('id',id);
+  loadClients();
+}
+
+function switchAdminTab(name,btn){
+  document.querySelectorAll('.a-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-clientes').style.display=name==='clientes'?'block':'none';
+  document.getElementById('tab-nuevo').style.display=name==='nuevo'?'block':'none';
+  document.getElementById('tab-mensajes').style.display=name==='mensajes'?'block':'none';
+  if(name==='mensajes') loadMensajes();
+}
+
+// ── EDIT CLIENT ──
+function openEdit(id,empresa,nombre,email,surl,skey){
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-empresa').value=empresa;
+  document.getElementById('edit-nombre').value=nombre;
+  document.getElementById('edit-email').value=email;
+  document.getElementById('edit-surl').value=surl;
+  document.getElementById('edit-skey').value=skey;
+  document.getElementById('overlay-edit').classList.add('open');
+}
+function closeEdit(){document.getElementById('overlay-edit').classList.remove('open')}
+async function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  const empresa=document.getElementById('edit-empresa').value.trim();
+  const nombre=document.getElementById('edit-nombre').value.trim();
+  const surl=document.getElementById('edit-surl').value.trim();
+  const skey=document.getElementById('edit-skey').value.trim();
+  if(!nombre){alert('El nombre es obligatorio.');return}
+  const{error}=await sb.from('portal_clientes').update({empresa,nombre,supabase_url:surl,supabase_key:skey}).eq('id',id);
+  if(error){alert('Error: '+error.message);return}
+  closeEdit();loadClients();
+}
+
+// ── PASSWORD ──
+function openPass(email){
+  document.getElementById('pass-email').textContent=email;
+  document.getElementById('pass-nueva').value='';
+  document.getElementById('pass-sql-box').style.display='none';
+  document.getElementById('copy-ok').style.display='none';
+  document.getElementById('overlay-pass').classList.add('open');
+}
+function closePass(){document.getElementById('overlay-pass').classList.remove('open')}
+function generarSQL(){
+  const pass=document.getElementById('pass-nueva').value.trim();
+  const email=document.getElementById('pass-email').textContent.toLowerCase();
+  if(!pass){alert('Escribe una contraseña.');return}
+  if(pass.length<6){alert('Mínimo 6 caracteres.');return}
+  const sql=`UPDATE auth.users\nSET encrypted_password = crypt('${pass}', gen_salt('bf'))\nWHERE email = '${email}';`;
+  document.getElementById('pass-sql').textContent=sql;
+  document.getElementById('pass-sql-box').style.display='block';
+  document.getElementById('copy-ok').style.display='none';
+}
+function copiarSQL(){
+  navigator.clipboard.writeText(document.getElementById('pass-sql').textContent).then(()=>{
+    document.getElementById('copy-ok').style.display='block';
+    setTimeout(()=>document.getElementById('copy-ok').style.display='none',3000);
+  });
+}
+
+// ── CONFIG PORTAL ──
+async function openConfig(id,nombre){
+  configClienteId=id; configSecciones=[]; schemaTables=[]; schemaColumns={}; clientesColumns=[];
+  document.getElementById('cfg-nombre').textContent=nombre;
+  document.getElementById('cfg-loading').style.display='block';
+  document.getElementById('cfg-content').style.display='none';
+  document.getElementById('cfg-error').style.display='none';
+  document.getElementById('btn-save-cfg').style.display='none';
+  document.getElementById('overlay-config').classList.add('open');
+
+  const{data}=await sb.from('portal_clientes').select('*').eq('id',id).single();
+  configSecciones=(data?.config?.secciones)||[];
+  const cUrl=data?.supabase_url||SURL;
+  const cKey=data?.supabase_key||SKEY;
+  clienteSb=supabase.createClient(cUrl,cKey);
+
+  try{
+    const resp=await fetch(`${cUrl}/rest/v1/`,{headers:{'apikey':cKey,'Authorization':'Bearer '+cKey,'Accept':'application/openapi+json'}});
+    let tablesFromSchema=[];
+    if(resp.ok){
+      const schema=await resp.json();
+      const defs=schema.definitions||schema.components?.schemas||{};
+      tablesFromSchema=Object.keys(defs).filter(t=>!t.startsWith('_')&&t!=='portal_clientes');
+      for(const t of tablesFromSchema){const p=defs[t]?.properties||{};if(Object.keys(p).length)schemaColumns[t]=Object.keys(p)}
+    }
+    const known=['citas','clientes','leads','pedidos','productos','facturas','tareas','ventas','contactos','n8n_chat_histories'];
+    for(const t of known){
+      if(tablesFromSchema.includes(t))continue;
+      try{const{data:r,error:e}=await clienteSb.from(t).select('*').limit(1);if(!e){tablesFromSchema.push(t);if(r?.length)schemaColumns[t]=Object.keys(r[0])}}catch(e){}
+    }
+    schemaTables=tablesFromSchema.filter(t=>t!=='portal_clientes');
+    for(const t of schemaTables){
+      if(!schemaColumns[t]){const{data:r}=await clienteSb.from(t).select('*').limit(1);if(r?.length)schemaColumns[t]=Object.keys(r[0])}
+    }
+    const tablaClientes=schemaTables.find(t=>t==='clientes'||t==='clients');
+    if(tablaClientes&&schemaColumns[tablaClientes])clientesColumns=schemaColumns[tablaClientes];
+    document.getElementById('cfg-loading').style.display='none';
+    document.getElementById('cfg-content').style.display='block';
+    document.getElementById('btn-save-cfg').style.display='block';
+    renderSecList();
+  }catch(e){
+    document.getElementById('cfg-loading').style.display='none';
+    document.getElementById('cfg-error').style.display='block';
+    document.getElementById('cfg-error').textContent='Error: '+e.message;
+  }
+}
+
+function closeConfig(){document.getElementById('overlay-config').classList.remove('open');configClienteId=null}
+
+function renderSecList(){
+  const el=document.getElementById('sec-list');
+  if(!configSecciones.length){el.innerHTML=`<div style="color:var(--text2);font-size:13px;padding:8px 0">No hay secciones. Añade una abajo.</div>`;return}
+  el.innerHTML=configSecciones.map((s,i)=>`
+    <div class="sec-item">
+      <div class="sec-item-header">
+        <div><div class="sec-item-name">${s.titulo}</div><div class="sec-item-meta">Tabla: ${s.tabla} · ${(s.columnas||[]).length} columnas${s.filtro_campo?` · Filtro: ${s.filtro_campo}`:''}  </div></div>
+        <button class="btn-del" onclick="delSec(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function delSec(i){configSecciones.splice(i,1);renderSecList()}
+
+function openAddSec(){
+  document.getElementById('as-tabla').innerHTML='<option value="">-- Selecciona tabla --</option>'+schemaTables.map(t=>`<option value="${t}">${t}</option>`).join('');
+  document.getElementById('as-titulo').value='';
+  document.getElementById('as-cols-wrap').style.display='none';
+  document.getElementById('as-filtro-wrap').style.display='none';
+  document.getElementById('overlay-addsec').classList.add('open');
+}
+function closeAddSec(){document.getElementById('overlay-addsec').classList.remove('open')}
+
+async function onTablaChange(){
+  const tabla=document.getElementById('as-tabla').value;
+  if(!tabla){document.getElementById('as-cols-wrap').style.display='none';document.getElementById('as-filtro-wrap').style.display='none';return}
+  let cols=schemaColumns[tabla]||[];
+  if(!cols.length){const{data:r}=await clienteSb.from(tabla).select('*').limit(1);if(r?.length){cols=Object.keys(r[0]);schemaColumns[tabla]=cols}}
+  document.getElementById('as-cols-list').innerHTML=cols.map(c=>`<label class="col-check"><input type="checkbox" value="${c}" checked> ${c}</label>`).join('');
+  document.getElementById('as-cols-wrap').style.display='block';
+  const fCampo=document.getElementById('as-f-campo');
+  fCampo.innerHTML='<option value="">Sin filtro</option>'+cols.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const fValor=document.getElementById('as-f-valor');
+  fValor.innerHTML='<option value="">--</option>'+(clientesColumns.length?clientesColumns:cols).map(c=>`<option value="${c}">${c}</option>`).join('');
+  document.getElementById('as-filtro-wrap').style.display='block';
+}
+
+function confirmarSeccion(){
+  const titulo=document.getElementById('as-titulo').value.trim();
+  const tabla=document.getElementById('as-tabla').value;
+  if(!titulo){alert('Pon un título.');return}
+  if(!tabla){alert('Selecciona una tabla.');return}
+  const columnas=Array.from(document.querySelectorAll('#as-cols-list input:checked')).map(i=>i.value);
+  if(!columnas.length){alert('Selecciona al menos una columna.');return}
+  const filtro_campo=document.getElementById('as-f-campo').value;
+  const filtro_valor=document.getElementById('as-f-valor').value;
+  configSecciones.push({titulo,tabla,columnas,filtro_campo,filtro_valor});
+  renderSecList();closeAddSec();
+}
+
+async function saveConfig(){
+  const{error}=await sb.from('portal_clientes').update({config:{secciones:configSecciones}}).eq('id',configClienteId);
+  if(error){alert('Error: '+error.message);return}
+  closeConfig();loadClients();
+}
+
+// ── CLIENT PORTAL ──
+async function initClient(user){
+  show('v-client');
+  
+  const d=new Date();
+  document.getElementById('c-date').textContent=d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+
+  const{data:cfg}=await sb.from('portal_clientes').select('*').eq('email',user.email.toLowerCase()).single();
+  if(!cfg){
+    document.getElementById('c-name').textContent='Portal en configuración 🔧';
+    document.getElementById('home-stats').innerHTML=`<div class="empty"><div class="empty-icon">🔧</div><div style="font-size:15px;color:var(--text2)">Tu portal está siendo configurado. Contacta con tu administrador.</div></div>`;
+    return;
+  }
+
+  clienteData=cfg;
+  clienteSecciones=cfg.config?.secciones||[];
+  const empresa=cfg.empresa||cfg.nombre||'';
+  document.getElementById('c-name').textContent=`Hola, ${empresa} 👋`;
+  document.getElementById('c-empresa-badge').textContent=empresa;
+
+  // Set up client supabase
+  window.clientSb=cfg.supabase_url&&cfg.supabase_key?supabase.createClient(cfg.supabase_url,cfg.supabase_key):sb;
+  document.getElementById('help-float').style.display='block';
+  checkAdminReplies();
+  setInterval(checkAdminReplies,15000);
+
+  // Build nav
+  buildClientNav();
+  updateMobileNav();
+  // Build dynamic pages
+  buildDynamicPages();
+  // Load home stats
+  loadHomeStats();
+}
+
+function buildClientNav(){
+  const nav=document.getElementById('client-nav');
+  nav.innerHTML=`<button class="nav-tab active" onclick="showClientPage('home',this)">🏠 Inicio</button>`+
+    clienteSecciones.map((s,i)=>`<button class="nav-tab" onclick="showClientPage('sec-${i}',this)">${s.titulo}</button>`).join('');
+}
+
+function showClientPage(id,btn){
+  document.querySelectorAll('.client-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function goHome(){showClientPage('home',document.querySelector('.nav-tab'))}
+
+function buildDynamicPages(){
+  const wrap=document.getElementById('dynamic-pages');
+  wrap.innerHTML=clienteSecciones.map((s,i)=>`
+    <div class="client-page" id="page-sec-${i}">
+      <div class="page-header">
+        <div class="back-btn" onclick="goHome()">←</div>
+        <div class="page-title-wrap">
+          <div class="page-title">${s.titulo}</div>
+          <div class="page-subtitle" id="sec-subtitle-${i}">Cargando...</div>
+        </div>
+      </div>
+      <div class="filters-bar" id="filters-${i}"></div>
+      <div class="table-wrap" id="sec-table-${i}"><div class="loading"><div class="spin"></div>Cargando datos...</div></div>
+    </div>`).join('');
+
+  clienteSecciones.forEach((s,i)=>loadSeccionPage(s,i));
+}
+
+async function loadSeccionPage(sec,idx){
+  const isDateTable=sec.tabla==='citas'||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
+  
+  // Build filters based on table type
+  const hasFechaCol=sec.columnas.some(c=>c.includes('fecha'));
+  if(isDateTable){
+    document.getElementById(`filters-${idx}`).innerHTML=`
+      <button class="f-btn active" onclick="filterSec(${idx},'proximas',this)">Próximas</button>
+      <button class="f-btn" onclick="filterSec(${idx},'hoy',this)">Hoy</button>
+      <button class="f-btn" onclick="filterSec(${idx},'semana',this)">Esta semana</button>
+      <button class="f-btn" onclick="filterSec(${idx},'mes',this)">Este mes</button>
+      <button class="f-btn" onclick="filterSec(${idx},'pasadas',this)">Pasadas</button>
+      <button class="f-btn" onclick="filterSec(${idx},'todas',this)">Todas</button>
+      <input type="date" class="f-date" onchange="filterSecDate(${idx},this.value)" title="Filtrar por fecha exacta">`;
+  } else if(hasFechaCol){
+    document.getElementById(`filters-${idx}`).innerHTML=`
+      <button class="f-btn active" id="f-all-${idx}" onclick="filterSec(${idx},'todas',this)">Todos</button>
+      <button class="f-btn" onclick="filterSec(${idx},'recientes',this)">Últimos 30 días</button>
+      <button class="f-btn" onclick="filterSec(${idx},'hoy',this)">Hoy</button>
+      <input type="date" class="f-date" onchange="filterSecDate(${idx},this.value)" title="Filtrar por fecha exacta">`;
+  }
+
+  const isCitaDefault=sec.tabla.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
+  await renderSecTable(sec,idx,isCitaDefault?'proximas':'todas');
+}
+
+async function filterSec(idx,filtro,btn){
+  document.querySelectorAll(`#filters-${idx} .f-btn`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelector(`#filters-${idx} .f-date`).value='';
+  await renderSecTable(clienteSecciones[idx],idx,filtro);
+}
+
+async function filterSecDate(idx,dateVal){
+  document.querySelectorAll(`#filters-${idx} .f-btn`).forEach(b=>b.classList.remove('active'));
+  await renderSecTable(clienteSecciones[idx],idx,'fecha',dateVal);
+}
+
+async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
+  const cont=document.getElementById(`sec-table-${idx}`);
+  const sub=document.getElementById(`sec-subtitle-${idx}`);
+  cont.innerHTML=`<div class="loading"><div class="spin"></div>Cargando...</div>`;
+  try{
+    const dbClient=window.clientSb||sb;
+    let q=dbClient.from(sec.tabla).select('*');
+    // Apply client filter
+    if(sec.filtro_campo&&sec.filtro_valor&&clienteData){
+      const val=clienteData[sec.filtro_valor];
+      if(val) q=q.eq(sec.filtro_campo,val);
+    }
+
+    const{data:rows,error}=await q;
+    if(error)throw error;
+    let filtered=rows||[];
+
+    // Date filtering — use any date column available
+    const fechaCol=sec.columnas.find(c=>c.includes('fecha'))||null;
+    if(fechaCol&&filtro!=='todas'){
+      const hoy=new Date();hoy.setHours(0,0,0,0);
+      const hoyStr=iso(hoy);
+      if(filtro==='hoy') filtered=filtered.filter(r=>fmtDate(r[fechaCol])===hoyStr);
+      else if(filtro==='proximas') filtered=filtered.filter(r=>parseFecha(r[fechaCol])>=hoy);
+      else if(filtro==='pasadas') filtered=filtered.filter(r=>parseFecha(r[fechaCol])<hoy);
+      else if(filtro==='recientes'){const ini=new Date();ini.setDate(ini.getDate()-30);filtered=filtered.filter(r=>parseFecha(r[fechaCol])>=ini)}
+      else if(filtro==='semana'){const fin=new Date();fin.setDate(fin.getDate()+7);filtered=filtered.filter(r=>{const f=parseFecha(r[fechaCol]);return f>=hoy&&f<=fin})}
+      else if(filtro==='mes'){const fin=new Date();fin.setMonth(fin.getMonth()+1);filtered=filtered.filter(r=>{const f=parseFecha(r[fechaCol]);return f>=hoy&&f<=fin})}
+      else if(filtro==='fecha'&&dateVal) filtered=filtered.filter(r=>fmtDate(r[fechaCol])===dateVal);
+    }
+
+    sub.textContent=`${filtered.length} registro${filtered.length!==1?'s':''}`;
+    if(!filtered.length){
+      cont.innerHTML=`<div class="empty"><div class="empty-icon">📂</div><div style="color:var(--text2);font-size:14px">No hay registros para este filtro</div></div>`;
+      return;
+    }
+    const cols=sec.columnas.length?sec.columnas:Object.keys(filtered[0]);
+    cont.innerHTML=`<div style="overflow-x:auto"><table class="data-table">
+      <thead><tr>${cols.map(c=>`<th>${fmtCol(c)}</th>`).join('')}</tr></thead>
+      <tbody>${filtered.map(row=>`<tr>${cols.map(c=>`<td>${fmtCell(c,row[c])}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div><div class="table-footer">${filtered.length} registros</div>`;
+  }catch(e){cont.innerHTML=`<div class="empty"><div style="color:var(--red);font-size:13px">Error: ${e.message}</div></div>`}
+}
+
+async function loadHomeStats(){
+  const statsEl=document.getElementById('home-stats');
+  const navEl=document.getElementById('home-nav-buttons');
+  const colors=['gold','blue','green','purple'];
+  const icons=['📋','👥','📦','📊'];
+
+  // Stats per section
+  let statsHTML='';
+  let navHTML='';
+
+  for(let i=0;i<clienteSecciones.length;i++){
+    const s=clienteSecciones[i];
+    const color=colors[i%colors.length];
+    const icon=icons[i%icons.length];
+
+    try{
+      const dbClient=window.clientSb||sb;
+      let q=dbClient.from(s.tabla).select('*');
+      if(s.filtro_campo&&s.filtro_valor&&clienteData){
+        const val=clienteData[s.filtro_valor];
+        if(val) q=q.eq(s.filtro_campo,val);
+      }
+      const{data:rows}=await q;
+      const all=rows||[];
+
+      // Check if date-based
+      // Only show "hoy" stats for appointment-type tables
+      const isCitaTable=s.tabla.toLowerCase().includes('cita')||s.titulo.toLowerCase().includes('cita')||s.titulo.toLowerCase().includes('reuni')||s.titulo.toLowerCase().includes('appointment');
+      const fechaCol=isCitaTable?(s.columnas.find(c=>c.includes('fecha_cita')||c==='fecha')||null):null;
+      const hoy=new Date();hoy.setHours(0,0,0,0);
+      const hoyStr=iso(hoy);
+      const hoyCount=fechaCol?all.filter(r=>fmtDate(r[fechaCol])===hoyStr).length:null;
+      const proxCount=fechaCol?all.filter(r=>parseFecha(r[fechaCol])>=hoy).length:null;
+
+      const mainVal=hoyCount!==null?hoyCount:all.length;
+      const desc=hoyCount!==null?`${proxCount} próximas · ${all.length} total`:`${all.length} registros totales`;
+      const label=hoyCount!==null?`${s.titulo} hoy`:s.titulo;
+
+      statsHTML+=`<div class="stat-card ${color}" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
+        <div class="stat-icon">${icon}</div>
+        <div class="stat-lbl">${label}</div>
+        <div class="stat-val">${mainVal}</div>
+        <div class="stat-desc">${desc}</div>
+        <div class="stat-arrow">→</div>
+      </div>`;
+
+      navHTML+=`<div class="nav-btn" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
+        <div class="nav-btn-left">
+          <div class="nav-btn-icon ${color}">${icon}</div>
+          <div><div class="nav-btn-name">${s.titulo}</div><div class="nav-btn-count">${all.length} registros</div></div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">→</span>
+      </div>`;
+    }catch(e){
+      statsHTML+=`<div class="stat-card ${color}"><div class="stat-lbl">${s.titulo}</div><div class="stat-val">—</div></div>`;
+    }
+  }
+  statsEl.innerHTML=statsHTML;
+  navEl.innerHTML=navHTML;
+}
+
+// ── UTILS ──
+function parseFecha(s){
+  if(!s)return new Date(0);
+  if(typeof s==='string'&&s.includes('/')) {const[d,m,y]=s.split('/');return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T00:00:00`)}
+  return new Date(String(s).length===10?s+'T00:00:00':s);
+}
+function iso(d){return d.toISOString().split('T')[0]}
+function fmtDate(v){if(!v)return'';const d=parseFecha(v);return isNaN(d)?'':iso(d)}
+function fmtCol(c){return c.replace(/_/g,' ').replace(/^\w/,x=>x.toUpperCase())}
+function fmtCell(col,val){
+  if(val===null||val===undefined)return`<span style="color:var(--text3)">—</span>`;
+  if(typeof val==='boolean')return val?'<span class="badge b-confirmada">Sí</span>':'<span class="badge b-cancelada">No</span>';
+  const v=String(val);
+  if(col.toLowerCase().includes('estado')){
+    const cls='b-'+v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    return`<span class="badge ${cls}">${v}</span>`;
+  }
+  if(col.toLowerCase().includes('fecha')&&v.includes('T')) return new Date(v).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+  return v.length>60?v.substring(0,60)+'…':v;
+}
+
+// ── CHAT SYSTEM ──
+let activeConvEmail=null;
+
+// CLIENT: open chat
+async function openHelp(){
+  document.getElementById('overlay-help').classList.add('open');
+  await loadClientChat();
+}
+function closeHelp(){document.getElementById('overlay-help').classList.remove('open')}
+
+async function loadClientChat(){
+  const el=document.getElementById('chat-messages');
+  el.innerHTML=`<div class="loading"><div class="spin"></div></div>`;
+  const email=currentUser?.email||'';
+  const{data}=await sb.from('mensajes').select('*').eq('email_cliente',email).order('created_at',{ascending:true});
+  const msgs=data||[];
+  // Mark admin messages as read
+  const unread=msgs.filter(m=>m.de==='admin'&&!m.leido).map(m=>m.id);
+  if(unread.length) await sb.from('mensajes').update({leido:true}).in('id',unread);
+  if(!msgs.length){
+    el.innerHTML=`<div style="text-align:center;color:var(--text3);font-size:13px;padding:20px">Escríbenos, estamos aquí para ayudarte 👋</div>`;
+    return;
+  }
+  el.innerHTML=msgs.map(m=>chatBubble(m.contenido,m.de==='cliente',m.created_at)).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function chatBubble(txt,isClient,ts){
+  const time=new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  if(isClient) return `<div style="display:flex;justify-content:flex-end"><div style="max-width:75%"><div style="background:var(--gold);color:#0f0e0d;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);text-align:right;margin-top:4px">${time}</div></div></div>`;
+  return `<div style="display:flex;justify-content:flex-start"><div style="max-width:75%"><div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:14px 14px 14px 4px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);margin-top:4px">ScilaAI · ${time}</div></div></div>`;
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  const empresa=clienteData?.empresa||clienteData?.nombre||'';
+  const{error}=await sb.from('mensajes').insert({empresa,email_cliente:currentUser?.email||'',contenido:txt,de:'cliente',leido:false});
+  if(!error) await loadClientChat();
+}
+
+// ADMIN: load conversations list
+async function loadMensajes(){
+  const el=document.getElementById('conv-list');
+  el.innerHTML=`<div class="loading"><div class="spin"></div></div>`;
+  // Get unique conversations
+  const{data}=await sb.from('mensajes').select('*').order('created_at',{ascending:false});
+  if(!data?.length){el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No hay conversaciones</div>`;return}
+  // Group by email
+  const convs={};
+  data.forEach(m=>{
+    if(!convs[m.email_cliente]) convs[m.email_cliente]={email:m.email_cliente,empresa:m.empresa,last:m.contenido,time:m.created_at,unread:0};
+    if(m.de==='cliente'&&!m.leido) convs[m.email_cliente].unread++;
+  });
+  const list=Object.values(convs);
+  el.innerHTML=list.map(c=>`
+    <div onclick="openConv('${c.email}')" style="padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;${activeConvEmail===c.email?'background:var(--bg3)':''}" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='${activeConvEmail===c.email?'var(--bg3)':'transparent'}'">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-size:14px;font-weight:500">${c.empresa||c.email.split('@')[0]}</div>
+        ${c.unread>0?`<span style="background:var(--gold);color:#0f0e0d;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px">${c.unread}</span>`:''}
+      </div>
+      <div style="font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${c.last}</div>
+    </div>`).join('');
+  updateUnreadBadge(data);
+}
+
+async function openConv(email){
+  activeConvEmail=email;
+  const{data}=await sb.from('mensajes').select('*').eq('email_cliente',email).order('created_at',{ascending:true});
+  const msgs=data||[];
+  const empresa=msgs[0]?.empresa||email;
+  // Mark client messages as read
+  const unread=msgs.filter(m=>m.de==='cliente'&&!m.leido).map(m=>m.id);
+  if(unread.length) await sb.from('mensajes').update({leido:true}).in('id',unread);
+
+  document.getElementById('chat-header-admin').innerHTML=`
+    <div>
+      <div style="font-size:15px;font-weight:500">${empresa}</div>
+      <div style="font-size:12px;color:var(--text2)">${email}</div>
+    </div>`;
+  document.getElementById('admin-chat-messages').innerHTML=msgs.map(m=>adminChatBubble(m.contenido,m.de==='admin',m.created_at)).join('');
+  document.getElementById('admin-chat-messages').scrollTop=99999;
+  document.getElementById('admin-chat-input-wrap').style.display='block';
+  document.getElementById('admin-chat-input').focus();
+  loadMensajes();
+}
+
+function adminChatBubble(txt,isAdmin,ts){
+  const time=new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  if(isAdmin) return `<div style="display:flex;justify-content:flex-end"><div style="max-width:75%"><div style="background:var(--purple);color:#fff;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);text-align:right;margin-top:4px">Tú · ${time}</div></div></div>`;
+  return `<div style="display:flex;justify-content:flex-start"><div style="max-width:75%"><div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:14px 14px 14px 4px;font-size:14px;line-height:1.5;white-space:pre-wrap">${txt}</div><div style="font-size:11px;color:var(--text3);margin-top:4px">${activeConvEmail?.split('@')[0]} · ${time}</div></div></div>`;
+}
+
+async function sendAdminChat(){
+  const inp=document.getElementById('admin-chat-input');
+  const txt=inp.value.trim();
+  if(!txt||!activeConvEmail)return;
+  inp.value='';
+  const{data:cfg}=await sb.from('portal_clientes').select('empresa,nombre').eq('email',activeConvEmail).single();
+  const empresa=cfg?.empresa||cfg?.nombre||'';
+  await sb.from('mensajes').insert({empresa,email_cliente:activeConvEmail,contenido:txt,de:'admin',leido:false});
+  openConv(activeConvEmail);
+}
+
+async function deleteConv(){
+  if(!activeConvEmail)return;
+  if(!confirm(`¿Eliminar toda la conversación con ${activeConvEmail}?`))return;
+  await sb.from('mensajes').delete().eq('email_cliente',activeConvEmail);
+  activeConvEmail=null;
+  document.getElementById('admin-chat-messages').innerHTML='';
+  document.getElementById('admin-chat-input-wrap').style.display='none';
+  document.getElementById('chat-header-admin').innerHTML=`<div style="font-size:14px;color:var(--text2)">Selecciona una conversación</div>`;
+  loadMensajes();
+}
+
+function updateUnreadBadge(data){
+  const count=(data||[]).filter(m=>m.de==='cliente'&&!m.leido).length;
+  const el=document.getElementById('msg-count');
+  if(el){if(count>0){el.textContent=count;el.style.display='inline'}else el.style.display='none'}
+}
+
+async function checkUnreadMessages(){
+  const{data}=await sb.from('mensajes').select('id,leido,de').eq('de','cliente').eq('leido',false);
+  const count=(data||[]).length;
+  const el=document.getElementById('msg-count');
+  if(el){if(count>0){el.textContent=count;el.style.display='inline'}else el.style.display='none'}
+}
+
+// Client: check for admin replies
+async function checkAdminReplies(){
+  if(!currentUser)return;
+  const{data}=await sb.from('mensajes').select('id').eq('email_cliente',currentUser.email).eq('de','admin').eq('leido',false);
+  const dot=document.getElementById('help-dot');
+  if(dot){dot.style.display=(data?.length>0)?'block':'none'}
+}
+
+// ── MOBILE MENU ──
+function toggleMobileMenu(){
+  const menu=document.getElementById('mobile-menu-client');
+  const btn=document.getElementById('hamburger-btn');
+  const isOpen=menu.classList.contains('open');
+  closeMobileMenus();
+  if(!isOpen){
+    menu.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+function toggleAdminMenu(){
+  const menu=document.getElementById('mobile-menu-admin');
+  const btn=document.getElementById('hamburger-admin');
+  const isOpen=menu.classList.contains('open');
+  closeMobileMenus();
+  if(!isOpen){
+    menu.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+function closeMobileMenus(){
+  document.querySelectorAll('.mobile-menu').forEach(m=>m.classList.remove('open'));
+  document.querySelectorAll('.hamburger').forEach(b=>b.classList.remove('open'));
+}
+
+// Close menu on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.mobile-menu')&&!e.target.closest('.hamburger')){
+    closeMobileMenus();
+  }
+});
+
+// Update mobile nav when client loads
+function updateMobileNav(){
+  const userInfo=document.getElementById('m-user-info');
+  if(userInfo&&currentUser) userInfo.textContent=currentUser.email;
+  const navItems=document.getElementById('mobile-nav-items');
+  if(!navItems) return;
+  navItems.innerHTML=`<button class="mobile-menu-item" onclick="showClientPage('home',document.querySelector('.nav-tab'));closeMobileMenus()">🏠 Inicio</button>`+
+    clienteSecciones.map((s,i)=>`<button class="mobile-menu-item" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}]);closeMobileMenus()">${s.titulo}</button>`).join('');
+}
+
+// ── INIT ──
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+['overlay-config','overlay-addsec','overlay-edit','overlay-pass','overlay-help'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    if(e.target===document.getElementById(id)){
+      if(id==='overlay-config')closeConfig();
+      else if(id==='overlay-addsec')closeAddSec();
+      else if(id==='overlay-edit')closeEdit();
+      else if(id==='overlay-pass')closePass();
+      else if(id==='overlay-help')closeHelp();
+    }
+  });
+});
+(async()=>{const{data:{session}}=await sb.auth.getSession();if(session?.user){currentUser=session.user;if(session.user.email===ADMIN_EMAIL)initAdmin(session.user);else initClient(session.user)}})();
+</script>
+</body>
+</html>
