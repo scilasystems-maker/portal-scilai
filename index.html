@@ -3,271 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal ScilaAI</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<title>Portal SCILA AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#080c14;--bg2:#0d1220;--bg3:#121928;--card:#0f1622;
   --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
-  --gold:#00e5cc;--gold2:#2dffd6;
-  --accent:#b44fff;--accent2:#d280ff;
-  --text:#f0f4ff;--text2:#7a8aaa;--text3:#3a4560;
-  --green:#00e5b0;--red:#ff4d6a;--blue:#4d9fff;--amber:#ffaa33;--purple:#b44fff;
-  --r:12px;--rs:8px;
+  --cyan:#00e5cc;--purple:#b44fff;
   --gradient:linear-gradient(135deg,#00e5cc,#b44fff);
+  --gradient2:linear-gradient(135deg,rgba(0,229,204,.1),rgba(180,79,255,.1));
+  --text:#f0f4ff;--text2:#7a8aaa;--text3:#3a4560;
+  --green:#00e5b0;--red:#ff4d6a;--blue:#4d9fff;--amber:#ffaa33;
+  --r:14px;--rs:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(0,229,204,.06) 0%,transparent 50%),radial-gradient(ellipse 60% 40% at 80% 0%,rgba(180,79,255,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(0,229,204,.05) 0%,transparent 50%),radial-gradient(ellipse 60% 40% at 80% 0%,rgba(180,79,255,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
 
-/* LOGIN */
+/* ── LOGIN ── */
 #v-login{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:20px;background:var(--bg)}
-.login-box{width:100%;max-width:420px;padding:52px 44px;background:var(--card);border:1px solid var(--border2);border-radius:20px;animation:fadeUp .5s ease both;margin:0 auto;box-shadow:0 0 60px rgba(0,229,204,.04),0 0 60px rgba(180,79,255,.04)}
-.brand{font-family:'DM Serif Display',serif;font-size:30px;color:#ffffff;margin-bottom:6px}
-.brand-sub{font-size:14px;color:var(--text2);font-weight:300;margin-bottom:38px}
-.lbl{display:block;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
-.inp{width:100%;padding:13px 15px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:18px}
-.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
-.btn-primary{width:100%;padding:14px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s,box-shadow .2s;letter-spacing:.3px;box-shadow:0 4px 24px rgba(0,229,204,.2)}
-.btn-primary:hover{opacity:.9;box-shadow:0 6px 32px rgba(0,229,204,.35);transform:translateY(-1px)} .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.err-box{margin-top:12px;padding:11px 14px;background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:var(--rs);font-size:13px;color:var(--red);display:none}
+.login-wrap{width:100%;max-width:440px}
+.login-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.login-logo-row img{height:36px;object-fit:contain}
+.login-brand{font-family:'DM Serif Display',serif;font-size:28px;color:#fff}
+.login-sub{font-size:14px;color:var(--text2);margin-bottom:32px;font-weight:300}
+.login-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--cyan);margin-bottom:20px;font-weight:500}
+.login-card{background:rgba(15,22,34,.9);border:1px solid var(--border2);border-radius:20px;padding:36px;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.03)}
+.lbl{display:block;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.inp-wrap{position:relative;margin-bottom:20px}
+.inp{width:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s}
+.inp:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,204,.1)}
+.inp::placeholder{color:var(--text3)}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;color:var(--text2);font-size:16px;padding:0;line-height:1;transition:color .2s}
+.eye-btn:hover{color:var(--text)}
+.btn-login{width:100%;padding:14px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s,box-shadow .2s;box-shadow:0 4px 24px rgba(0,229,204,.2);letter-spacing:.3px}
+.btn-login:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,229,204,.3)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.err-box{margin-top:14px;padding:12px 14px;background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.25);border-radius:var(--rs);font-size:13px;color:var(--red);display:none}
 
-/* HEADER */
-.header{position:sticky;top:0;z-index:100;background:rgba(8,12,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 32px}
-.h-logo{font-family:'DM Serif Display',serif;font-size:20px;color:#ffffff;cursor:pointer}
-.h-right{display:flex;align-items:center;gap:12px}
-.h-user{font-size:13px;color:var(--text2)}
-.h-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
-.h-badge.admin{background:rgba(155,127,232,.15);border:1px solid rgba(155,127,232,.3);color:var(--purple)}
-.h-badge.client{background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);color:var(--gold)}
-.btn-sm{padding:7px 14px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+/* ── HEADER ── */
+.header{position:sticky;top:0;z-index:100;background:rgba(8,12,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.h-logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
+.h-logo img{height:26px;object-fit:contain;flex-shrink:0}
+.h-logo-text{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;white-space:nowrap}
+.h-right{display:flex;align-items:center;gap:10px}
+.h-badge{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;letter-spacing:.3px}
+.h-badge.admin{background:rgba(180,79,255,.12);border:1px solid rgba(180,79,255,.25);color:var(--purple)}
+.h-badge.client{background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);color:var(--cyan)}
+.btn-sm{padding:7px 16px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;font-weight:500}
 .btn-sm:hover{border-color:var(--text2);color:var(--text)}
 
+/* HAMBURGER */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:transparent;border:none}
+.hamburger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+.mobile-menu{display:none;position:fixed;top:60px;right:0;left:0;background:rgba(10,16,28,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:99;padding:12px;flex-direction:column;gap:4px}
+.mobile-menu.open{display:flex}
+.mob-item{padding:12px 16px;border-radius:10px;font-size:14px;color:#c0cce0;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;background:transparent;border:none;font-family:'Inter',sans-serif;width:100%;text-align:left;font-weight:500}
+.mob-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.mob-divider{height:1px;background:rgba(255,255,255,.07);margin:4px 0}
+.mob-user{padding:10px 16px;font-size:12px;color:var(--text3)}
+
 /* CLIENT NAV */
-.client-nav{background:rgba(8,12,20,.8);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:4px}
-.nav-tab{padding:12px 20px;background:transparent;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
-.nav-tab:hover{color:var(--text)} .nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:linear-gradient(180deg,rgba(0,229,204,.05) 0%,transparent 100%)}
+.client-nav{background:rgba(8,12,20,.8);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.client-nav::-webkit-scrollbar{display:none}
+.nav-tab{padding:14px 18px;background:transparent;border:none;color:var(--text2);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;font-weight:500}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
 
-/* MAIN */
-.main{max-width:1120px;margin:0 auto;padding:36px 32px 80px;position:relative;z-index:1}
-
-/* VIEWS */
+/* ── MAIN ── */
+.main{max-width:1140px;margin:0 auto;padding:32px 28px 80px;position:relative;z-index:1}
 #v-login,#v-admin,#v-client{display:none}
 .client-page{display:none}
 .client-page.active{display:block}
 
-/* WELCOME */
-.welcome{margin-bottom:36px;animation:fadeUp .4s ease .1s both}
-.welcome-h{font-family:'DM Serif Display',serif;font-size:38px;letter-spacing:-.5px;margin-bottom:6px}
-.welcome-d{font-size:14px;color:var(--text2);font-weight:300}
+/* ── HOME PAGE ── */
+.welcome{margin-bottom:32px;animation:fadeUp .4s ease both}
+.welcome-greeting{font-size:13px;color:var(--cyan);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.welcome-h{font-family:'DM Serif Display',serif;font-size:36px;letter-spacing:-.5px;margin-bottom:4px;line-height:1.2}
+.welcome-d{font-size:14px;color:var(--text2)}
 
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:40px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;cursor:pointer;animation:fadeUp .4s ease both}
-.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.stat-card.gold::before{background:var(--gradient)}
-.stat-card.green::before{background:var(--green)}
-.stat-card.blue::before{background:var(--blue)}
-.stat-card.purple::before{background:var(--purple)}
-.stat-icon{font-size:24px;margin-bottom:12px;opacity:.8}
-.stat-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.stat-val{font-family:'DM Serif Display',serif;font-size:44px;line-height:1;margin-bottom:4px}
-.stat-desc{font-size:12px;color:var(--text2)}
-.stat-arrow{position:absolute;bottom:16px;right:16px;font-size:18px;color:var(--text3);transition:color .2s,transform .2s}
-.stat-card:hover .stat-arrow{color:var(--gold);transform:translateX(3px)}
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:36px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;position:relative;overflow:hidden;transition:border-color .25s,transform .2s;cursor:pointer;animation:fadeUp .4s ease both}
+.stat-card:hover{border-color:rgba(0,229,204,.3);transform:translateY(-3px)}
+.stat-card::after{content:'';position:absolute;inset:0;background:var(--gradient2);opacity:0;transition:opacity .25s}
+.stat-card:hover::after{opacity:1}
+.stat-card-inner{position:relative;z-index:1}
+.stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.stat-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(0,229,204,.1);border:1px solid rgba(0,229,204,.15)}
+.stat-icon-wrap.purple{background:rgba(180,79,255,.1);border-color:rgba(180,79,255,.15)}
+.stat-icon-wrap.blue{background:rgba(77,159,255,.1);border-color:rgba(77,159,255,.15)}
+.stat-icon-wrap.green{background:rgba(0,229,176,.1);border-color:rgba(0,229,176,.15)}
+.stat-arrow{color:var(--text3);font-size:16px;transition:color .2s,transform .2s;margin-top:4px}
+.stat-card:hover .stat-arrow{color:var(--cyan);transform:translateX(3px)}
+.stat-num{font-family:'DM Serif Display',serif;font-size:42px;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.stat-desc{font-size:13px;color:var(--text3)}
 
-/* SECTION NAV BUTTONS */
-.nav-buttons{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:40px}
-.nav-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;animation:fadeUp .4s ease both}
-.nav-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
-.nav-btn-left{display:flex;align-items:center;gap:12px}
-.nav-btn-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.nav-btn-icon.gold{background:rgba(201,168,76,.12)}
-.nav-btn-icon.blue{background:rgba(92,155,224,.12)}
-.nav-btn-icon.green{background:rgba(76,175,125,.12)}
-.nav-btn-icon.purple{background:rgba(155,127,232,.12)}
-.nav-btn-name{font-size:15px;font-weight:500}
-.nav-btn-count{font-size:12px;color:var(--text2);margin-top:2px}
+/* NAV BUTTONS */
+.section-label{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.nav-buttons{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:40px}
+.nav-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;animation:fadeUp .4s ease both}
+.nav-btn:hover{border-color:rgba(0,229,204,.3);background:rgba(15,22,34,.8);transform:translateX(4px)}
+.nav-btn-left{display:flex;align-items:center;gap:14px}
+.nav-btn-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nbi-cyan{background:rgba(0,229,204,.1);border:1px solid rgba(0,229,204,.15)}
+.nbi-purple{background:rgba(180,79,255,.1);border:1px solid rgba(180,79,255,.15)}
+.nbi-blue{background:rgba(77,159,255,.1);border:1px solid rgba(77,159,255,.15)}
+.nbi-green{background:rgba(0,229,176,.1);border:1px solid rgba(0,229,176,.15)}
+.nav-btn-name{font-size:15px;font-weight:600;margin-bottom:2px}
+.nav-btn-count{font-size:12px;color:var(--text2)}
+.nav-btn-arr{color:var(--text3);font-size:16px;transition:color .2s}
+.nav-btn:hover .nav-btn-arr{color:var(--cyan)}
 
-/* PAGE HEADER */
-.page-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fadeUp .3s ease both}
-.back-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;flex-shrink:0}
-.back-btn:hover{border-color:var(--gold);color:var(--gold)}
-.page-title-wrap{}
-.page-title{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-.3px}
-.page-subtitle{font-size:13px;color:var(--text2);margin-top:3px}
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;animation:fadeUp .3s ease both}
+.back-btn{width:38px;height:38px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;flex-shrink:0;color:var(--text2)}
+.back-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.page-title{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.3px}
+.page-subtitle{font-size:13px;color:var(--text2);margin-top:2px;font-weight:500}
 
-/* FILTERS BAR */
-.filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .3s ease .1s both}
-.f-btn{padding:7px 16px;background:transparent;border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
-.f-btn:hover{border-color:var(--gold);color:var(--gold)}
-.f-btn.active{background:rgba(0,229,204,.08);border-color:var(--gold);color:var(--gold)}
-.f-date{padding:7px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;outline:none}
-.f-date:focus{border-color:var(--gold)}
+/* FILTERS */
+.filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;animation:fadeUp .3s ease .05s both}
+.f-btn{padding:7px 16px;background:transparent;border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;font-weight:500}
+.f-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.f-btn.active{background:rgba(0,229,204,.08);border-color:var(--cyan);color:var(--cyan)}
+.f-date{padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;outline:none}
+.f-date:focus{border-color:var(--cyan)}
 
-/* DATA TABLE */
-.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:fadeUp .3s ease .15s both}
-.data-table{width:100%;border-collapse:collapse}
-.data-table th{padding:12px 16px;text-align:left;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);background:var(--bg3)}
-.data-table td{padding:14px 16px;font-size:14px;color:var(--text);border-bottom:1px solid var(--border)}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:rgba(255,255,255,.02)}
-.badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500}
-.b-confirmada{background:rgba(76,175,125,.12);color:var(--green);border:1px solid rgba(76,175,125,.2)}
-.b-pendiente{background:rgba(224,168,92,.12);color:var(--amber);border:1px solid rgba(224,168,92,.2)}
-.b-cancelada{background:rgba(224,92,92,.12);color:var(--red);border:1px solid rgba(224,92,92,.2)}
-.b-completada{background:rgba(92,155,224,.12);color:var(--blue);border:1px solid rgba(92,155,224,.2)}
-.table-footer{padding:12px 16px;font-size:13px;color:var(--text3);border-top:1px solid var(--border);background:var(--bg3)}
+/* SEARCH */
+.search-bar-wrap{margin-bottom:18px;animation:fadeUp .3s ease .1s both}
+.search-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 16px;transition:border-color .2s}
+.search-bar:focus-within{border-color:var(--cyan)}
+.search-icon{font-size:14px;color:var(--text3);flex-shrink:0}
+.search-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:14px}
+.search-input::placeholder{color:var(--text3)}
+
+/* ── CITA CARDS ── */
+.cita-cards-grid{display:flex;flex-direction:column;gap:12px;animation:fadeUp .3s ease both}
+.cita-card-pro{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.cita-card-pro:hover{border-color:var(--border2);transform:translateY(-1px)}
+.cita-hoy{border-color:rgba(0,229,204,.3);background:linear-gradient(135deg,rgba(0,229,204,.04) 0%,var(--card) 60%)}
+.hoy-ribbon{position:absolute;top:0;right:0;background:var(--gradient);color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:4px 10px;border-radius:0 var(--r) 0 8px}
+.cita-card-fecha{text-align:center;padding:10px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border)}
+.cita-dia-num{font-family:'DM Serif Display',serif;font-size:26px;line-height:1;color:var(--text)}
+.cita-mes-txt{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:1px;margin-top:2px}
+.cita-card-tipo{font-size:15px;font-weight:600;margin-bottom:8px}
+.cita-card-meta{display:flex;flex-wrap:wrap;gap:8px}
+.meta-chip{font-size:12px;padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:20px;color:var(--text2);white-space:nowrap}
+.cita-card-estado{text-align:right}
+
+/* ESTADO BADGES */
+.estado-badge{display:inline-flex;align-items:center;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.3px}
+.badge-confirmada{background:rgba(0,229,176,.1);color:#00e5b0;border:1px solid rgba(0,229,176,.25)}
+.badge-pendiente{background:rgba(255,170,51,.1);color:#ffaa33;border:1px solid rgba(255,170,51,.25)}
+.badge-cancelada{background:rgba(255,77,106,.1);color:#ff4d6a;border:1px solid rgba(255,77,106,.25)}
+.badge-completada{background:rgba(77,159,255,.1);color:#4d9fff;border:1px solid rgba(77,159,255,.25)}
+
+/* ── PRO TABLE ── */
+.pro-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:fadeUp .3s ease both}
+.pro-table{width:100%;border-collapse:collapse}
+.pro-table thead{background:rgba(255,255,255,.03)}
+.pro-table th{padding:13px 18px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);white-space:nowrap;user-select:none}
+.pro-table th:hover{color:var(--text2)}
+.sort-icon{opacity:.4;font-size:10px}
+.pro-table td{padding:15px 18px;font-size:14px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:middle}
+.pro-table tr:last-child td{border-bottom:none}
+.pro-table tbody tr{transition:background .15s;animation:fadeUp .3s ease both}
+.pro-table tbody tr:hover{background:rgba(255,255,255,.025)}
+.cell-null{color:var(--text3)}
+.date-chip{font-size:13px;color:var(--text2);white-space:nowrap}
+.pro-table-footer{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);background:rgba(255,255,255,.02);font-size:13px;color:var(--text3)}
+.export-btn{padding:6px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
+.export-btn:hover{border-color:var(--cyan);color:var(--cyan)}
 
 /* EMPTY & LOADING */
 .loading{padding:48px;text-align:center;color:var(--text3);font-size:14px}
-.spin{width:22px;height:22px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
-.empty{padding:60px 20px;text-align:center;color:var(--text3)}
-.empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+.spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+.pro-empty{padding:60px 20px;text-align:center}
+.pro-empty-icon{font-size:40px;margin-bottom:12px;opacity:.3}
+.pro-empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.pro-empty-sub{font-size:14px;color:var(--text3)}
 
-/* ADMIN */
-.admin-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:32px}
-.a-tab{padding:10px 20px;background:transparent;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
-.a-tab:hover{color:var(--text)} .a-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+/* ── ADMIN ── */
+.admin-tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:28px;overflow-x:auto;scrollbar-width:none}
+.admin-tabs::-webkit-scrollbar{display:none}
+.a-tab{padding:12px 20px;background:transparent;border:none;color:var(--text2);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;font-weight:500}
+.a-tab:hover{color:var(--text)} .a-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
 .clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .client-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s}
 .client-card:hover{border-color:var(--border2)}
-.cc-empresa{font-size:11px;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
-.cc-name{font-size:16px;font-weight:500;margin-bottom:3px}
+.cc-empresa{font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.cc-name{font-size:16px;font-weight:600;margin-bottom:3px}
 .cc-email{font-size:13px;color:var(--text2);margin-bottom:14px}
 .cc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.cc-tag{font-size:11px;padding:3px 9px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text2)}
+.cc-tag{font-size:11px;padding:3px 10px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:20px;color:var(--text2)}
 .cc-actions{display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--border)}
-.btn-action{flex:1;padding:8px;background:transparent;border:1px solid var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;text-align:center}
-.btn-action:hover{border-color:var(--gold);color:var(--gold)}
+.btn-action{flex:1;padding:8px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}
+.btn-action:hover{border-color:var(--cyan);color:var(--cyan)}
 .btn-action.danger:hover{border-color:var(--red);color:var(--red)}
 
 /* FORM */
 .form-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:28px;max-width:700px}
-.form-title{font-size:18px;font-weight:500;margin-bottom:22px}
+.form-title{font-size:18px;font-weight:700;margin-bottom:22px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-group{margin-bottom:16px}
 .form-group .lbl{margin-bottom:7px}
 .form-group .inp{margin-bottom:0}
-.btn-crear{padding:13px 28px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
-.btn-crear:hover{background:var(--gold2)} .btn-crear:disabled{opacity:.5;cursor:not-allowed}
-.success-msg{margin-top:12px;padding:11px 14px;background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.3);border-radius:var(--rs);font-size:13px;color:var(--green);display:none}
+.btn-crear{padding:13px 28px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-crear:hover{opacity:.9} .btn-crear:disabled{opacity:.5;cursor:not-allowed}
+.success-msg{margin-top:12px;padding:11px 14px;background:rgba(0,229,176,.08);border:1px solid rgba(0,229,176,.2);border-radius:var(--rs);font-size:13px;color:var(--green);display:none}
 
 /* OVERLAY */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:20px}
 .overlay.open{display:flex}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;animation:fadeUp .3s ease}
-.modal-title{font-size:18px;font-weight:500;margin-bottom:20px}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;animation:fadeUp .3s ease;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:18px}
 .modal-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
-.btn-cancel{padding:10px 20px;background:transparent;border:1px solid var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer}
+.btn-cancel{padding:10px 20px;background:transparent;border:1px solid var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;font-weight:500}
 .btn-cancel:hover{border-color:var(--text2);color:var(--text)}
-.btn-confirm{padding:10px 20px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
-.btn-confirm:hover{background:var(--gold2)}
+.btn-confirm{padding:10px 20px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
 
-/* CONFIG MODAL */
-.sec-item{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px}
-.sec-item-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
-.sec-item-name{font-size:14px;font-weight:500}
+/* CONFIG */
+.sec-item{background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px}
+.sec-item-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.sec-item-name{font-size:14px;font-weight:600}
 .sec-item-meta{font-size:12px;color:var(--text3);margin-top:2px}
 .btn-del{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;transition:color .2s}
 .btn-del:hover{color:var(--red)}
-.btn-add-sec{width:100%;padding:11px;background:transparent;border:1px dashed var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-top:8px}
-.btn-add-sec:hover{border-color:var(--gold);color:var(--gold)}
-
-/* ADD SECTION MODAL */
+.btn-add-sec{width:100%;padding:11px;background:transparent;border:1px dashed var(--border2);border-radius:var(--rs);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-top:8px;font-weight:500}
+.btn-add-sec:hover{border-color:var(--cyan);color:var(--cyan)}
 .cols-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px}
-.col-check{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s}
-.col-check:hover{border-color:var(--gold);color:var(--text)}
-.col-check input{accent-color:var(--gold);width:14px;height:14px;flex-shrink:0}
-.sec-inp{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
-.sec-inp:focus{border-color:var(--gold)}
-.sec-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+.col-check{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s}
+.col-check:hover{border-color:var(--cyan);color:var(--text)}
+.col-check input{accent-color:var(--cyan);width:14px;height:14px;flex-shrink:0}
+.sec-inp{width:100%;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.sec-inp:focus{border-color:var(--cyan)}
+.sec-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* CHAT */
+.chat-bubble-client{display:flex;justify-content:flex-end;margin-bottom:8px}
+.chat-bubble-admin{display:flex;justify-content:flex-start;margin-bottom:8px}
+
+/* HELP FLOAT */
+#help-float{display:none;position:fixed;bottom:28px;right:28px;z-index:300}
+.help-float-btn{width:56px;height:56px;background:var(--gradient);border:none;border-radius:50%;cursor:pointer;font-size:22px;box-shadow:0 4px 24px rgba(0,229,204,.35);transition:transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center}
+.help-float-btn:hover{transform:scale(1.1);box-shadow:0 8px 32px rgba(0,229,204,.5)}
+#help-dot{display:none;position:absolute;top:2px;right:2px;width:13px;height:13px;background:var(--red);border-radius:50%;border:2px solid var(--bg)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* MOBILE MENU */
-.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:transparent;border:none}
-.hamburger span{width:22px;height:2px;background:#ffffff;border-radius:2px;transition:all .3s}
-.mobile-menu{display:none;position:fixed;top:54px;right:0;left:0;background:rgba(20,30,50,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.15);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:99;padding:16px;flex-direction:column;gap:8px}
-.mobile-menu.open{display:flex}
-.mobile-menu-item{padding:12px 16px;border-radius:var(--rs);font-size:14px;color:#d0d8f0;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;background:transparent;border:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left}
-.mobile-menu-item:hover{background:var(--bg3);color:var(--text)}
-.mobile-menu-divider{height:1px;background:var(--border);margin:4px 0}
-.mobile-user-info{padding:12px 16px;font-size:13px;color:var(--text3)}
 
+/* RESPONSIVE */
 @media(max-width:768px){
-  /* Layout */
   .main{padding:16px 14px 80px}
   .header{padding:0 14px;height:54px}
-  .client-nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .client-nav::-webkit-scrollbar{display:none}
-  .nav-tab{padding:10px 14px;font-size:13px;white-space:nowrap}
-
-  /* Welcome */
-  .welcome-h{font-size:22px}
-  .welcome-d{font-size:13px}
-  .welcome{margin-bottom:20px}
-
-  /* Stats */
-  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-  .stat-val{font-size:32px}
-  .stat-card{padding:16px}
-
-  /* Nav buttons */
-  .nav-buttons{grid-template-columns:1fr 1fr;gap:10px}
-  .nav-btn{padding:14px}
-  .nav-btn-icon{width:34px;height:34px;font-size:16px}
-  .nav-btn-name{font-size:13px}
-
-  /* Tables */
-  .table-wrap{border-radius:10px;overflow-x:auto}
-  .data-table th,.data-table td{padding:10px 12px;font-size:13px}
-  .page-title{font-size:20px}
-  .filters-bar{gap:6px}
-  .f-btn{padding:6px 12px;font-size:12px}
-
-  /* Login */
-  .login-box{padding:32px 22px;border-radius:16px}
-  .brand{font-size:24px}
-
-  /* Admin */
-  .clients-grid{grid-template-columns:1fr}
-  .form-row{grid-template-columns:1fr}
-  .admin-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .admin-tabs::-webkit-scrollbar{display:none}
-  .a-tab{white-space:nowrap;padding:10px 14px}
-
-  /* Chat mensajes - stack on mobile */
-  #tab-mensajes > div{grid-template-columns:1fr !important;height:auto !important}
-  #tab-mensajes > div > div:first-child{border-right:none !important;border-bottom:1px solid var(--border);max-height:200px}
-  #tab-mensajes > div > div:last-child{height:400px}
-
-  /* Help float button */
-  #help-float{bottom:16px;right:16px}
-
-  /* Modal */
-  .modal{padding:22px 18px;border-radius:14px;margin:10px}
-  .modal-footer{flex-direction:column-reverse}
-  .modal-footer button{width:100%}
-
-  /* Page header */
-  .page-header{margin-bottom:16px}
-  .back-btn{width:32px;height:32px;font-size:14px}
-
-  /* H-logo text */
-  .h-logo span{display:none}
-
-  /* Hide desktop header right, show hamburger */
   .h-right{display:none !important}
   .hamburger{display:flex !important}
-  .h-logo{font-size:15px !important;white-space:nowrap}
-  .h-logo span{display:inline !important}
-  .header{height:54px}
+  .h-logo-text{font-size:15px}
+  .client-nav{padding:0 8px}
+  .nav-tab{padding:12px 12px;font-size:13px}
+  .welcome-h{font-size:24px}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .stat-num{font-size:32px}
+  .stat-card{padding:16px}
+  .nav-buttons{grid-template-columns:1fr 1fr;gap:10px}
+  .cita-card-pro{grid-template-columns:56px 1fr;gap:12px}
+  .cita-card-estado{grid-column:2;text-align:left}
+  .clients-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .pro-table-wrap{overflow-x:auto}
+  .modal{padding:20px 16px;border-radius:16px}
+  .modal-footer{flex-direction:column-reverse}
+  .modal-footer button{width:100%}
+  #help-float{bottom:16px;right:16px}
+  .admin-tabs{overflow-x:auto;scrollbar-width:none}
 }
-
 @media(max-width:400px){
   .stats-grid{grid-template-columns:1fr}
   .nav-buttons{grid-template-columns:1fr}
@@ -278,195 +292,119 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 <!-- LOGIN -->
 <div id="v-login">
-  <div class="login-box">
-    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--gold);margin-bottom:20px">⚡ Portal exclusivo para clientes</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <img src="https://i.imgur.com/h8PyJKX.png" alt="SCILA AI" style="height:32px;object-fit:contain" onerror="this.style.display='none'">
-      <div class="brand">SCILA AI</div>
+  <div class="login-wrap">
+    <div class="login-badge">⚡ Portal exclusivo para clientes</div>
+    <div class="login-logo-row">
+      <img src="https://i.imgur.com/h8PyJKX.png" alt="SCILA AI" onerror="this.style.display='none'">
+      <div class="login-brand">SCILA AI</div>
     </div>
-    <div class="brand-sub">Portal de clientes — accede a tu espacio</div>
-    <label class="lbl">Email</label>
-    <input class="inp" type="email" id="l-email" placeholder="tu@email.com" autocomplete="email">
-    <label class="lbl">Contraseña</label>
-    <div style="position:relative">
-      <input class="inp" type="password" id="l-pass" placeholder="••••••••" style="margin-bottom:0;padding-right:44px">
-      <button type="button" onclick="togglePass()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:0;line-height:1" id="eye-btn">👁</button>
+    <div class="login-sub">Accede a tu espacio personalizado</div>
+    <div class="login-card">
+      <label class="lbl">Email</label>
+      <div class="inp-wrap">
+        <input class="inp" type="email" id="l-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <label class="lbl">Contraseña</label>
+      <div class="inp-wrap">
+        <input class="inp" type="password" id="l-pass" placeholder="••••••••" style="padding-right:44px">
+        <button type="button" onclick="togglePass()" class="eye-btn" id="eye-btn">👁</button>
+      </div>
+      <button class="btn-login" id="btn-login" onclick="doLogin()">Entrar al portal</button>
+      <div class="err-box" id="l-err"></div>
     </div>
-    <div style="height:18px"></div>
-    <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
-    <div class="err-box" id="l-err"></div>
   </div>
 </div>
 
 <!-- ADMIN -->
 <div id="v-admin">
   <header class="header">
-    <div class="h-logo" style="display:flex;align-items:center;gap:8px">
-      <img src="https://i.imgur.com/h8PyJKX.png" alt="" style="height:24px;object-fit:contain;flex-shrink:0" onerror="this.style.display='none'">
-      <span>SCILA AI</span>
+    <div class="h-logo">
+      <img src="https://i.imgur.com/h8PyJKX.png" alt="" style="height:24px" onerror="this.style.display='none'">
+      <span class="h-logo-text">SCILA AI</span>
     </div>
     <div class="h-right">
       <span class="h-badge admin">Administrador</span>
-      
       <button class="btn-sm" onclick="doLogout()">Salir</button>
     </div>
-    <button class="hamburger" onclick="toggleAdminMenu()" id="hamburger-admin" aria-label="Menú">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="hamburger" onclick="toggleAdminMenu()" id="hamburger-admin"><span></span><span></span><span></span></button>
   </header>
-  <!-- Mobile menu (admin) -->
   <div class="mobile-menu" id="mobile-menu-admin">
-    <div class="mobile-user-info" id="m-admin-info"></div>
-    <div class="mobile-menu-divider"></div>
-    <button class="mobile-menu-item" onclick="switchAdminTab('clientes',this);closeMobileMenus()">👥 Clientes</button>
-    <button class="mobile-menu-item" onclick="switchAdminTab('nuevo',this);closeMobileMenus()">➕ Nuevo cliente</button>
-    <button class="mobile-menu-item" onclick="switchAdminTab('mensajes',this);closeMobileMenus()">💬 Mensajes</button>
-    <div class="mobile-menu-divider"></div>
-    <button class="mobile-menu-item" onclick="doLogout()">🚪 Cerrar sesión</button>
+    <div class="mob-user" id="m-admin-info"></div>
+    <div class="mob-divider"></div>
+    <button class="mob-item" onclick="switchAdminTab('clientes',this);closeMobileMenus()">👥 Clientes</button>
+    <button class="mob-item" onclick="switchAdminTab('nuevo',this);closeMobileMenus()">➕ Nuevo cliente</button>
+    <button class="mob-item" onclick="switchAdminTab('mensajes',this);closeMobileMenus()">💬 Mensajes</button>
+    <div class="mob-divider"></div>
+    <button class="mob-item" onclick="doLogout()">🚪 Cerrar sesión</button>
   </div>
   <main class="main">
-    <div class="welcome" style="margin-bottom:28px">
-      <div class="welcome-h">Panel de administración</div>
-      <div class="welcome-d">Gestiona tus clientes y sus portales</div>
+    <div class="welcome" style="margin-bottom:24px">
+      <div class="welcome-greeting">Panel de control</div>
+      <div class="welcome-h">Administración</div>
     </div>
     <div class="admin-tabs">
-      <button class="a-tab active" onclick="switchAdminTab('clientes',this)">Clientes</button>
-      <button class="a-tab" onclick="switchAdminTab('nuevo',this)">+ Nuevo cliente</button>
+      <button class="a-tab active" onclick="switchAdminTab('clientes',this)">👥 Clientes</button>
+      <button class="a-tab" onclick="switchAdminTab('nuevo',this)">➕ Nuevo cliente</button>
       <button class="a-tab" id="tab-msg-btn" onclick="switchAdminTab('mensajes',this)">💬 Mensajes <span id="msg-count" style="display:none;background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px">0</span></button>
     </div>
-    <div id="tab-clientes">
-      <div id="clients-grid" class="clients-grid"><div class="loading"><div class="spin"></div>Cargando...</div></div>
-    </div>
-    <div id="tab-mensajes" style="display:none">
-      <div style="display:grid;grid-template-columns:280px 1fr;gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;height:600px">
-        <!-- Conversaciones -->
-        <div style="border-right:1px solid var(--border);display:flex;flex-direction:column">
-          <div style="padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.8px">Conversaciones</div>
-          <div id="conv-list" style="flex:1;overflow-y:auto"><div class="loading"><div class="spin"></div></div></div>
-        </div>
-        <!-- Chat activo -->
-        <div style="display:flex;flex-direction:column">
-          <div id="chat-header-admin" style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:14px;color:var(--text2)">Selecciona una conversación</div>
-          </div>
-          <div id="admin-chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">
-          </div>
-          <div id="admin-chat-input-wrap" style="display:none;padding:14px;border-top:1px solid var(--border)">
-            <div style="display:flex;gap:10px;align-items:flex-end">
-              <textarea id="admin-chat-input" placeholder="Escribe tu respuesta..." rows="2" style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminChat()}"></textarea>
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <button onclick="sendAdminChat()" style="width:42px;height:42px;background:var(--gold);border:none;border-radius:10px;cursor:pointer;font-size:16px">→</button>
-                <button onclick="deleteConv()" style="width:42px;height:42px;background:transparent;border:1px solid var(--border2);border-radius:10px;cursor:pointer;font-size:14px;color:var(--red)" title="Eliminar conversación">🗑</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="tab-clientes"><div id="clients-grid" class="clients-grid"><div class="loading"><div class="spin"></div>Cargando...</div></div></div>
     <div id="tab-nuevo" style="display:none">
       <div class="form-card">
         <div class="form-title">Crear nuevo cliente</div>
         <div class="form-row">
           <div class="form-group"><label class="lbl">Nombre de empresa</label><input class="inp" id="nc-empresa" placeholder="Ej: Peluquería Cristóbal"></div>
-          <div class="form-group"><label class="lbl">Nombre del contacto</label><input class="inp" id="nc-nombre" placeholder="Nombre y apellidos"></div>
+          <div class="form-group"><label class="lbl">Nombre del contacto</label><input class="inp" id="nc-nombre" placeholder="Nombre completo"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="lbl">Email de acceso</label><input class="inp" id="nc-email" type="email" placeholder="cliente@email.com"></div>
           <div class="form-group"><label class="lbl">Contraseña inicial</label><input class="inp" id="nc-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
         </div>
-        <div style="padding:16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);margin-bottom:18px">
-          <div style="font-size:11px;color:var(--gold);font-weight:500;margin-bottom:14px;text-transform:uppercase;letter-spacing:.8px">Proyecto Supabase del cliente</div>
+        <div style="padding:16px;background:rgba(0,229,204,.04);border:1px solid rgba(0,229,204,.15);border-radius:var(--rs);margin-bottom:18px">
+          <div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Proyecto Supabase del cliente</div>
           <div class="form-row" style="margin-bottom:8px">
             <div class="form-group" style="margin-bottom:0"><label class="lbl">Supabase URL</label><input class="inp" id="nc-surl" placeholder="https://xxxx.supabase.co" style="margin-bottom:0"></div>
             <div class="form-group" style="margin-bottom:0"><label class="lbl">Anon Key</label><input class="inp" id="nc-skey" placeholder="eyJhbGci..." style="margin-bottom:0"></div>
           </div>
-          <div style="font-size:12px;color:var(--text3)">Obligatorio — credenciales del proyecto Supabase del cliente</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:10px">Obligatorio — credenciales del proyecto Supabase del cliente</div>
         </div>
         <button class="btn-crear" id="btn-crear" onclick="crearCliente()">Crear cliente</button>
         <div class="success-msg" id="nc-ok"></div>
         <div class="err-box" id="nc-err" style="display:none"></div>
       </div>
     </div>
+    <div id="tab-mensajes" style="display:none">
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;height:600px">
+        <div style="border-right:1px solid var(--border);display:flex;flex-direction:column">
+          <div style="padding:16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Conversaciones</div>
+          <div id="conv-list" style="flex:1;overflow-y:auto"><div class="loading"><div class="spin"></div></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <div id="chat-header-admin" style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:14px;color:var(--text2)">Selecciona una conversación</div>
+          </div>
+          <div id="admin-chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px"></div>
+          <div id="admin-chat-input-wrap" style="display:none;padding:14px;border-top:1px solid var(--border)">
+            <div style="display:flex;gap:10px;align-items:flex-end">
+              <textarea id="admin-chat-input" placeholder="Escribe tu respuesta..." rows="2" style="flex:1;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;resize:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminChat()}"></textarea>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <button onclick="sendAdminChat()" style="width:42px;height:42px;background:var(--gradient);border:none;border-radius:10px;cursor:pointer;font-size:16px">→</button>
+                <button onclick="deleteConv()" style="width:42px;height:42px;background:transparent;border:1px solid var(--border2);border-radius:10px;cursor:pointer;font-size:14px;color:var(--red)" title="Eliminar">🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
-<!-- FLOATING HELP BUTTON (client only) -->
-<div id="help-float" style="display:none;position:fixed;bottom:28px;right:28px;z-index:300">
-  <button onclick="openHelp()" style="width:54px;height:54px;background:var(--gold);border:none;border-radius:50%;cursor:pointer;font-size:22px;box-shadow:0 4px 20px rgba(201,168,76,.4);transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">💬</button>
-  <div id="help-dot" style="display:none;position:absolute;top:2px;right:2px;width:12px;height:12px;background:var(--red);border-radius:50%;border:2px solid var(--bg)"></div>
-</div>
-
-<!-- CHAT MODAL (client) -->
-<div class="overlay" id="overlay-help">
-  <div class="modal" style="max-width:500px;padding:0;overflow:hidden;display:flex;flex-direction:column;height:580px;max-height:90vh">
-    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <div>
-        <div style="font-size:16px;font-weight:500">💬 Soporte ScilaAI</div>
-        <div style="font-size:12px;color:var(--green);margin-top:2px">● En línea</div>
-      </div>
-      <button onclick="closeHelp()" style="background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px">✕</button>
-    </div>
-    <div id="chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px">
-      <div style="text-align:center;font-size:12px;color:var(--text3);padding:8px">Inicio de la conversación</div>
-    </div>
-    <div style="padding:16px;border-top:1px solid var(--border);flex-shrink:0">
-      <div style="display:flex;gap:10px;align-items:flex-end">
-        <textarea id="chat-input" placeholder="Escribe tu mensaje..." rows="2" style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none;transition:border-color .2s;line-height:1.5" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
-        <button onclick="sendChat()" style="width:42px;height:42px;background:var(--gradient);border:none;border-radius:10px;cursor:pointer;font-size:18px;flex-shrink:0">→</button>
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:6px">Enter para enviar · Shift+Enter para nueva línea</div>
-    </div>
-  </div>
-</div>
-
-<!-- CLIENT PORTAL -->
-<div id="v-client">
-  <header class="header">
-    <div class="h-logo" onclick="goHome()" style="display:flex;align-items:center;gap:8px">
-      <img src="https://i.imgur.com/h8PyJKX.png" alt="" style="height:24px;object-fit:contain;flex-shrink:0" onerror="this.style.display='none'">
-      <span>SCILA AI</span>
-    </div>
-    <div class="h-right">
-      <span class="h-badge client" id="c-empresa-badge"></span>
-      
-      <button class="btn-sm" onclick="doLogout()">Salir</button>
-    </div>
-    <button class="hamburger" onclick="toggleMobileMenu()" id="hamburger-btn" aria-label="Menú">
-      <span></span><span></span><span></span>
-    </button>
-  </header>
-  <!-- Mobile menu (client) -->
-  <div class="mobile-menu" id="mobile-menu-client">
-    <div class="mobile-user-info" id="m-user-info"></div>
-    <div class="mobile-menu-divider"></div>
-    <div id="mobile-nav-items"></div>
-    <div class="mobile-menu-divider"></div>
-    <button class="mobile-menu-item" onclick="doLogout()">🚪 Cerrar sesión</button>
-  </div>
-  <nav class="client-nav" id="client-nav"></nav>
-  <main class="main">
-    <!-- HOME PAGE -->
-    <div class="client-page active" id="page-home">
-      <div class="welcome">
-        <div class="welcome-h" id="c-name">Hola 👋</div>
-        <div class="welcome-d" id="c-date"></div>
-      </div>
-      <div class="stats-grid" id="home-stats"></div>
-      <div style="margin-bottom:16px;font-size:13px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.8px">Acceso rápido</div>
-      <div class="nav-buttons" id="home-nav-buttons"></div>
-    </div>
-    <!-- DYNAMIC SECTION PAGES -->
-    <div id="dynamic-pages"></div>
-  </main>
-</div>
-
-<!-- MODAL CONFIG SECCIONES -->
+<!-- MODAL CONFIG -->
 <div class="overlay" id="overlay-config">
   <div class="modal" style="max-width:680px">
     <div class="modal-title">⚙ Configurar portal de <span id="cfg-nombre"></span></div>
     <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Define qué tablas y columnas verá este cliente.</p>
     <div id="cfg-loading" style="padding:20px;text-align:center;color:var(--text2);font-size:13px"><div class="spin" style="margin:0 auto 8px"></div>Conectando...</div>
-    <div id="cfg-error" style="display:none;padding:11px 14px;background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:var(--rs);font-size:13px;color:var(--red);margin-bottom:14px"></div>
+    <div id="cfg-error" style="display:none;padding:11px 14px;background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.25);border-radius:var(--rs);font-size:13px;color:var(--red);margin-bottom:14px"></div>
     <div id="cfg-content" style="display:none">
       <div id="sec-list" style="margin-bottom:4px"></div>
       <button class="btn-add-sec" onclick="openAddSec()">+ Añadir sección</button>
@@ -478,71 +416,119 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
 </div>
 
-<!-- MODAL AÑADIR SECCIÓN -->
+<!-- MODAL ADD SECTION -->
 <div class="overlay" id="overlay-addsec">
   <div class="modal" style="max-width:580px">
     <div class="modal-title">Nueva sección</div>
     <div class="form-group"><label class="lbl">Título que verá el cliente</label><input class="inp" id="as-titulo" placeholder="Ej: Mis citas, Mis pedidos..."></div>
-    <div class="form-group">
-      <label class="lbl">Tabla de Supabase</label>
-      <select class="inp" id="as-tabla" onchange="onTablaChange()" style="cursor:pointer">
-        <option value="">-- Selecciona tabla --</option>
-      </select>
-    </div>
-    <div id="as-cols-wrap" style="display:none">
-      <label class="lbl" style="margin-bottom:10px">Columnas a mostrar</label>
-      <div class="cols-grid" id="as-cols-list"></div>
-    </div>
-    <div id="as-filtro-wrap" style="display:none;padding:14px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);margin-bottom:16px">
-      <div style="font-size:11px;color:var(--gold);font-weight:500;margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px">Filtro por cliente</div>
+    <div class="form-group"><label class="lbl">Tabla de Supabase</label><select class="inp" id="as-tabla" onchange="onTablaChange()" style="cursor:pointer"><option value="">-- Selecciona tabla --</option></select></div>
+    <div id="as-cols-wrap" style="display:none"><label class="lbl" style="margin-bottom:10px">Columnas a mostrar</label><div class="cols-grid" id="as-cols-list"></div></div>
+    <div id="as-filtro-wrap" style="display:none;padding:14px 16px;background:rgba(0,229,204,.04);border:1px solid rgba(0,229,204,.15);border-radius:var(--rs);margin-bottom:16px">
+      <div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Filtro por cliente</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div><div class="sec-lbl">Campo de esta tabla</div><select class="sec-inp" id="as-f-campo"><option value="">Sin filtro</option></select></div>
         <div><div class="sec-lbl">Campo de tabla clientes</div><select class="sec-inp" id="as-f-valor"><option value="">--</option></select></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeAddSec()">Cancelar</button>
-      <button class="btn-confirm" onclick="confirmarSeccion()">Añadir</button>
-    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeAddSec()">Cancelar</button><button class="btn-confirm" onclick="confirmarSeccion()">Añadir</button></div>
   </div>
 </div>
 
-<!-- MODAL EDITAR CLIENTE -->
+<!-- MODAL EDIT -->
 <div class="overlay" id="overlay-edit">
   <div class="modal" style="max-width:500px">
     <div class="modal-title">✏ Editar cliente</div>
     <input type="hidden" id="edit-id">
     <div class="form-group"><label class="lbl">Nombre de empresa</label><input class="inp" id="edit-empresa" style="margin-bottom:0"></div>
     <div class="form-group"><label class="lbl">Nombre del contacto</label><input class="inp" id="edit-nombre" style="margin-bottom:0"></div>
-    <div class="form-group"><label class="lbl">Email</label><input class="inp" id="edit-email" style="margin-bottom:0" disabled style="opacity:.6"></div>
+    <div class="form-group"><label class="lbl">Email</label><input class="inp" id="edit-email" style="margin-bottom:0;opacity:.5" disabled></div>
     <div class="form-group"><label class="lbl">Supabase URL</label><input class="inp" id="edit-surl" style="margin-bottom:0"></div>
     <div class="form-group"><label class="lbl">Anon Key</label><input class="inp" id="edit-skey" style="margin-bottom:0"></div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeEdit()">Cancelar</button>
-      <button class="btn-confirm" onclick="saveEdit()">Guardar cambios</button>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeEdit()">Cancelar</button><button class="btn-confirm" onclick="saveEdit()">Guardar cambios</button></div>
+  </div>
+</div>
+
+<!-- MODAL PASSWORD -->
+<div class="overlay" id="overlay-pass">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">🔑 Cambiar contraseña</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Cliente: <span id="pass-email" style="color:var(--cyan)"></span></p>
+    <div class="form-group"><label class="lbl">Nueva contraseña</label><input class="inp" id="pass-nueva" type="text" placeholder="Mínimo 6 caracteres" style="margin-bottom:0"></div>
+    <div id="pass-sql-box" style="display:none;margin-top:16px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Copia este SQL en <strong style="color:var(--text)">Supabase → SQL Editor</strong>:</div>
+      <div style="position:relative">
+        <pre id="pass-sql" style="background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:var(--rs);padding:14px;font-size:12px;color:var(--green);font-family:monospace;white-space:pre-wrap;word-break:break-all;line-height:1.7"></pre>
+        <button onclick="copiarSQL()" style="position:absolute;top:8px;right:8px;padding:5px 12px;background:var(--gradient);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Copiar</button>
+      </div>
+      <div id="copy-ok" style="display:none;margin-top:8px;font-size:13px;color:var(--green)">✓ Copiado al portapapeles</div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closePass()">Cerrar</button><button class="btn-confirm" onclick="generarSQL()">Generar SQL</button></div>
+  </div>
+</div>
+
+<!-- FLOATING HELP -->
+<div id="help-float">
+  <button class="help-float-btn" onclick="openHelp()">💬</button>
+  <div id="help-dot"></div>
+</div>
+
+<!-- CHAT MODAL CLIENT -->
+<div class="overlay" id="overlay-help">
+  <div class="modal" style="max-width:500px;padding:0;overflow:hidden;display:flex;flex-direction:column;height:580px;max-height:90vh">
+    <div style="padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(0,229,204,.04)">
+      <div>
+        <div style="font-size:16px;font-weight:700">💬 Soporte SCILA AI</div>
+        <div style="font-size:12px;color:var(--green);margin-top:2px;font-weight:500">● En línea</div>
+      </div>
+      <button onclick="closeHelp()" style="background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px">✕</button>
+    </div>
+    <div id="chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <div style="text-align:center;font-size:12px;color:var(--text3);padding:8px">Inicio de la conversación</div>
+    </div>
+    <div style="padding:16px;border-top:1px solid var(--border);flex-shrink:0;background:rgba(255,255,255,.02)">
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <textarea id="chat-input" placeholder="Escribe tu mensaje..." rows="2" style="flex:1;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;resize:none;transition:border-color .2s;line-height:1.5" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+        <button onclick="sendChat()" style="width:44px;height:44px;background:var(--gradient);border:none;border-radius:10px;cursor:pointer;font-size:18px;flex-shrink:0">→</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Enter para enviar · Shift+Enter nueva línea</div>
     </div>
   </div>
 </div>
 
-<!-- MODAL CONTRASEÑA -->
-<div class="overlay" id="overlay-pass">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-title">🔑 Cambiar contraseña</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Cliente: <span id="pass-email" style="color:var(--gold)"></span></p>
-    <div class="form-group"><label class="lbl">Nueva contraseña</label><input class="inp" id="pass-nueva" type="text" placeholder="Mínimo 6 caracteres" style="margin-bottom:0"></div>
-    <div id="pass-sql-box" style="display:none;margin-top:16px">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Copia este SQL en <strong style="color:var(--text)">Supabase → SQL Editor</strong> y ejecútalo:</div>
-      <div style="position:relative">
-        <pre id="pass-sql" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:14px;font-size:12px;color:var(--green);font-family:monospace;white-space:pre-wrap;word-break:break-all;line-height:1.7"></pre>
-        <button onclick="copiarSQL()" style="position:absolute;top:8px;right:8px;padding:5px 12px;background:var(--gold);color:#0f0e0d;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Copiar</button>
-      </div>
-      <div id="copy-ok" style="display:none;margin-top:8px;font-size:13px;color:var(--green)">✓ Copiado al portapapeles</div>
+<!-- CLIENT PORTAL -->
+<div id="v-client">
+  <header class="header">
+    <div class="h-logo" onclick="goHome()">
+      <img src="https://i.imgur.com/h8PyJKX.png" alt="" style="height:24px" onerror="this.style.display='none'">
+      <span class="h-logo-text">SCILA AI</span>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closePass()">Cerrar</button>
-      <button class="btn-confirm" onclick="generarSQL()">Generar SQL</button>
+    <div class="h-right">
+      <span class="h-badge client" id="c-empresa-badge"></span>
+      <button class="btn-sm" onclick="doLogout()">Salir</button>
     </div>
+    <button class="hamburger" onclick="toggleMobileMenu()" id="hamburger-btn"><span></span><span></span><span></span></button>
+  </header>
+  <div class="mobile-menu" id="mobile-menu-client">
+    <div class="mob-user" id="m-user-info"></div>
+    <div class="mob-divider"></div>
+    <div id="mobile-nav-items"></div>
+    <div class="mob-divider"></div>
+    <button class="mob-item" onclick="doLogout()">🚪 Cerrar sesión</button>
   </div>
+  <nav class="client-nav" id="client-nav"></nav>
+  <main class="main">
+    <div class="client-page active" id="page-home">
+      <div class="welcome">
+        <div class="welcome-greeting" id="c-greeting">Portal de cliente</div>
+        <div class="welcome-h" id="c-name">Hola 👋</div>
+        <div class="welcome-d" id="c-date"></div>
+      </div>
+      <div class="stats-grid" id="home-stats"></div>
+      <div class="section-label">Acceso rápido</div>
+      <div class="nav-buttons" id="home-nav-buttons"></div>
+    </div>
+    <div id="dynamic-pages"></div>
+  </main>
 </div>
 
 <script>
@@ -823,6 +809,7 @@ async function initClient(user){
   clienteSecciones=cfg.config?.secciones||[];
   const empresa=cfg.empresa||cfg.nombre||'';
   document.getElementById('c-name').textContent=`Hola, ${empresa} 👋`;
+  document.getElementById('c-greeting').textContent=empresa||'Portal de cliente';
   document.getElementById('c-empresa-badge').textContent=empresa;
 
   // Set up client supabase
@@ -867,7 +854,13 @@ function buildDynamicPages(){
         </div>
       </div>
       <div class="filters-bar" id="filters-${i}"></div>
-      <div class="table-wrap" id="sec-table-${i}"><div class="loading"><div class="spin"></div>Cargando datos...</div></div>
+      <div class="search-bar-wrap">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-${i}" class="search-input" placeholder="Buscar en ${s.titulo}..." oninput="renderSecTable(clienteSecciones[${i}],${i},currentFilter[${i}]||'todas')">
+        </div>
+      </div>
+      <div id="sec-table-${i}"><div class="loading"><div class="spin"></div>Cargando datos...</div></div>
     </div>`).join('');
 
   clienteSecciones.forEach((s,i)=>loadSeccionPage(s,i));
@@ -902,7 +895,8 @@ async function loadSeccionPage(sec,idx){
 async function filterSec(idx,filtro,btn){
   document.querySelectorAll(`#filters-${idx} .f-btn`).forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelector(`#filters-${idx} .f-date`).value='';
+  try{document.querySelector(`#filters-${idx} .f-date`).value='';}catch(e){}
+  currentFilter[idx]=filtro;
   await renderSecTable(clienteSecciones[idx],idx,filtro);
 }
 
@@ -918,17 +912,13 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
   try{
     const dbClient=window.clientSb||sb;
     let q=dbClient.from(sec.tabla).select('*');
-    // Apply client filter
     if(sec.filtro_campo&&sec.filtro_valor&&clienteData){
       const val=clienteData[sec.filtro_valor];
       if(val) q=q.eq(sec.filtro_campo,val);
     }
-
     const{data:rows,error}=await q;
     if(error)throw error;
     let filtered=rows||[];
-
-    // Date filtering — use any date column available
     const fechaCol=sec.columnas.find(c=>c.includes('fecha'))||null;
     if(fechaCol&&filtro!=='todas'){
       const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -941,24 +931,104 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
       else if(filtro==='mes'){const fin=new Date();fin.setMonth(fin.getMonth()+1);filtered=filtered.filter(r=>{const f=parseFecha(r[fechaCol]);return f>=hoy&&f<=fin})}
       else if(filtro==='fecha'&&dateVal) filtered=filtered.filter(r=>fmtDate(r[fechaCol])===dateVal);
     }
+    // Apply search filter
+    const searchEl=document.getElementById(`search-${idx}`);
+    const searchVal=searchEl?searchEl.value.toLowerCase().trim():'';
+    if(searchVal) filtered=filtered.filter(r=>Object.values(r).some(v=>String(v||'').toLowerCase().includes(searchVal)));
 
     sub.textContent=`${filtered.length} registro${filtered.length!==1?'s':''}`;
     if(!filtered.length){
-      cont.innerHTML=`<div class="empty"><div class="empty-icon">📂</div><div style="color:var(--text2);font-size:14px">No hay registros para este filtro</div></div>`;
+      cont.innerHTML=`<div class="pro-empty"><div class="pro-empty-icon">📂</div><div class="pro-empty-title">Sin resultados</div><div class="pro-empty-sub">No hay registros para este filtro</div></div>`;
       return;
     }
     const cols=sec.columnas.length?sec.columnas:Object.keys(filtered[0]);
-    cont.innerHTML=`<div style="overflow-x:auto"><table class="data-table">
-      <thead><tr>${cols.map(c=>`<th>${fmtCol(c)}</th>`).join('')}</tr></thead>
-      <tbody>${filtered.map(row=>`<tr>${cols.map(c=>`<td>${fmtCell(c,row[c])}</td>`).join('')}</tr>`).join('')}</tbody>
-    </table></div><div class="table-footer">${filtered.length} registros</div>`;
-  }catch(e){cont.innerHTML=`<div class="empty"><div style="color:var(--red);font-size:13px">Error: ${e.message}</div></div>`}
+    const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
+
+    if(isCita){
+      // CARD LAYOUT for appointments
+      cont.innerHTML=`<div class="cita-cards-grid">${filtered.map(row=>citaCard(row,cols)).join('')}</div>`;
+    } else {
+      // PROFESSIONAL TABLE for other data
+      cont.innerHTML=`<div class="pro-table-wrap">
+        <table class="pro-table">
+          <thead><tr>${cols.map(c=>`<th onclick="sortTable(${idx},'${c}')" style="cursor:pointer">${fmtCol(c)} <span class="sort-icon">↕</span></th>`).join('')}</tr></thead>
+          <tbody>${filtered.map((row,i)=>`<tr style="animation-delay:${i*0.03}s">${cols.map(c=>`<td>${fmtCellPro(c,row[c])}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+        <div class="pro-table-footer"><span>${filtered.length} registro${filtered.length!==1?'s':''}</span><button onclick="exportCSV(${JSON.stringify(filtered).replace(/"/g,'&quot;')},'${sec.titulo}')" class="export-btn">↓ Exportar CSV</button></div>
+      </div>`;
+    }
+  }catch(e){cont.innerHTML=`<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Error</div><div class="pro-empty-sub">${e.message}</div></div>`}
 }
+
+let sortState={};
+function sortTable(idx,col){
+  const asc=sortState[idx+col]!==true;
+  sortState[idx+col]=asc;
+  renderSecTable(clienteSecciones[idx],idx,currentFilter[idx]||'todas');
+}
+
+function citaCard(row,cols){
+  const fecha=row.fecha_cita||row.fecha||'';
+  const hora=row.hora_cita||row.hora||''
+  const tipo=row.tipo_cita||row.tipo||'Cita';
+  const estado=row.estado||'Pendiente';
+  const nombre=row.paciente_nombre||row.nombre||'—';
+  const notas=row.notas||'';
+  const estadoClass='badge-'+estado.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const d=parseFecha(fecha);
+  const dia=isNaN(d)?'—':d.getDate();
+  const mes=isNaN(d)?'—':d.toLocaleDateString('es-ES',{month:'short'}).replace('.','');
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const esHoy=fmtDate(d)===iso(hoy);
+  return `<div class="cita-card-pro${esHoy?' cita-hoy':''}">
+    ${esHoy?'<div class="hoy-ribbon">HOY</div>':''}
+    <div class="cita-card-fecha">
+      <div class="cita-dia-num">${dia}</div>
+      <div class="cita-mes-txt">${mes.toUpperCase()}</div>
+    </div>
+    <div class="cita-card-body">
+      <div class="cita-card-tipo">${tipo}</div>
+      <div class="cita-card-meta">
+        ${hora?`<span class="meta-chip">🕐 ${hora}</span>`:''}
+        ${nombre&&nombre!=='—'?`<span class="meta-chip">👤 ${nombre}</span>`:''}
+        ${notas?`<span class="meta-chip meta-chip-notes" title="${notas}">📝 ${notas.substring(0,30)}${notas.length>30?'…':''}</span>`:''}
+      </div>
+    </div>
+    <div class="cita-card-estado"><span class="estado-badge ${estadoClass}">${estado}</span></div>
+  </div>`;
+}
+
+function fmtCellPro(col,val){
+  if(val===null||val===undefined)return'<span class="cell-null">—</span>';
+  if(typeof val==='boolean')return val?'<span class="badge-confirmada">Sí</span>':`<span class="badge-cancelada">No</span>`;
+  const v=String(val);
+  if(col.toLowerCase().includes('estado')){
+    const cls='badge-'+v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    return`<span class="estado-badge ${cls}">${v}</span>`;
+  }
+  if(col.toLowerCase().includes('email')&&v.includes('@'))return`<a href="mailto:${v}" style="color:var(--gold);text-decoration:none">${v}</a>`;
+  if(col.toLowerCase().includes('telefono')||col.toLowerCase().includes('phone'))return`<a href="tel:${v}" style="color:var(--text);text-decoration:none">📞 ${v}</a>`;
+  if(col.toLowerCase().includes('fecha')&&v.includes('T'))return`<span class="date-chip">${new Date(v).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</span>`;
+  if(col.toLowerCase().includes('fecha')&&v.length===10)return`<span class="date-chip">${v}</span>`;
+  return v.length>60?`<span title="${v}">${v.substring(0,60)}…</span>`:v;
+}
+
+function exportCSV(data,title){
+  if(!data.length)return;
+  const cols=Object.keys(data[0]);
+  const csv=[cols.join(','),...data.map(r=>cols.map(c=>'"'+String(r[c]||'').replace(/"/g,'''')+'"').join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+csv);
+  a.download=title+'_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+let currentFilter={};
 
 async function loadHomeStats(){
   const statsEl=document.getElementById('home-stats');
   const navEl=document.getElementById('home-nav-buttons');
-  const colors=['gold','blue','green','purple'];
+  const colors=['cyan','purple','blue','green'];
   const icons=['📋','👥','📦','📊'];
 
   // Stats per section
@@ -993,20 +1063,26 @@ async function loadHomeStats(){
       const desc=hoyCount!==null?`${proxCount} próximas · ${all.length} total`:`${all.length} registros totales`;
       const label=hoyCount!==null?`${s.titulo} hoy`:s.titulo;
 
-      statsHTML+=`<div class="stat-card ${color}" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
-        <div class="stat-icon">${icon}</div>
-        <div class="stat-lbl">${label}</div>
-        <div class="stat-val">${mainVal}</div>
-        <div class="stat-desc">${desc}</div>
-        <div class="stat-arrow">→</div>
+      const iwClass=colors[i%colors.length]==='purple'?'purple':colors[i%colors.length]==='blue'?'blue':colors[i%colors.length]==='green'?'green':'';
+      statsHTML+=`<div class="stat-card" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
+        <div class="stat-card-inner">
+          <div class="stat-top">
+            <div class="stat-icon-wrap ${iwClass}">${icon}</div>
+            <span class="stat-arrow">→</span>
+          </div>
+          <div class="stat-num">${mainVal}</div>
+          <div class="stat-lbl">${label}</div>
+          <div class="stat-desc">${desc}</div>
+        </div>
       </div>`;
 
+      const nbiClass='nbi-'+colors[i%colors.length];
       navHTML+=`<div class="nav-btn" style="animation-delay:${i*0.08}s" onclick="showClientPage('sec-${i}',document.querySelectorAll('.nav-tab')[${i+1}])">
         <div class="nav-btn-left">
-          <div class="nav-btn-icon ${color}">${icon}</div>
+          <div class="nav-btn-icon ${nbiClass}">${icon}</div>
           <div><div class="nav-btn-name">${s.titulo}</div><div class="nav-btn-count">${all.length} registros</div></div>
         </div>
-        <span style="color:var(--text3);font-size:18px">→</span>
+        <span class="nav-btn-arr">→</span>
       </div>`;
     }catch(e){
       statsHTML+=`<div class="stat-card ${color}"><div class="stat-lbl">${s.titulo}</div><div class="stat-val">—</div></div>`;
@@ -1240,6 +1316,7 @@ function togglePass(){
   });
 });
 (async()=>{const{data:{session}}=await sb.auth.getSession();if(session?.user){currentUser=session.user;if(session.user.email===ADMIN_EMAIL)initAdmin(session.user);else initClient(session.user)}})();
+
 </script>
 </body>
 </html>
