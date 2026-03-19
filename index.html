@@ -74,7 +74,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* ── MAIN ── */
 .main{max-width:1140px;margin:0 auto;padding:32px 28px 80px;position:relative;z-index:1}
-#v-login,#v-admin,#v-client{display:none}
+#v-admin,#v-client{display:none}
 .client-page{display:none}
 .client-page.active{display:block}
 
@@ -543,7 +543,7 @@ let configSecciones=[],clienteData=null,clienteSecciones=[];
 let currentFilter='proximas',currentDateFilter=null;
 
 // ── VIEWS ──
-function show(v){['v-login','v-admin','v-client'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById(v).style.display=v==='v-login'?'flex':'block'}
+function show(v){['v-login','v-admin','v-client'].forEach(id=>{const e=document.getElementById(id);e.style.display='none';});const t=document.getElementById(v);if(v==='v-login'){t.style.display='flex';}else{t.style.display='block';}}
 show('v-login');
 
 // ── AUTH ──
