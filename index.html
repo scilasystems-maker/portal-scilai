@@ -1377,7 +1377,13 @@ function renderRecordForm(cols,row){
       return `<div class="form-group"><label class="lbl">${lbl}</label><select class="inp" id="rf-${col}" style="cursor:pointer">${opts}</select></div>`;
     }
     if(col.includes('fecha')&&!col.includes('creacion')){
-      return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="date" id="rf-${col}" value="${val}"></div>`;
+      // Convert DD/MM/YYYY to YYYY-MM-DD for date input
+      let dateVal=val;
+      if(dateVal&&dateVal.includes('/')){
+        const p=dateVal.split('/');
+        dateVal=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
+      }
+      return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="date" id="rf-${col}" value="${dateVal}"></div>`;
     }
     if(col==='notas'){
       return `<div class="form-group"><label class="lbl">${lbl}</label><textarea class="inp" id="rf-${col}" rows="3" style="resize:vertical">${val}</textarea></div>`;
@@ -1398,7 +1404,14 @@ async function saveRecord(){
   const data={};
   fields.forEach(col=>{
     const el=document.getElementById('rf-'+col);
-    if(el) data[col]=el.value||null;
+    if(!el){return;}
+    let val=el.value||null;
+    // Convert YYYY-MM-DD to DD/MM/YYYY for date fields
+    if(val&&col.toLowerCase().includes('fecha')&&val.match(/^\d{4}-\d{2}-\d{2}$/)){
+      const parts=val.split('-');
+      val=parts[2]+'/'+parts[1]+'/'+parts[0];
+    }
+    data[col]=val;
   });
 
   let error;
