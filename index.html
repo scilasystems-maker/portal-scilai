@@ -1531,17 +1531,17 @@ async function loadHomeStats(){
   }
   statsEl.innerHTML=statsHTML;
   // Add calendar and activity quick access
-  navHTML+='<div class="nav-btn" style="animation-delay:'+(clienteSecciones.length*0.08)+'s" onclick="showCalendar();setActiveNav(document.querySelectorAll('.nav-tab')[clienteSecciones.length+1])">'+
+    navHTML+='<div class="nav-btn" data-action="cal" onclick="showCalendar();setActiveNav(null)" style="animation-delay:'+(clienteSecciones.length*0.08)+'s">'+
     '<div class="nav-btn-left">'+
-      '<div class="nav-btn-icon nbi-cyan">📅</div>'+
+      '<div class="nav-btn-icon nbi-cyan">&#128197;</div>'+
       '<div><div class="nav-btn-name">Calendario</div><div class="nav-btn-count">Vista mensual</div></div>'+
-    '</div><span class="nav-btn-arr">→</span></div>';
-  navHTML+='<div class="nav-btn" style="animation-delay:'+(clienteSecciones.length*0.08+0.08)+'s" onclick="showActivity();setActiveNav(document.querySelectorAll('.nav-tab')[clienteSecciones.length+2])">'+
+    '</div><span class="nav-btn-arr">&#8594;</span></div>';
+  navHTML+='<div class="nav-btn" data-action="act" onclick="showActivity();setActiveNav(null)" style="animation-delay:'+(clienteSecciones.length*0.08+0.08)+'s">'+
     '<div class="nav-btn-left">'+
-      '<div class="nav-btn-icon nbi-purple">📋</div>'+
+      '<div class="nav-btn-icon nbi-purple">&#128203;</div>'+
       '<div><div class="nav-btn-name">Actividad</div><div class="nav-btn-count">Historial</div></div>'+
-    '</div><span class="nav-btn-arr">→</span></div>';
-  navEl.innerHTML=navHTML;
+    '</div><span class="nav-btn-arr">&#8594;</span></div>';
+    navEl.innerHTML=navHTML;
 }
 
 // ── UTILS ──
