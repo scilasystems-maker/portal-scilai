@@ -110,7 +110,7 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 
 /* UPCOMING LIST */
 .upcoming-list{display:flex;flex-direction:column;gap:8px}
-.upcoming-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border);transition:background .15s;position:relative;overflow:hidden}
+.upcoming-item{display:flex;align-items:center;gap:16px;padding:14px 16px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid var(--border);transition:background .15s;position:relative;overflow:hidden;margin-bottom:2px}
 .upcoming-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
 .upcoming-item.est-confirmada::before{background:var(--green)}
 .upcoming-item.est-pendiente::before{background:var(--amber)}
@@ -118,11 +118,11 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 .upcoming-item.est-completada::before{background:var(--blue)}
 .upcoming-item.est-modificada::before{background:var(--amber)}
 .upcoming-item:hover{background:rgba(255,255,255,.05)}
-.upcoming-hora{font-size:13px;font-weight:800;color:var(--cyan);min-width:48px}
-.upcoming-fecha-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase}
+.upcoming-hora{font-size:16px;font-weight:800;color:var(--cyan);min-width:56px}
+.upcoming-fecha-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .upcoming-info{flex:1;min-width:0}
-.upcoming-nombre{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.upcoming-tipo{font-size:12px;color:var(--text2)}
+.upcoming-nombre{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upcoming-tipo{font-size:13px;color:var(--text2);margin-top:2px}
 
 /* ESTADO BADGES */
 .estado-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
@@ -331,10 +331,10 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 
 /* MINI STATS */
 .mini-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px}
-.mini-stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:5px}
-.mini-stat-val{font-size:22px;font-weight:700;font-family:'DM Serif Display',serif}
-.mini-stat-change{font-size:11px;margin-top:2px}
+.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px 24px}
+.mini-stat-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px}
+.mini-stat-val{font-size:38px;font-weight:700;font-family:'DM Serif Display',serif;line-height:1}
+.mini-stat-change{font-size:12px;margin-top:6px;font-weight:600}
 .mini-stat-change.up{color:var(--green)}.mini-stat-change.down{color:var(--red)}
 
 /* NOTIFICATION */
@@ -589,12 +589,15 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
           <div class="widgets-grid" id="home-widgets">
             <!-- filled by JS -->
           </div>
-          <!-- IMPACT BANNER -->
-          <div id="impact-banner" style="background:linear-gradient(135deg,rgba(0,229,204,.08),rgba(180,79,255,.08));border:1px solid rgba(0,229,204,.15);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;display:none">
-            <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">⚡ Impacto IA este mes</div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px" id="impact-grid"></div>
-          </div>
 
+          <!-- IMPACT BANNER (shown between widgets and charts) -->
+          <div id="impact-banner" style="background:linear-gradient(135deg,rgba(0,229,204,.08),rgba(180,79,255,.08));border:1px solid rgba(0,229,204,.15);border-radius:var(--r);padding:22px 26px;margin-bottom:16px;display:none">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,229,204,.15);display:flex;align-items:center;justify-content:center;font-size:16px">⚡</div>
+              <div style="font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px">Impacto IA este mes</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px" id="impact-grid"></div>
+          </div>
           <!-- CHARTS ROW -->
           <div class="widgets-grid" style="margin-bottom:16px">
             <div class="widget w3">
@@ -2594,15 +2597,18 @@ function loadHomeStats(){
             </div>`;
           }).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">Sin citas próximas</div>`;
 
-          widgetsHTML+=`<div class="widget w7" style="padding:0;overflow:hidden">
-            <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-              <div class="widget-title">${s.titulo} próximas</div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <span style="font-size:11px;color:var(--text2)">${proximas.length} próximas · ${hoyCount} hoy</span>
-                <button onclick="_showSec(${i})" style="padding:4px 12px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);border-radius:20px;color:var(--cyan);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer">Ver todas →</button>
+          widgetsHTML+=`<div class="widget w5" style="padding:0;overflow:hidden">
+            <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,229,204,.1);border:1px solid rgba(0,229,204,.15);display:flex;align-items:center;justify-content:center;font-size:16px">📋</div>
+                <div>
+                  <div class="widget-title" style="font-size:14px;color:var(--text)">${s.titulo} próximas</div>
+                  <div style="font-size:12px;color:var(--text2);margin-top:2px">${proximas.length} próximas · ${hoyCount} hoy</div>
+                </div>
               </div>
+              <button onclick="_showSec(${i})" style="padding:6px 16px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);border-radius:20px;color:var(--cyan);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(0,229,204,.15)'" onmouseout="this.style.background='rgba(0,229,204,.08)'">Ver todas →</button>
             </div>
-            <div class="upcoming-list" style="padding:10px 12px;max-height:280px;overflow-y:auto">${rows_html}</div>
+            <div class="upcoming-list" style="padding:12px 16px">${rows_html}</div>
           </div>`;
 
           // Mini stats
@@ -2615,14 +2621,19 @@ function loadHomeStats(){
             miniStat('Completadas',completadas,'','')+
             miniStat('Canceladas',canceladas,canceladas>0?'↑ Revisar':'',canceladas>0?'down':'');
         } else {
-          widgetsHTML+=`<div class="widget w5" style="cursor:pointer" onclick="_showSec(${i})">
-            <div class="widget-header">
-              <div class="widget-title">${s.titulo}</div>
-              <span style="font-size:20px">${icon}</span>
+          widgetsHTML+=`<div style="display:contents" id="non-cita-widget-${i}">
+            <div id="impact-placeholder-${i}" style="display:none"></div>
+            <div class="widget w5" style="cursor:pointer" onclick="_showSec(${i})">
+              <div class="widget-header">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:40px;height:40px;border-radius:10px;background:${col};display:flex;align-items:center;justify-content:center;font-size:18px">${icon}</div>
+                  <div class="widget-title" style="color:var(--text);font-size:14px">${s.titulo}</div>
+                </div>
+              </div>
+              <div class="widget-num" style="margin-top:12px">${all.length}</div>
+              <div class="widget-sub">registros totales</div>
+              <div style="margin-top:16px;font-size:12px;color:var(--cyan);font-weight:600">Ver todos →</div>
             </div>
-            <div class="widget-num">${all.length}</div>
-            <div class="widget-sub">registros totales</div>
-            <div style="margin-top:14px;font-size:12px;color:var(--cyan);font-weight:600;cursor:pointer">Ver todos →</div>
           </div>`;
         }
       }catch(e){
