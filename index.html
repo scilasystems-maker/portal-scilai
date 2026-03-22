@@ -589,8 +589,15 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
           <div class="widgets-grid" id="home-widgets">
             <!-- filled by JS -->
           </div>
-          <div class="widgets-grid">
-            <div class="widget w7">
+          <!-- IMPACT BANNER -->
+          <div id="impact-banner" style="background:linear-gradient(135deg,rgba(0,229,204,.08),rgba(180,79,255,.08));border:1px solid rgba(0,229,204,.15);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;display:none">
+            <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">⚡ Impacto IA este mes</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px" id="impact-grid"></div>
+          </div>
+
+          <!-- CHARTS ROW -->
+          <div class="widgets-grid" style="margin-bottom:16px">
+            <div class="widget w3">
               <div class="widget-header">
                 <div class="widget-title">Citas por período</div>
                 <div style="display:flex;gap:5px" id="chart-period-btns">
@@ -602,11 +609,26 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
               </div>
               <div class="chart-canvas-wrap"><canvas id="chart-citas"></canvas></div>
             </div>
-            <div class="widget w5">
+            <div class="widget w3">
+              <div class="widget-header">
+                <div class="widget-title">Distribución por estado</div>
+                <span class="widget-badge wb-purple">Análisis</span>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="chart-estados"></canvas></div>
+            </div>
+            <div class="widget w3">
               <div class="widget-header">
                 <div class="widget-title">Clientes nuevos</div>
+                <span class="widget-badge wb-cyan">Crecimiento</span>
               </div>
               <div class="chart-canvas-wrap"><canvas id="chart-clientes"></canvas></div>
+            </div>
+            <div class="widget w3">
+              <div class="widget-header">
+                <div class="widget-title">Citas por hora del día</div>
+                <span class="widget-badge wb-green">Heatmap</span>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="chart-horas"></canvas></div>
             </div>
           </div>
         </div>
@@ -2107,23 +2129,54 @@ function setChartPeriod(days,btn){
 
 async function loadCharts(){
   const dbClient=window.clientSb||sb;
-  // Load citas
-  let qc=dbClient.from('citas').select('fecha_cita,estado');
+  let qc=dbClient.from('citas').select('*');
   if(clienteData?.telefono) qc=qc.eq('paciente_telefono',clienteData.telefono);
   const{data:cData}=await qc;
   allCitasData=cData||[];
-  // Also load all fields for calendar/activity
-  let qcFull=dbClient.from('citas').select('*');
-  if(clienteData?.telefono) qcFull=qcFull.eq('paciente_telefono',clienteData.telefono);
-  const{data:cFull}=await qcFull;
-  allCitasData=cFull||[];
-
-  // Load clientes
   const{data:clData}=await dbClient.from('clientes').select('fecha_registro');
   allClientesData=clData||[];
-
   renderCharts();
+  renderImpactBanner();
 }
+
+function renderImpactBanner(){
+  const all=allCitasData||[];
+  if(!all.length) return;
+  const hoy=new Date();
+  const mesInicio=new Date(hoy.getFullYear(),hoy.getMonth(),1);
+  const esteMs=all.filter(r=>{
+    const d=parseFecha(r.fecha_cita);
+    return d>=mesInicio;
+  });
+  const total=esteMs.length;
+  const confirmadas=esteMs.filter(r=>r.estado==='Confirmada'||r.estado==='Completada').length;
+  const canceladas=esteMs.filter(r=>r.estado==='Cancelada').length;
+  const tasa=total>0?Math.round(confirmadas/total*100):0;
+  const noShows=canceladas;
+  const ahorro=Math.round(total*0.15*12); // estimate: 15min saved per cita, 12€/h
+
+  const grid=document.getElementById('impact-grid');
+  const banner=document.getElementById('impact-banner');
+  if(!grid||!banner) return;
+  grid.innerHTML=[
+    impactItem('📅','Citas este mes',total,'','cyan'),
+    impactItem('✅','Tasa de éxito',tasa+'%','+vs canceladas','green'),
+    impactItem('🤖','Gestionadas IA',total,'automaticamente','purple'),
+    impactItem('⏱','Tiempo ahorrado',ahorro+'min','≈'+Math.round(ahorro/60)+'h este mes','blue'),
+  ].join('');
+  banner.style.display='block';
+}
+
+function impactItem(icon,label,val,sub,color){
+  const colors={cyan:'var(--cyan)',green:'var(--green)',purple:'var(--purple)',blue:'var(--blue)'};
+  return `<div style="text-align:center">
+    <div style="font-size:22px;margin-bottom:6px">${icon}</div>
+    <div style="font-size:26px;font-weight:700;font-family:'DM Serif Display',serif;color:${colors[color]}">${val}</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text);margin-top:2px">${label}</div>
+    ${sub?`<div style="font-size:10px;color:var(--text2);margin-top:1px">${sub}</div>`:''}
+  </div>`;
+}
+
 
 function renderCharts(){
   const days=chartPeriod;
@@ -2203,28 +2256,64 @@ function renderCharts(){
   // Destroy old charts
   if(chartCitas)chartCitas.destroy();
   if(chartClientes)chartClientes.destroy();
+  if(window.chartEstados)window.chartEstados.destroy();
+  if(window.chartHoras)window.chartHoras.destroy();
 
   const c1=document.getElementById('chart-citas');
   const c2=document.getElementById('chart-clientes');
+  const c3=document.getElementById('chart-estados');
+  const c4=document.getElementById('chart-horas');
   if(!c1||!c2)return;
 
   chartCitas=new Chart(c1,{
     type:'bar',
-    data:{
-      labels,
-      datasets:[{data:labels.map(l=>citasCounts[l]),backgroundColor:'rgba(0,229,204,.25)',borderColor:'rgba(0,229,204,.8)',borderWidth:2,borderRadius:6,borderSkipped:false}]
-    },
+    data:{labels,datasets:[{data:labels.map(l=>citasCounts[l]),backgroundColor:'rgba(0,229,204,.2)',borderColor:'rgba(0,229,204,.8)',borderWidth:2,borderRadius:6,borderSkipped:false}]},
     options:chartDefaults
   });
 
   chartClientes=new Chart(c2,{
     type:'line',
-    data:{
-      labels,
-      datasets:[{data:labels.map(l=>clientesCounts[l]),borderColor:'rgba(180,79,255,.9)',backgroundColor:'rgba(180,79,255,.08)',borderWidth:2.5,pointBackgroundColor:'rgba(180,79,255,.9)',pointRadius:4,pointHoverRadius:6,tension:.4,fill:true}]
-    },
+    data:{labels,datasets:[{data:labels.map(l=>clientesCounts[l]),borderColor:'rgba(180,79,255,.9)',backgroundColor:'rgba(180,79,255,.06)',borderWidth:2.5,pointBackgroundColor:'rgba(180,79,255,.9)',pointRadius:4,tension:.4,fill:true}]},
     options:chartDefaults
   });
+
+  // Chart 3: Estado distribution (donut)
+  if(c3){
+    const all=allCitasData||[];
+    const estados=['Confirmada','Pendiente','Completada','Cancelada','Modificada'];
+    const counts=estados.map(e=>all.filter(r=>r.estado===e).length);
+    window.chartEstados=new Chart(c3,{
+      type:'doughnut',
+      data:{
+        labels:estados,
+        datasets:[{data:counts,backgroundColor:['rgba(0,229,176,.7)','rgba(255,170,51,.7)','rgba(77,159,255,.7)','rgba(255,77,106,.7)','rgba(255,200,50,.7)'],borderColor:'transparent',borderWidth:0}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b7fa3',font:{size:11},boxWidth:10,padding:10}},tooltip:{backgroundColor:'rgba(10,15,26,.95)',titleColor:'#f0f4ff',bodyColor:'#7a8aaa',borderColor:'rgba(0,229,204,.2)',borderWidth:1,padding:10,cornerRadius:8}},cutout:'65%'}
+    });
+  }
+
+  // Chart 4: Citas by hour of day (heatmap style)
+  if(c4){
+    const all=allCitasData||[];
+    const horas=Array.from({length:12},(_,i)=>({label:(i+8)+':00',count:0}));
+    all.forEach(r=>{
+      if(!r.hora_cita)return;
+      const h=parseInt((r.hora_cita||'').split(':')[0]);
+      if(h>=8&&h<=19)horas[h-8].count++;
+    });
+    window.chartHoras=new Chart(c4,{
+      type:'bar',
+      data:{
+        labels:horas.map(h=>h.label),
+        datasets:[{data:horas.map(h=>h.count),backgroundColor:horas.map(h=>{
+          const max=Math.max(...horas.map(x=>x.count),1);
+          const pct=h.count/max;
+          return `rgba(0,229,204,${0.1+pct*0.7})`;
+        }),borderColor:'transparent',borderRadius:4,borderSkipped:false}]
+      },
+      options:{...chartDefaults,plugins:{...chartDefaults.plugins,legend:{display:false}}}
+    });
+  }
 }
 
 // ── MOBILE MENU ──
