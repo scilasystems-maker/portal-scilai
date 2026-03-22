@@ -239,8 +239,13 @@ body.theme-light .mob-item{color:#3a4560}
 
 /* ── CITA CARDS ── */
 .cita-cards-grid{display:flex;flex-direction:column;gap:12px;animation:fadeUp .3s ease both}
-.cita-card-pro{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
-.cita-card-pro:hover{border-color:var(--border2);transform:translateY(-1px)}
+.cita-card-pro{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;transition:border-color .2s,transform .15s;position:relative;overflow:hidden;border-left-width:3px}
+.cita-card-pro:hover{transform:translateY(-1px)}
+.cita-card-pro.estado-confirmada{border-left-color:#00e5b0}
+.cita-card-pro.estado-pendiente{border-left-color:#ffaa33}
+.cita-card-pro.estado-cancelada{border-left-color:#ff4d6a;opacity:.8}
+.cita-card-pro.estado-completada{border-left-color:#4d9fff}
+.cita-card-pro.estado-modificada{border-left-color:#ffc832}
 .cita-hoy{border-color:rgba(0,229,204,.3);background:linear-gradient(135deg,rgba(0,229,204,.04) 0%,var(--card) 60%)}
 .hoy-ribbon{position:absolute;top:0;right:0;background:var(--gradient);color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:4px 10px;border-radius:0 var(--r) 0 8px}
 .cita-card-fecha{text-align:center;padding:10px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid var(--border)}
@@ -255,11 +260,18 @@ body.theme-light .mob-item{color:#3a4560}
 .cita-card-estado{text-align:right}
 
 /* ESTADO BADGES */
-.estado-badge{display:inline-flex;align-items:center;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.3px}
-.badge-confirmada{background:rgba(0,229,176,.1);color:#00e5b0;border:1px solid rgba(0,229,176,.25)}
-.badge-pendiente{background:rgba(255,170,51,.1);color:#ffaa33;border:1px solid rgba(255,170,51,.25)}
-.badge-cancelada{background:rgba(255,77,106,.1);color:#ff4d6a;border:1px solid rgba(255,77,106,.25)}
-.badge-completada{background:rgba(77,159,255,.1);color:#4d9fff;border:1px solid rgba(77,159,255,.25)}
+.estado-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.3px}
+.estado-badge::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.badge-confirmada{background:rgba(0,229,176,.12);color:#00e5b0;border:1px solid rgba(0,229,176,.3)}
+.badge-confirmada::before{background:#00e5b0;box-shadow:0 0 6px rgba(0,229,176,.8)}
+.badge-pendiente{background:rgba(255,170,51,.12);color:#ffaa33;border:1px solid rgba(255,170,51,.3)}
+.badge-pendiente::before{background:#ffaa33;box-shadow:0 0 6px rgba(255,170,51,.8)}
+.badge-cancelada{background:rgba(255,77,106,.12);color:#ff4d6a;border:1px solid rgba(255,77,106,.3)}
+.badge-cancelada::before{background:#ff4d6a;box-shadow:0 0 6px rgba(255,77,106,.8)}
+.badge-completada{background:rgba(77,159,255,.12);color:#4d9fff;border:1px solid rgba(77,159,255,.3)}
+.badge-completada::before{background:#4d9fff;box-shadow:0 0 6px rgba(77,159,255,.8)}
+.badge-modificada{background:rgba(255,200,50,.12);color:#ffc832;border:1px solid rgba(255,200,50,.3)}
+.badge-modificada::before{background:#ffc832;box-shadow:0 0 6px rgba(255,200,50,.8)}
 
 /* ── PRO TABLE ── */
 .pro-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:fadeUp .3s ease both}
@@ -1381,10 +1393,10 @@ function citaCard(row,cols){
   const rowId=row.id||'';
   const ribbonHtml=esHoy?'<div class="hoy-ribbon">HOY</div>':'';
   const notasHtml=notas?'<span class="meta-chip">&#128221; '+notas.substring(0,35)+(notas.length>35?'...':'')+'</span>':'';
-  const statusOpts=['Confirmada','Pendiente','Completada','Cancelada'].map(function(s){return '<option value="'+s+'"'+(s===estado?' selected':'')+'>'+s+'</option>';}).join('');
+  const statusOpts=['Confirmada','Pendiente','Completada','Cancelada','Modificada'].map(function(s){return '<option value="'+s+'"'+(s===estado?' selected':'')+'>'+s+'</option>';}).join('');
   
   const html=[
-    '<div class="cita-card-pro'+(esHoy?' cita-hoy':'')+'">',
+    '<div class="cita-card-pro estado-'+estadoClass+(esHoy?' cita-hoy':'')+'">',
     ribbonHtml,
     '<div class="cita-card-fecha"><div class="cita-dia-num">'+dia+'</div><div class="cita-mes-txt">'+mes.toUpperCase()+'</div></div>',
     '<div class="cita-card-body">',
@@ -1757,7 +1769,7 @@ function renderRecordForm(cols,row){
     const val=row[col]||'';
     const lbl=col.replace(/_/g,' ').replace(/^\w/,c=>c.toUpperCase());
     if(col==='estado'){
-      const opts=['Confirmada','Pendiente','Completada','Cancelada'].map(s=>`<option value="${s}"${s===val?' selected':''}>${s}</option>`).join('');
+      const opts=['Confirmada','Pendiente','Completada','Cancelada','Modificada'].map(s=>`<option value="${s}"${s===val?' selected':''}>${s}</option>`).join('');
       return `<div class="form-group"><label class="lbl">${lbl}</label><select class="inp" id="rf-${col}" style="cursor:pointer">${opts}</select></div>`;
     }
     if(col.includes('fecha')&&!col.includes('creacion')){
