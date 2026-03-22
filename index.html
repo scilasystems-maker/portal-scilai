@@ -21,10 +21,104 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(0,229,204,.05) 0%,transparent 50%),radial-gradient(ellipse 60% 40% at 80% 0%,rgba(180,79,255,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::before{display:none}
+
+/* ── THEMES ── */
+body.theme-clean{background:#080c14}
+body.theme-clean #stars-canvas{display:none}
+body.theme-light{background:#f0f4ff;color:#0d1220}
+body.theme-light #stars-canvas{display:none}
+body.theme-light .header{background:rgba(240,244,255,.95);border-bottom-color:rgba(0,0,0,.08)}
+body.theme-light .client-nav{background:rgba(240,244,255,.8);border-bottom-color:rgba(0,0,0,.08)}
+body.theme-light .stat-card,body.theme-light .nav-btn,body.theme-light .cal-wrap,
+body.theme-light .profile-card,body.theme-light .chart-card,body.theme-light .rec-card,
+body.theme-light .cita-card-pro,body.theme-light .login-card,body.theme-light .pro-table-wrap{
+  background:#fff;border-color:rgba(0,0,0,.1);color:#0d1220}
+body.theme-light .login-card-outer{background:linear-gradient(135deg,rgba(0,229,204,.4),rgba(180,79,255,.4))}
+body.theme-light .inp{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.15);color:#0d1220}
+body.theme-light .nav-tab{color:#3a4560}
+body.theme-light .nav-tab.active{color:var(--cyan)}
+body.theme-light .page-title{color:#0d1220}
+body.theme-light .cal-cell{border-color:rgba(0,0,0,.08)}
+body.theme-light .cal-labels{border-color:rgba(0,0,0,.08)}
+body.theme-light .cal-header{border-color:rgba(0,0,0,.08)}
+body.theme-light .pro-table th{color:#7a8aaa}
+body.theme-light .pro-table td{color:#0d1220}
+body.theme-light .pro-table tbody tr:hover{background:rgba(0,0,0,.02)}
+body.theme-light .mini-stat{background:#fff;border-color:rgba(0,0,0,.1)}
+body.theme-light .stat-card::after{background:rgba(0,229,204,.05)}
+body.theme-light #v-login{background:#f0f4ff}
+body.theme-light .login-brand{color:#0d1220}
+body.theme-light .login-sub{color:#3a4560}
+body.theme-light .login-badge{background:rgba(0,229,204,.12);color:#009e8f}
+body.theme-light .lbl{color:#3a4560}
+body.theme-light .inp{color:#0d1220}
+body.theme-light .inp::placeholder{color:#9aaabb}
+body.theme-light .h-logo-text{color:#0d1220}
+body.theme-light .welcome-h{color:#0d1220}
+body.theme-light .welcome-greeting{color:#009e8f}
+body.theme-light .welcome-d{color:#3a4560}
+body.theme-light .page-title{color:#0d1220}
+body.theme-light .page-subtitle{color:#3a4560}
+body.theme-light .stat-num{color:#0d1220}
+body.theme-light .stat-lbl{color:#3a4560}
+body.theme-light .stat-desc{color:#7a8aaa}
+body.theme-light .nav-btn-name{color:#0d1220}
+body.theme-light .nav-btn-count{color:#3a4560}
+body.theme-light .section-label{color:#7a8aaa}
+body.theme-light .text2,.theme-light .text3{color:#3a4560}
+body.theme-light .cita-card-nombre{color:#0d1220}
+body.theme-light .tipo-label{color:#3a4560}
+body.theme-light .rec-card-title{color:#0d1220}
+body.theme-light .rec-card-sub{color:#3a4560}
+body.theme-light .cal-title{color:#0d1220}
+body.theme-light .cal-day-num{color:#0d1220}
+body.theme-light .cal-day-label{color:#7a8aaa}
+body.theme-light .cal-cell.other-month .cal-day-num{color:#bbb}
+body.theme-light .chart-card-title{color:#0d1220}
+body.theme-light .chart-card-sub{color:#3a4560}
+body.theme-light .mini-stat-lbl{color:#7a8aaa}
+body.theme-light .mini-stat-val{color:#0d1220}
+body.theme-light .profile-name{color:#0d1220}
+body.theme-light .activity-text{color:#3a4560}
+body.theme-light .btn-sm{color:#3a4560;border-color:rgba(0,0,0,.15)}
+body.theme-light .btn-sm:hover{color:#0d1220;border-color:#0d1220}
+body.theme-light .h-badge.client{color:#009e8f}
+body.theme-light .theme-menu{background:#fff;border-color:rgba(0,0,0,.1)}
+body.theme-light .theme-opt{color:#3a4560}
+body.theme-light .theme-opt:hover{background:rgba(0,0,0,.04);color:#0d1220}
+body.theme-light .theme-opt.active{color:#009e8f}
+body.theme-light .search-bar{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.12)}
+body.theme-light .search-input{color:#0d1220}
+body.theme-light .f-btn{color:#3a4560;border-color:rgba(0,0,0,.12)}
+body.theme-light .f-btn:hover{color:#009e8f;border-color:#009e8f}
+body.theme-light .f-btn.active{color:#009e8f;border-color:#009e8f;background:rgba(0,229,204,.08)}
+body.theme-light .hora-badge{color:#009e8f;background:rgba(0,229,204,.1)}
+body.theme-light .meta-chip{color:#3a4560;background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
+body.theme-light .back-btn{color:#3a4560;background:#fff;border-color:rgba(0,0,0,.12)}
+body.theme-light .cal-more{color:#7a8aaa}
+body.theme-light .pro-empty-title{color:#3a4560}
+body.theme-light .pro-empty-sub{color:#7a8aaa}
+body.theme-light .export-btn{color:#3a4560;border-color:rgba(0,0,0,.12)}
+body.theme-light .btn-card-action{color:#3a4560;border-color:rgba(0,0,0,.12)}
+body.theme-light .btn-ver-todas{color:#009e8f}
+body.theme-light .btn-add-record{background:linear-gradient(135deg,#00c4af,#9b35e0)}
+body.theme-light .mobile-menu{background:rgba(240,244,255,.97)}
+body.theme-light .mob-item{color:#3a4560}
+
+/* THEME SWITCHER */
+.theme-switcher{position:relative}
+.theme-btn{width:34px;height:34px;background:transparent;border:1px solid var(--border2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;color:var(--text2)}
+.theme-btn:hover{border-color:var(--cyan);color:var(--text)}
+.theme-menu{position:absolute;top:42px;right:0;background:#0d1220;border:1px solid var(--border2);border-radius:12px;padding:6px;min-width:170px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:200;display:none}
+.theme-menu.open{display:block}
+.theme-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border:none;background:transparent;width:100%;font-family:'Inter',sans-serif;font-weight:500}
+.theme-opt:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.theme-opt.active{color:var(--cyan)}
+.theme-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.2);flex-shrink:0}
 
 /* ── LOGIN ── */
-#v-login{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:20px;background:var(--bg)}
+#v-login{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:20px}
 .login-wrap{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center}
 .login-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .login-logo-row img{height:36px;object-fit:contain}
@@ -428,9 +522,18 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </style>
 </head>
 <body>
+<canvas id="stars-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
 
 <!-- LOGIN -->
 <div id="v-login">
+  <div class="theme-switcher" style="position:absolute;top:16px;right:16px;z-index:10">
+    <button class="theme-btn" onclick="toggleThemeMenu()" title="Cambiar tema">🎨</button>
+    <div class="theme-menu" id="theme-menu-login">
+      <button class="theme-opt active" id="tl-stars" onclick="setTheme('stars')"><span class="theme-dot" style="background:linear-gradient(135deg,#00e5cc,#b44fff)"></span>Original</button>
+      <button class="theme-opt" id="tl-clean" onclick="setTheme('clean')"><span class="theme-dot" style="background:#0d1220"></span>Oscuro</button>
+      <button class="theme-opt" id="tl-light" onclick="setTheme('light')"><span class="theme-dot" style="background:#f0f4ff;border-color:rgba(0,0,0,.2)"></span>Claro</button>
+    </div>
+  </div>
   <div class="login-wrap">
     <div class="login-card-outer"><div class="login-card">
       <div style="text-align:center;margin-bottom:28px">
@@ -653,6 +756,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     </div>
     <div class="h-right">
       <span class="h-badge client" id="c-empresa-badge"></span>
+      <div class="theme-switcher">
+        <button class="theme-btn" onclick="toggleThemeMenu()" title="Cambiar tema">🎨</button>
+        <div class="theme-menu" id="theme-menu">
+          <button class="theme-opt active" id="t-stars" onclick="setTheme('stars')"><span class="theme-dot" style="background:linear-gradient(135deg,#00e5cc,#b44fff)"></span>Original</button>
+          <button class="theme-opt" id="t-clean" onclick="setTheme('clean')"><span class="theme-dot" style="background:#0d1220"></span>Oscuro</button>
+          <button class="theme-opt" id="t-light" onclick="setTheme('light')"><span class="theme-dot" style="background:#f0f4ff;border-color:rgba(0,0,0,.2)"></span>Claro</button>
+        </div>
+      </div>
       <button class="btn-sm" onclick="doLogout()">Salir</button>
     </div>
     <button class="hamburger" onclick="toggleMobileMenu()" id="hamburger-btn"><span></span><span></span><span></span></button>
@@ -1193,12 +1304,23 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
     if(error)throw error;
     let filtered=rows||[];
     const fechaCol=sec.columnas.find(c=>c.includes('fecha'))||null;
-    // Sort by time for today's appointments
-    if(filtro==='hoy'){
+    // Sort by date+time for upcoming/today views
+    if(filtro==='hoy'||filtro==='proximas'||filtro==='semana'||filtro==='mes'){
       filtered.sort((a,b)=>{
-        const ha=(a.hora_cita||a.hora||'00:00').replace(':','');
-        const hb=(b.hora_cita||b.hora||'00:00').replace(':','');
-        return parseInt(ha)-parseInt(hb);
+        const da=parseFecha(a.fecha_cita||a.fecha||'');
+        const db=parseFecha(b.fecha_cita||b.fecha||'');
+        if(da.getTime()!==db.getTime()) return da-db;
+        const ha=parseInt((a.hora_cita||a.hora||'00:00').replace(':',''));
+        const hb=parseInt((b.hora_cita||b.hora||'00:00').replace(':',''));
+        return ha-hb;
+      });
+    }
+    // Sort pasadas newest first
+    if(filtro==='pasadas'){
+      filtered.sort((a,b)=>{
+        const da=parseFecha(a.fecha_cita||a.fecha||'');
+        const db=parseFecha(b.fecha_cita||b.fecha||'');
+        return db-da;
       });
     }
     if(fechaCol&&filtro!=='todas'){
@@ -1413,11 +1535,31 @@ async function loadHomeStats(){
 
 // ── UTILS ──
 function parseFecha(s){
-  if(!s)return new Date(0);
-  if(typeof s==='string'&&s.includes('/')) {const[d,m,y]=s.split('/');return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T00:00:00`)}
-  return new Date(String(s).length===10?s+'T00:00:00':s);
+  if(!s)return new Date(NaN);
+  s=String(s).trim();
+  // DD/MM/YYYY
+  if(s.includes('/')){ 
+    const p=s.split('/');
+    if(p.length===3){
+      const d=parseInt(p[0]),m=parseInt(p[1])-1,y=parseInt(p[2]);
+      return new Date(y,m,d);
+    }
+  }
+  // YYYY-MM-DD (without time, parse manually to avoid UTC shift)
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)){
+    const p=s.split('-');
+    return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  }
+  // ISO with time - convert to local
+  return new Date(s);
 }
-function iso(d){return d.toISOString().split('T')[0]}
+function iso(d){
+  if(!d||isNaN(d))return'';
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function fmtDate(v){if(!v)return'';const d=parseFecha(v);return isNaN(d)?'':iso(d)}
 function fmtCol(c){return c.replace(/_/g,' ').replace(/^\w/,x=>x.toUpperCase())}
 function fmtCell(col,val){
@@ -2201,6 +2343,104 @@ function togglePass(){
 });
 (async()=>{const{data:{session}}=await sb.auth.getSession();if(session?.user){currentUser=session.user;if(session.user.email===ADMIN_EMAIL)initAdmin(session.user);else initClient(session.user)}})();
 
+
+// ── THEME SWITCHER ──
+function toggleThemeMenu(){
+  const m1=document.getElementById('theme-menu');
+  const m2=document.getElementById('theme-menu-login');
+  if(m1)m1.classList.toggle('open');
+  if(m2)m2.classList.toggle('open');
+}
+function setTheme(t){
+  document.body.classList.remove('theme-clean','theme-light');
+  ['t-stars','t-clean','t-light'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  if(t==='clean') document.body.classList.add('theme-clean');
+  if(t==='light') document.body.classList.add('theme-light');
+  document.getElementById('t-'+t)?.classList.add('active');
+  document.getElementById('tl-'+t)?.classList.add('active');
+  ['t-stars','t-clean','t-light'].forEach(id=>{ if('t-'+t!==id) document.getElementById(id)?.classList.remove('active'); });
+  ['tl-stars','tl-clean','tl-light'].forEach(id=>{ if('tl-'+t!==id) document.getElementById(id)?.classList.remove('active'); });
+  localStorage.setItem('scila-theme',t);
+  document.getElementById('theme-menu')?.classList.remove('open');
+  document.getElementById('theme-menu-login')?.classList.remove('open');
+}
+// Load saved theme
+(function(){
+  const saved=localStorage.getItem('scila-theme')||'stars';
+  if(saved!=='stars') setTheme(saved);
+})();
+// Close theme menu on outside click
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.theme-switcher')){
+    document.getElementById('theme-menu')?.classList.remove('open');
+    document.getElementById('theme-menu-login')?.classList.remove('open');
+  }
+});
+
+// ── STARS BACKGROUND ──
+(function(){
+  const canvas=document.getElementById('stars-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,stars=[];
+  const N=180;
+  const COLORS=['rgba(0,229,204,','rgba(180,79,255,','rgba(255,255,255,'];
+
+  function resize(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+  }
+
+  function rand(min,max){return Math.random()*(max-min)+min;}
+
+  function initStars(){
+    stars=[];
+    for(let i=0;i<N;i++){
+      const col=COLORS[Math.floor(Math.random()*COLORS.length)];
+      stars.push({
+        x:rand(0,W), y:rand(0,H),
+        r:rand(0.3,1.8),
+        vx:rand(-0.08,0.08), vy:rand(-0.08,0.08),
+        alpha:rand(0.1,0.9),
+        dalpha:rand(0.003,0.012)*(Math.random()<0.5?1:-1),
+        color:col,
+        pulse:rand(0,Math.PI*2)
+      });
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const t=Date.now()*0.001;
+    stars.forEach(function(s){
+      // Move
+      s.x+=s.vx; s.y+=s.vy;
+      if(s.x<0)s.x=W; if(s.x>W)s.x=0;
+      if(s.y<0)s.y=H; if(s.y>H)s.y=0;
+      // Pulse alpha smoothly
+      s.pulse+=s.dalpha;
+      const a=0.15+0.75*((Math.sin(s.pulse)+1)/2);
+      // Draw glow
+      const grd=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*4);
+      grd.addColorStop(0,s.color+a+')');
+      grd.addColorStop(1,s.color+'0)');
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r*4,0,Math.PI*2);
+      ctx.fillStyle=grd;
+      ctx.fill();
+      // Draw core dot
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=s.color+Math.min(a+0.2,1)+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize',function(){resize();initStars();});
+  resize();
+  initStars();
+  draw();
+})();
 </script>
 </body>
 </html>
