@@ -1034,20 +1034,22 @@ async function initClient(user){
   show('v-client');
   
   const d=new Date();
-  document.getElementById('c-date').textContent=d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+  // c-date may not exist in new layout - skip if missing
+  const dateEl=document.getElementById('c-date');
+  if(dateEl)dateEl.textContent=d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
 
   const{data:cfg}=await sb.from('portal_clientes').select('*').eq('email',user.email.toLowerCase()).single();
   if(!cfg){
-    document.getElementById('c-name').textContent='Portal en configuración 🔧';
-    document.getElementById('home-stats').innerHTML=`<div class="empty"><div class="empty-icon">🔧</div><div style="font-size:15px;color:var(--text2)">Tu portal está siendo configurado. Contacta con tu administrador.</div></div>`;
+    const cn=document.getElementById('c-name');if(cn)cn.textContent='Portal en configuración 🔧';
+    const hs=document.getElementById('home-stats');if(hs)hs.innerHTML=`<div class="empty"><div class="empty-icon">🔧</div><div style="font-size:15px;color:var(--text2)">Tu portal está siendo configurado. Contacta con tu administrador.</div></div>`;
     return;
   }
 
   clienteData=cfg;
   clienteSecciones=cfg.config?.secciones||[];
   const empresa=cfg.empresa||cfg.nombre||'';
-  document.getElementById('c-name').textContent=`Hola, ${empresa} 👋`;
-  document.getElementById('c-greeting').textContent=empresa||'Portal de cliente';
+  const nameEl=document.getElementById('c-name');if(nameEl)nameEl.textContent=`Hola, ${empresa} 👋`;
+  const grEl=document.getElementById('c-greeting');if(grEl)grEl.textContent=empresa||'Portal de cliente';
   document.getElementById('c-empresa-badge').textContent=empresa;
 
   // Set up client supabase
@@ -1068,53 +1070,9 @@ async function initClient(user){
   setupRealtime();
 }
 
-function buildClientNav(){
-  const nav=document.getElementById('client-nav');
-  nav.innerHTML=
-    `<button class="nav-tab active" onclick="showClientPage('home',this)">🏠 Inicio</button>`+
-    clienteSecciones.map((s,i)=>`<button class="nav-tab" onclick="showClientPage('sec-${i}',this)">${s.titulo}</button>`).join('')+
-    `<button class="nav-tab" onclick="showCalendar();setActiveNav(this)">📅 Calendario</button>`+
-    `<button class="nav-tab" onclick="showProfile();setActiveNav(this)">👤 Perfil</button>`+
-    `<button class="nav-tab" onclick="showActivity();setActiveNav(this)">📋 Actividad</button>`;
-}
+function goHome(){showClientPage('home',document.querySelector('[data-page="home"]'))}
 
-function setActiveNav(btn){
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-}
-
-function showClientPage(id,btn){
-  document.querySelectorAll('.client-page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+id)?.classList.add('active');
-  if(btn) btn.classList.add('active');
-}
-
-function goHome(){showClientPage('home',document.querySelector('.nav-tab'))}
-
-function buildDynamicPages(){
-  const wrap=document.getElementById('dynamic-pages');
-  wrap.innerHTML=clienteSecciones.map((s,i)=>`
-    <div class="client-page" id="page-sec-${i}">
-      <div class="page-header">
-        <div class="back-btn" onclick="goHome()">←</div>
-        <div class="page-title-wrap">
-          <div class="page-title">${s.titulo}</div>
-          <div class="page-subtitle" id="sec-subtitle-${i}">Cargando...</div>
-        </div>
-      </div>
-      <div class="filters-bar" id="filters-${i}"></div>
-      <div class="search-bar-wrap">
-        <div class="search-bar">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search-${i}" class="search-input" placeholder="Buscar en ${s.titulo}..." oninput="renderSecTable(clienteSecciones[${i}],${i},currentFilter[${i}]||'todas')">
-        </div>
-      </div>
-      <div id="sec-table-${i}"><div class="loading"><div class="spin"></div>Cargando datos...</div></div>
-    </div>`).join('');
-
-  clienteSecciones.forEach((s,i)=>loadSeccionPage(s,i));
-}
+// buildDynamicPages handled by new version below
 
 async function loadSeccionPage(sec,idx){
   const isDateTable=sec.tabla==='citas'||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
