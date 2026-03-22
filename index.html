@@ -1804,17 +1804,35 @@ async function checkAdminReplies(){
 // ── CRUD OPERATIONS ──
 let recordModal={tabla:null,id:null,cols:[],row:{}};
 
+// Known column definitions for common tables
+const KNOWN_COLS={
+  'citas':['paciente_nombre','paciente_telefono','fecha_cita','hora_cita','tipo_cita','estado','notas'],
+  'clientes':['nombre','telefono','email','empresa','sector','notas']
+};
+
 async function openAddRecord(tabla){
   const dbClient=window.clientSb||sb;
   let cols=schemaColumns[tabla]||[];
+  // Use known columns first
+  if(!cols.length&&KNOWN_COLS[tabla]) cols=KNOWN_COLS[tabla];
+  // Try to get from existing row
   if(!cols.length){
     const{data:r}=await dbClient.from(tabla).select('*').limit(1);
-    if(r&&r.length){cols=Object.keys(r[0]);schemaColumns[tabla]=cols;}
+    if(r&&r.length){cols=Object.keys(r[0]).filter(c=>!['id','fecha_creacion','created_at'].includes(c));schemaColumns[tabla]=cols;}
+  }
+  // Fallback: get column names from table schema via RPC or use generic
+  if(!cols.length){
+    cols=KNOWN_COLS[tabla]||['nombre','telefono','email','notas'];
   }
   recordModal={tabla,id:null,cols,row:{}};
-  document.getElementById('record-modal-title').textContent='+ Nuevo registro';
+  document.getElementById('record-modal-title').textContent='+ Nuevo '+sec_label(tabla);
   renderRecordForm(cols,{});
   document.getElementById('overlay-record').classList.add('open');
+}
+
+function sec_label(tabla){
+  const s=clienteSecciones.find(s=>s.tabla===tabla);
+  return s?s.titulo.replace(/^[Mm]is /,''):'registro';
 }
 
 async function openEditRecord(tabla,id){
