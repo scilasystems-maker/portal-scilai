@@ -83,6 +83,8 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 .topbar-title{font-size:16px;font-weight:700}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .page-content{flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+#page-calendar{padding:0!important}
+#page-calendar .cal-wrap{flex:1;border-radius:0;border-left:none;border-right:none;border-bottom:none}
 .page-content::-webkit-scrollbar{width:4px}
 .page-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
@@ -203,8 +205,8 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 .cal-nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
 .cal-labels{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)}
 .cal-day-label{text-align:center;font-size:10px;font-weight:700;color:var(--text3);padding:8px 0;text-transform:uppercase;letter-spacing:.8px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.cal-cell{min-height:90px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 5px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);flex:1}
+.cal-cell{min-height:0;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 5px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
 .cal-cell:nth-child(7n){border-right:none}
 .cal-cell:hover{background:rgba(255,255,255,.03)}
 .cal-cell.today{background:rgba(0,229,204,.04)}
@@ -640,8 +642,8 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
         <div id="dynamic-pages"></div>
 
         <!-- CALENDAR -->
-        <div class="page" id="page-calendar">
-          <div class="cal-wrap">
+        <div class="page" id="page-calendar" style="height:calc(100vh - 56px);display:flex;flex-direction:column">
+          <div class="cal-wrap" style="flex:1;display:flex;flex-direction:column">
             <div class="cal-header">
               <div class="cal-title" id="cal-month-title"></div>
               <div class="cal-nav">
@@ -651,7 +653,7 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
               </div>
             </div>
             <div class="cal-labels" id="cal-labels"></div>
-            <div class="cal-grid" id="cal-grid"></div>
+          <div class="cal-grid" id="cal-grid" style="flex:1"></div>
           </div>
         </div>
 
@@ -1075,10 +1077,17 @@ async function initClient(user){
   const empresa=cfg.empresa||cfg.nombre||'';
   const nameEl=document.getElementById('c-name');if(nameEl)nameEl.textContent=`Hola, ${empresa} 👋`;
   const grEl=document.getElementById('c-greeting');if(grEl)grEl.textContent=empresa||'Portal de cliente';
-  document.getElementById('c-empresa-badge').textContent=empresa;
+  const _eb=document.getElementById('c-empresa-badge');if(_eb)_eb.textContent=empresa;
 
   // Set up client supabase
-  window.clientSb=cfg.supabase_url&&cfg.supabase_key?supabase.createClient(cfg.supabase_url,cfg.supabase_key):sb;
+  // Initialize client supabase - fallback to main sb if no custom credentials
+  try{
+    window.clientSb=cfg.supabase_url&&cfg.supabase_key?
+      supabase.createClient(cfg.supabase_url,cfg.supabase_key):sb;
+  }catch(e){
+    console.warn('clientSb init failed, using main sb:',e);
+    window.clientSb=sb;
+  }
   document.getElementById('help-float').style.display='block';
   checkAdminReplies();
   setInterval(checkAdminReplies,15000);
@@ -1144,6 +1153,7 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
   cont.innerHTML=`<div class="loading"><div class="spin"></div>Cargando...</div>`;
   try{
     const dbClient=window.clientSb||sb;
+    console.log('Loading',sec.tabla,'from',dbClient.supabaseUrl||'main sb');
     let q=dbClient.from(sec.tabla).select('*');
     if(sec.filtro_campo&&sec.filtro_valor&&clienteData){
       const val=clienteData[sec.filtro_valor];
@@ -1245,10 +1255,11 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
       cont.innerHTML=addBtn+'<div class="record-cards-grid">'+filtered.map(function(row){return recordCard(row,cols,sec.tabla);}).join('')+'</div>';
     }
   }catch(e){
-    // Still show add button even on error
+    console.error('renderSecTable error:',e);
     const _sl=sec.titulo.replace(/^[Mm]is /,'');
     const _ab='<button class="btn-add-record" onclick="openAddRecord(\'' + sec.tabla + '\')">+ Añadir '+_sl+'</button>';
-    cont.innerHTML=_ab+'<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Sin datos aún</div><div class="pro-empty-sub">Pulsa el botón para añadir tu primer registro</div></div>';
+    const errMsg=e.message&&e.message.includes('fetch')?'Error de conexión con Supabase. Verifica la URL y clave.':e.message||'Error desconocido';
+    cont.innerHTML=_ab+'<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Error al cargar</div><div class="pro-empty-sub">'+errMsg+'</div></div>';
   }
 }
 
