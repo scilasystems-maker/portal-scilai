@@ -1341,9 +1341,44 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
     if(fechaCol&&filtro!=='todas'){
       const hoy=new Date();hoy.setHours(0,0,0,0);
       const hoyStr=iso(hoy);
-      if(filtro==='hoy') filtered=filtered.filter(r=>fmtDate(r[fechaCol])===hoyStr);
-      else if(filtro==='proximas') filtered=filtered.filter(r=>parseFecha(r[fechaCol])>=hoy);
-      else if(filtro==='pasadas') filtered=filtered.filter(r=>parseFecha(r[fechaCol])<hoy);
+      const ahora=new Date();
+      if(filtro==='hoy') filtered=filtered.filter(r=>{
+        if(r.estado==='Completada'||r.estado==='Cancelada') return false;
+        return fmtDate(r[fechaCol])===hoyStr;
+      });
+      else if(filtro==='proximas') filtered=filtered.filter(r=>{
+        // Completadas siempre son pasadas
+        if(r.estado==='Completada') return false;
+        const fd=parseFecha(r[fechaCol]);
+        // Si es hoy, comparar también la hora
+        if(fmtDate(fd)===hoyStr){
+          const hora=(r.hora_cita||r.hora||'');
+          if(hora){
+            const partes=hora.split(':');
+            const fdConHora=new Date(fd);
+            fdConHora.setHours(parseInt(partes[0]||0),parseInt(partes[1]||0),0,0);
+            return fdConHora>ahora;
+          }
+          return true;
+        }
+        return fd>hoy;
+      });
+      else if(filtro==='pasadas') filtered=filtered.filter(r=>{
+        // Completadas siempre son pasadas
+        if(r.estado==='Completada') return true;
+        const fd=parseFecha(r[fechaCol]);
+        if(fmtDate(fd)===hoyStr){
+          const hora=(r.hora_cita||r.hora||'');
+          if(hora){
+            const partes=hora.split(':');
+            const fdConHora=new Date(fd);
+            fdConHora.setHours(parseInt(partes[0]||0),parseInt(partes[1]||0),0,0);
+            return fdConHora<=ahora;
+          }
+          return false;
+        }
+        return fd<hoy;
+      });
       else if(filtro==='recientes'){const ini=new Date();ini.setDate(ini.getDate()-30);filtered=filtered.filter(r=>parseFecha(r[fechaCol])>=ini)}
       else if(filtro==='semana'){const fin=new Date();fin.setDate(fin.getDate()+7);filtered=filtered.filter(r=>{const f=parseFecha(r[fechaCol]);return f>=hoy&&f<=fin})}
       else if(filtro==='mes'){const fin=new Date();fin.setMonth(fin.getMonth()+1);filtered=filtered.filter(r=>{const f=parseFecha(r[fechaCol]);return f>=hoy&&f<=fin})}
@@ -1837,11 +1872,15 @@ async function saveRecord(){
 
   if(error){alert('Error: '+error.message);return}
   closeRecordModal();
-  // Refresh current section
+  // Refresh current section immediately
+  const tabla=recordModal.tabla;
   clienteSecciones.forEach((s,i)=>{
-    if(s.tabla===recordModal.tabla) renderSecTable(s,i,currentFilter[i]||'todas');
+    if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
   });
+  // Reload global data so charts/home/calendar are fresh
+  await loadCharts();
   loadHomeStats();
+  loadAdvancedStats();
 }
 
 async function deleteRecord(tabla,id){
@@ -1849,11 +1888,13 @@ async function deleteRecord(tabla,id){
   const dbClient=window.clientSb||sb;
   const{error}=await dbClient.from(tabla).delete().eq('id',id);
   if(error){alert('Error: '+error.message);return}
-  // Refresh
+  // Refresh immediately
   clienteSecciones.forEach((s,i)=>{
     if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
   });
+  await loadCharts();
   loadHomeStats();
+  loadAdvancedStats();
 }
 
 async function updateEstado(selectEl,tabla,id){
@@ -1861,10 +1902,13 @@ async function updateEstado(selectEl,tabla,id){
   const dbClient=window.clientSb||sb;
   const{error}=await dbClient.from(tabla).update({estado:nuevoEstado}).eq('id',id);
   if(error){alert('Error: '+error.message);return}
-  // Refresh
+  // Refresh section and home immediately
   clienteSecciones.forEach((s,i)=>{
     if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
   });
+  await loadCharts();
+  loadHomeStats();
+  loadAdvancedStats();
 }
 
 // ── REALTIME NOTIFICATIONS ──
