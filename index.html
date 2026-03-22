@@ -1403,7 +1403,7 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
 
     sub.textContent=`${filtered.length} registro${filtered.length!==1?'s':''}`;
     if(!filtered.length){
-      cont.innerHTML=`<div class="pro-empty"><div class="pro-empty-icon">📂</div><div class="pro-empty-title">Sin resultados</div><div class="pro-empty-sub">No hay registros para este filtro</div></div>`;
+      cont.innerHTML=addBtn+'<div class="pro-empty"><div class="pro-empty-icon">📂</div><div class="pro-empty-title">Sin resultados</div><div class="pro-empty-sub">No hay registros para este filtro</div></div>';
       return;
     }
     const cols=sec.columnas.length?sec.columnas:Object.keys(filtered[0]);
