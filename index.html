@@ -403,6 +403,14 @@ body.theme-light .mob-item{color:#3a4560}
 .chart-canvas-wrap{position:relative;height:200px}
 @media(max-width:768px){.charts-grid{grid-template-columns:1fr}.chart-canvas-wrap{height:180px}}
 
+/* PHONE PREFIX */
+.phone-wrap{display:flex;gap:0}
+.phone-prefix{padding:0 12px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-right:none;border-radius:var(--rs) 0 0 var(--rs);color:var(--text2);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;outline:none;transition:border-color .2s;white-space:nowrap;appearance:none;-webkit-appearance:none}
+.phone-prefix:focus{border-color:var(--cyan)}
+.phone-prefix option{background:var(--bg3)}
+.phone-wrap .inp{border-radius:0 var(--rs) var(--rs) 0;margin-bottom:0;flex:1}
+body.theme-light .phone-prefix{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.15);color:#0d1220}
+
 /* ACTION BUTTONS */
 .btn-add-record{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--gradient);color:#fff;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-bottom:16px}
 .btn-add-record:hover{opacity:.9}
@@ -1828,6 +1836,24 @@ function renderRecordForm(cols,row){
     if(col==='notas'){
       return `<div class="form-group"><label class="lbl">${lbl}</label><textarea class="inp" id="rf-${col}" rows="3" style="resize:vertical">${val}</textarea></div>`;
     }
+    if(col.toLowerCase().includes('hora')){
+      // Format HH:MM for time input
+      let timeVal=val||'';
+      if(timeVal&&!timeVal.includes(':')) timeVal='';
+      return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="time" id="rf-${col}" value="${timeVal}" style="cursor:pointer"></div>`;
+    }
+    if(col.toLowerCase().includes('telefono')||col.toLowerCase().includes('phone')){
+      // Extract prefix and number if already stored with prefix
+      let prefix='34', num=val||'';
+      const prefixes=[['34','🇪🇸 +34'],['1','🇺🇸 +1'],['44','🇬🇧 +44'],['33','🇫🇷 +33'],['49','🇩🇪 +49'],['39','🇮🇹 +39'],['351','🇵🇹 +351'],['52','🇲🇽 +52'],['54','🇦🇷 +54'],['57','🇨🇴 +57'],['56','🇨🇱 +56'],['51','🇵🇪 +51'],['58','🇻🇪 +58'],['593','🇪🇨 +593'],['502','🇬🇹 +502'],['506','🇨🇷 +506'],['595','🇵🇾 +595'],['598','🇺🇾 +598'],['591','🇧🇴 +591'],['34','🇪🇸 +34']];
+      // Try to detect existing prefix
+      const knownPrefixes=['34','1','44','33','49','39','351','52','54','57','56','51','58','593','502','506','595','598','591'];
+      for(const p of knownPrefixes){
+        if(num.startsWith(p)){prefix=p;num=num.slice(p.length);break;}
+      }
+      const opts=prefixes.filter((v,i,a)=>a.findIndex(x=>x[0]===v[0])===i).map(([code,label])=>`<option value="${code}"${code===prefix?' selected':''}>${label}</option>`).join('');
+      return `<div class="form-group"><label class="lbl">${lbl}</label><div class="phone-wrap"><select class="phone-prefix" id="rf-prefix-${col}">${opts}</select><input class="inp" type="tel" id="rf-${col}" value="${num}" placeholder="652145261"></div></div>`;
+    }
     return `<div class="form-group"><label class="lbl">${lbl}</label><input class="inp" type="text" id="rf-${col}" value="${val}" placeholder="${lbl}..."></div>`;
   }).join('');
 }
@@ -1851,6 +1877,14 @@ async function saveRecord(){
       const parts=val.split('-');
       val=parts[2]+'/'+parts[1]+'/'+parts[0];
     }
+    // Combine prefix + phone number
+    if(val&&(col.toLowerCase().includes('telefono')||col.toLowerCase().includes('phone'))){
+      const prefixEl=document.getElementById('rf-prefix-'+col);
+      if(prefixEl){
+        const prefix=prefixEl.value||'34';
+        val=prefix+val.replace(/\D/g,''); // strip non-digits from number
+      }
+    }
     data[col]=val;
   });
 
@@ -1872,12 +1906,27 @@ async function saveRecord(){
 
   if(error){alert('Error: '+error.message);return}
   closeRecordModal();
-  // Refresh current section immediately
   const tabla=recordModal.tabla;
-  clienteSecciones.forEach((s,i)=>{
-    if(s.tabla===tabla) renderSecTable(s,i,currentFilter[i]||'todas');
-  });
-  // Reload global data so charts/home/calendar are fresh
+  // Show loading feedback
+  const activeSection=document.querySelector('.client-page.active');
+  
+  // Refresh the section that was modified
+  for(let i=0;i<clienteSecciones.length;i++){
+    const s=clienteSecciones[i];
+    if(s.tabla===tabla){
+      // If we're currently viewing this section, re-render it
+      const sPage=document.getElementById('page-sec-'+i);
+      if(sPage&&sPage.classList.contains('active')){
+        await renderSecTable(s,i,currentFilter[i]||'proximas');
+      } else {
+        // Navigate to the section so user sees the new record
+        const tabs=document.querySelectorAll('.nav-tab');
+        showClientPage('sec-'+i, tabs[i+1]||null);
+        await renderSecTable(s,i,currentFilter[i]||'proximas');
+      }
+    }
+  }
+  // Reload global data
   await loadCharts();
   loadHomeStats();
   loadAdvancedStats();
