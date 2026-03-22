@@ -89,8 +89,9 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 .page-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
 /* PAGE */
-.page{display:none;animation:fadeUp .3s ease both}
-.page.active{display:block}
+.page{display:none!important;animation:fadeUp .3s ease both}
+.page.active{display:block!important}
+#page-calendar.active{display:flex!important}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* WIDGETS GRID */
@@ -1074,6 +1075,7 @@ async function initClient(user){
 
   clienteData=cfg;
   clienteSecciones=cfg.config?.secciones||[];
+  console.log('Secciones config:',clienteSecciones.length, clienteSecciones.map(s=>s.tabla));
   const empresa=cfg.empresa||cfg.nombre||'';
   const nameEl=document.getElementById('c-name');if(nameEl)nameEl.textContent=`Hola, ${empresa} 👋`;
   const grEl=document.getElementById('c-greeting');if(grEl)grEl.textContent=empresa||'Portal de cliente';
@@ -1153,7 +1155,6 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
   cont.innerHTML=`<div class="loading"><div class="spin"></div>Cargando...</div>`;
   try{
     const dbClient=window.clientSb||sb;
-    console.log('Loading',sec.tabla,'from',dbClient.supabaseUrl||'main sb');
     let q=dbClient.from(sec.tabla).select('*');
     if(sec.filtro_campo&&sec.filtro_valor&&clienteData){
       const val=clienteData[sec.filtro_valor];
@@ -2661,6 +2662,12 @@ function buildDynamicPages(){
   const wrap=document.getElementById('dynamic-pages');
   wrap.innerHTML=clienteSecciones.map((s,i)=>`
     <div class="page" id="page-sec-${i}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:18px;font-weight:700">${s.titulo}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px" id="sec-subtitle-${i}">Cargando...</div>
+        </div>
+      </div>
       <div class="filters-row" id="filters-${i}"></div>
       <div class="search-bar-wrap">
         <div class="search-bar">
