@@ -1330,6 +1330,11 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
     const{data:rows,error}=await q;
     if(error)throw error;
     let filtered=rows||[];
+
+    // Add button defined early - available even when no records
+    const _secLabel=sec.titulo.replace(/^[Mm]is /,'');
+    const addBtn='<button class="btn-add-record" onclick="openAddRecord(\'' + sec.tabla + '\')">+ Añadir '+_secLabel+'</button>';
+
     const fechaCol=sec.columnas.find(c=>c.includes('fecha'))||null;
     // Sort by date+time for upcoming/today views
     if(filtro==='hoy'||filtro==='proximas'||filtro==='semana'||filtro==='mes'){
@@ -1403,21 +1408,26 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
 
     sub.textContent=`${filtered.length} registro${filtered.length!==1?'s':''}`;
     if(!filtered.length){
-      cont.innerHTML=addBtn+'<div class="pro-empty"><div class="pro-empty-icon">📂</div><div class="pro-empty-title">Sin resultados</div><div class="pro-empty-sub">No hay registros para este filtro</div></div>';
+      const emptyMsg=rows&&rows.length>0?'No hay registros para este filtro':'Pulsa el botón para añadir tu primer registro';
+      const emptyIcon=rows&&rows.length>0?'📂':'✨';
+      const emptyTitle=rows&&rows.length>0?'Sin resultados':'Sin registros aún';
+      cont.innerHTML=addBtn+'<div class="pro-empty"><div class="pro-empty-icon">'+emptyIcon+'</div><div class="pro-empty-title">'+emptyTitle+'</div><div class="pro-empty-sub">'+emptyMsg+'</div></div>';
       return;
     }
     const cols=sec.columnas.length?sec.columnas:Object.keys(filtered[0]);
-    // Add button
-  const _secLabel=sec.titulo.replace(/^[Mm]is /,'');
-  const addBtn='<button class="btn-add-record" onclick="openAddRecord(\'' + sec.tabla + '\')">+ Añadir '+_secLabel+'</button>';
-  const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
+    const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
 
     if(isCita){
       cont.innerHTML=addBtn+'<div class="cita-cards-grid">'+filtered.map(row=>citaCard(row,cols)).join('')+'</div>';
     } else {
       cont.innerHTML=addBtn+'<div class="record-cards-grid">'+filtered.map(function(row){return recordCard(row,cols,sec.tabla);}).join('')+'</div>';
     }
-  }catch(e){cont.innerHTML=`<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Error</div><div class="pro-empty-sub">${e.message}</div></div>`}
+  }catch(e){
+    // Still show add button even on error
+    const _sl=sec.titulo.replace(/^[Mm]is /,'');
+    const _ab='<button class="btn-add-record" onclick="openAddRecord(\'' + sec.tabla + '\')">+ Añadir '+_sl+'</button>';
+    cont.innerHTML=_ab+'<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Sin datos aún</div><div class="pro-empty-sub">Pulsa el botón para añadir tu primer registro</div></div>';
+  }
 }
 
 let sortState={};
