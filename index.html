@@ -797,6 +797,14 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
     <div class="modal-title">Nueva sección</div>
     <div class="form-group"><label class="lbl">Título que verá el cliente</label><input class="inp" id="as-titulo" placeholder="Ej: Mis citas..."></div>
     <div class="form-group"><label class="lbl">Tabla de Supabase</label><select class="inp" id="as-tabla" onchange="onTablaChange()" style="cursor:pointer"><option value="">-- Selecciona tabla --</option></select></div>
+    <div class="form-group" id="as-tipo-wrap" style="display:none">
+      <label class="lbl">Tipo de vista</label>
+      <select class="inp" id="as-tipo" style="cursor:pointer" onchange="onTipoChange()">
+        <option value="cards">Cards (por defecto)</option>
+        <option value="whatsapp">💬 WhatsApp (chat por sesión)</option>
+        <option value="table">Tabla</option>
+      </select>
+    </div>
     <div id="as-cols-wrap" style="display:none"><label class="lbl" style="margin-bottom:8px">Columnas a mostrar</label><div class="cols-grid" id="as-cols-list"></div></div>
     <div id="as-filtro-wrap" style="display:none;padding:12px 14px;background:rgba(0,229,204,.04);border:1px solid rgba(0,229,204,.15);border-radius:var(--rs);margin-bottom:14px">
       <div style="font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Filtro por cliente</div>
@@ -1113,13 +1121,17 @@ async function onTablaChange(){
 function confirmarSeccion(){
   const titulo=document.getElementById('as-titulo').value.trim();
   const tabla=document.getElementById('as-tabla').value;
+  const tipo_vista=document.getElementById('as-tipo')?.value||'cards';
   if(!titulo){alert('Pon un título.');return}
   if(!tabla){alert('Selecciona una tabla.');return}
-  const columnas=Array.from(document.querySelectorAll('#as-cols-list input:checked')).map(i=>i.value);
-  if(!columnas.length){alert('Selecciona al menos una columna.');return}
-  const filtro_campo=document.getElementById('as-f-campo').value;
-  const filtro_valor=document.getElementById('as-f-valor').value;
-  configSecciones.push({titulo,tabla,columnas,filtro_campo,filtro_valor});
+  let columnas=[], filtro_campo='', filtro_valor='';
+  if(tipo_vista!=='whatsapp'){
+    columnas=Array.from(document.querySelectorAll('#as-cols-list input:checked')).map(i=>i.value);
+    if(!columnas.length){alert('Selecciona al menos una columna.');return}
+    filtro_campo=document.getElementById('as-f-campo').value;
+    filtro_valor=document.getElementById('as-f-valor').value;
+  }
+  configSecciones.push({titulo,tabla,columnas,filtro_campo,filtro_valor,tipo_vista});
   renderSecList();closeAddSec();
 }
 
@@ -1321,8 +1333,12 @@ async function renderSecTable(sec,idx,filtro='todas',dateVal=null){
     }
     const cols=sec.columnas.length?sec.columnas:Object.keys(filtered[0]);
     const isCita=sec.tabla.includes('cita')||sec.titulo.toLowerCase().includes('cita')||sec.titulo.toLowerCase().includes('reuni');
+    const isWA=sec.tipo_vista==='whatsapp';
 
-    if(isCita){
+    if(isWA){
+      // WhatsApp conversation view
+      renderWhatsAppSection(sec,idx,filtered,cont);
+    } else if(isCita){
       cont.innerHTML=addBtn+'<div class="cita-cards-grid">'+filtered.map(row=>citaCard(row,cols)).join('')+'</div>';
     } else {
       cont.innerHTML=addBtn+'<div class="record-cards-grid">'+filtered.map(function(row){return recordCard(row,cols,sec.tabla);}).join('')+'</div>';
@@ -1407,6 +1423,114 @@ function recordCard(row,cols,tabla){
       '</div>',
     '</div>'
   ].join('');
+}
+
+function renderWhatsAppSection(sec,idx,rows,cont){
+  // Group by session_id
+  const sessions={};
+  rows.forEach(r=>{
+    const sid=r.session_id||r.id||'sin-sesion';
+    if(!sessions[sid]){
+      sessions[sid]={
+        session_id:sid,
+        nombre:r.nombre_cliente||r.nombre||r.telefono||'Desconocido',
+        telefono:r.telefono||'',
+        ultimo:r.mensaje||r.contenido||'',
+        fecha:r.created_at||'',
+        rol:r.rol||''
+      };
+    } else {
+      // Keep latest message
+      if(new Date(r.created_at)>new Date(sessions[sid].fecha)){
+        sessions[sid].ultimo=r.mensaje||r.contenido||'';
+        sessions[sid].fecha=r.created_at;
+        sessions[sid].rol=r.rol;
+      }
+    }
+  });
+  const list=Object.values(sessions).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+
+  // Render split view
+  cont.innerHTML=`<div class="conv-layout" style="height:500px">
+    <div class="conv-list-panel">
+      <div class="conv-list-header"><span>Conversaciones (${list.length})</span></div>
+      <div class="conv-list-items" id="wa-list-${idx}">
+        ${list.map(c=>{
+          const initials=(c.nombre||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+          const hoy=new Date();
+          const fecha=c.fecha?new Date(c.fecha):null;
+          const isToday=fecha&&fecha.toDateString()===hoy.toDateString();
+          const timeStr=fecha?(isToday?fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):fecha.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})):'';
+          const preview=(c.ultimo||'').substring(0,50);
+          return `<div class="conv-item" data-sid="${c.session_id}" onclick="openWASession(${idx},'${c.session_id}',${JSON.stringify(rows).replace(/"/g,'&quot;')})">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+              <div style="flex:1;min-width:0">
+                <div class="conv-item-name">${c.nombre}</div>
+                ${c.telefono?`<div class="conv-item-phone">📱 ${c.telefono}</div>`:''}
+                <div class="conv-item-preview">${c.rol==='agente'?'🤖 ':'👤 '}${preview}</div>
+              </div>
+            </div>
+            <div class="conv-item-time">${timeStr}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="conv-detail" id="wa-detail-${idx}">
+      <div class="conv-empty"><div class="conv-empty-icon">💬</div><div style="font-size:14px;font-weight:600">Selecciona una conversación</div></div>
+    </div>
+  </div>`;
+}
+
+function openWASession(secIdx,sessionId,allRows){
+  // Mark active
+  document.querySelectorAll(`#wa-list-${secIdx} .conv-item`).forEach(el=>{
+    el.classList.toggle('active',el.dataset.sid===sessionId);
+  });
+  const msgs=allRows.filter(r=>(r.session_id||r.id||'sin-sesion')===sessionId)
+    .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const first=msgs[0]||{};
+  const nombre=first.nombre_cliente||first.nombre||first.telefono||'Desconocido';
+  const telefono=first.telefono||'';
+  const initials=nombre.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+  let html='';
+  let lastDate='';
+  msgs.forEach(m=>{
+    const fecha=new Date(m.created_at);
+    const hoy=new Date();
+    const isToday=fecha.toDateString()===hoy.toDateString();
+    const dateLabel=isToday?'Hoy':fecha.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+    if(dateLabel!==lastDate){html+=`<div class="conv-date-sep"><span>${dateLabel}</span></div>`;lastDate=dateLabel;}
+    const timeStr=fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    const isAgente=m.rol==='agente';
+    let msgContent=m.mensaje||m.contenido||'';
+    if(m.tipo_mensaje&&m.tipo_mensaje!=='text'&&m.tipo_mensaje!=='texto'){
+      const icons={audio:'🎵',image:'🖼️',imagen:'🖼️',video:'🎥',document:'📄',sticker:'🎭',location:'📍'};
+      msgContent=`<span class="msg-type-label">${icons[m.tipo_mensaje.toLowerCase()]||'📎'} [${m.tipo_mensaje}]</span>`;
+    } else {
+      msgContent=msgContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    }
+    html+=`<div class="msg-row ${m.rol||'cliente'}">
+      ${!isAgente?`<div class="msg-avatar cliente">${initials}</div>`:''}
+      <div><div class="msg-bubble ${m.rol||'cliente'}">${msgContent}</div><div class="msg-time">${timeStr}</div></div>
+      ${isAgente?`<div class="msg-avatar agente">IA</div>`:''}
+    </div>`;
+  });
+
+  const detail=document.getElementById(`wa-detail-${secIdx}`);
+  detail.innerHTML=`
+    <div class="conv-detail-header">
+      <div class="conv-detail-avatar">${initials}</div>
+      <div class="conv-detail-info">
+        <div class="conv-detail-name">${nombre}</div>
+        ${telefono?`<div class="conv-detail-phone">📱 ${telefono}</div>`:''}
+      </div>
+      <span style="font-size:11px;color:var(--text2)">${msgs.length} mensajes</span>
+    </div>
+    <div class="conv-messages" id="wa-msgs-${secIdx}">${html}</div>`;
+  const msgsEl=document.getElementById(`wa-msgs-${secIdx}`);
+  if(msgsEl)msgsEl.scrollTop=msgsEl.scrollHeight;
 }
 
 function estadoToCls(estado){
