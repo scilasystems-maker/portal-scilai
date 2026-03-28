@@ -1049,20 +1049,43 @@ async function openConfig(id,nombre){
   clienteSb=supabase.createClient(cUrl,cKey);
 
   try{
-    const resp=await fetch(`${cUrl}/rest/v1/`,{headers:{'apikey':cKey,'Authorization':'Bearer '+cKey,'Accept':'application/openapi+json'}});
     let tablesFromSchema=[];
-    if(resp.ok){
-      const schema=await resp.json();
-      const defs=schema.definitions||schema.components?.schemas||{};
-      tablesFromSchema=Object.keys(defs).filter(t=>!t.startsWith('_')&&t!=='portal_clientes');
-      for(const t of tablesFromSchema){const p=defs[t]?.properties||{};if(Object.keys(p).length)schemaColumns[t]=Object.keys(p)}
-    }
-    const known=['citas','clientes','leads','pedidos','productos','facturas','tareas','ventas','contactos','n8n_chat_histories'];
+    // Try OpenAPI schema (most reliable)
+    try{
+      const resp=await fetch(`${cUrl}/rest/v1/`,{headers:{'apikey':cKey,'Authorization':'Bearer '+cKey,'Accept':'application/openapi+json'}});
+      if(resp.ok){
+        const schema=await resp.json();
+        const defs=schema.definitions||schema.components?.schemas||{};
+        const fromSchema=Object.keys(defs).filter(t=>!t.startsWith('_'));
+        fromSchema.forEach(t=>{
+          tablesFromSchema.push(t);
+          const p=defs[t]?.properties||{};
+          if(Object.keys(p).length)schemaColumns[t]=Object.keys(p);
+        });
+      }
+    }catch(e){console.warn('OpenAPI schema failed:',e);}
+    // Also try to get tables via information_schema
+    try{
+      const{data:infoRows}=await clienteSb
+        .from('information_schema.tables')
+        .select('table_name')
+        .eq('table_schema','public')
+        .neq('table_type','VIEW');
+      if(infoRows?.length){
+        infoRows.forEach(r=>{
+          if(!tablesFromSchema.includes(r.table_name))
+            tablesFromSchema.push(r.table_name);
+        });
+      }
+    }catch(e){}
+
+    // Probe known tables as fallback
+    const known=['citas','clientes','leads','pedidos','productos','facturas','tareas','ventas','contactos','conversaciones','mensajes','n8n_chat_histories'];
     for(const t of known){
       if(tablesFromSchema.includes(t))continue;
       try{const{data:r,error:e}=await clienteSb.from(t).select('*').limit(1);if(!e){tablesFromSchema.push(t);if(r?.length)schemaColumns[t]=Object.keys(r[0])}}catch(e){}
     }
-    schemaTables=tablesFromSchema.filter(t=>t!=='portal_clientes');
+    schemaTables=tablesFromSchema.filter(t=>!['portal_clientes','schema_migrations','spatial_ref_sys'].includes(t));
     for(const t of schemaTables){
       if(!schemaColumns[t]){const{data:r}=await clienteSb.from(t).select('*').limit(1);if(r?.length)schemaColumns[t]=Object.keys(r[0])}
     }
