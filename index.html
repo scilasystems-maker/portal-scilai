@@ -1493,6 +1493,8 @@ function renderWhatsAppSection(sec,idx,rows,cont){
   });
   const list=Object.values(sessions).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   window[`waSessions_${idx}`]=sessions;
+  // Start global realtime listener
+  setTimeout(()=>setupWAGlobalRealtime(idx),100);
 
   cont.innerHTML=`
   <style>
@@ -1521,7 +1523,7 @@ function renderWhatsAppSection(sec,idx,rows,cont){
     .wa-chat-avatar{width:40px;height:40px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
     .wa-chat-name{font-size:15px;font-weight:700}
     .wa-chat-phone{font-size:12px;color:var(--text2);margin-top:1px}
-    .wa-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:4px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;background:var(--bg)}
+    .wa-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:4px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;background:var(--bg);justify-content:flex-end}
     .wa-date-sep{text-align:center;margin:10px 0}
     .wa-date-sep span{font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);padding:4px 14px;border-radius:20px}
     .wa-msg-wrap{display:flex;margin-bottom:2px}
@@ -1582,6 +1584,46 @@ function waContactHTML(c,idx){
   </div>`;
 }
 
+function setupWAGlobalRealtime(idx){
+  // Listen for ANY new message in this table to update contact list
+  if(window[`waGlobalChannel_${idx}`]){
+    try{window[`waGlobalChannel_${idx}`].unsubscribe();}catch(e){}
+  }
+  const dbClient=window.clientSb||sb;
+  const tableName=clienteSecciones[idx]?.tabla||'conversaciones';
+  window[`waGlobalChannel_${idx}`]=dbClient
+    .channel(`wa-global-${idx}`)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:tableName},payload=>{
+      const m=payload.new;
+      const sid=m.session_id||m.id||m.telefono||'sin-sesion';
+      const sessions=window[`waSessions_${idx}`]||{};
+      // If it's a new session, add it
+      if(!sessions[sid]){
+        sessions[sid]={
+          session_id:sid,
+          nombre:m.nombre_cliente||m.nombre||m.telefono||'Desconocido',
+          telefono:m.telefono||sid,
+          mensajes:[m],
+          ultimo:m.mensaje||m.contenido||'',
+          fecha:m.created_at
+        };
+        // Prepend new contact to list
+        const list=document.getElementById(`wa-contacts-${idx}`);
+        if(list){
+          const div=document.createElement('div');
+          div.innerHTML=waContactHTML(sessions[sid],idx);
+          list.prepend(div.firstChild);
+        }
+      }
+      // If message is for active chat, appendWABubble handles it via channel filter
+      // Just update contact preview for non-active chats
+      if(window[`waActiveSession_${idx}`]!==sid){
+        updateWAContactPreview(idx,sid,m);
+      }
+    })
+    .subscribe();
+}
+
 function filterWAContacts(idx,q){
   const ql=q.toLowerCase();
   const sessions=window[`waSessions_${idx}`]||{};
@@ -1604,7 +1646,7 @@ function openWAChat(idx,sessionId,clickedEl){
   const session=sessions[sessionId];
   if(!session) return;
 
-  const msgs=session.mensajes;
+  const msgs=[...session.mensajes].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const nombre=session.nombre;
   const telefono=session.telefono;
   const initials=nombre.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
@@ -1659,10 +1701,78 @@ function openWAChat(idx,sessionId,clickedEl){
     <div class="wa-messages" id="wa-msgs-${idx}">${msgsHTML}</div>`;
 
   // Scroll to bottom
-  setTimeout(()=>{
+  requestAnimationFrame(()=>{
     const msgsEl=document.getElementById(`wa-msgs-${idx}`);
     if(msgsEl)msgsEl.scrollTop=msgsEl.scrollHeight;
-  },50);
+  });
+
+  // Realtime: unsubscribe previous channel for this section
+  if(window[`waChannel_${idx}`]){
+    try{window[`waChannel_${idx}`].unsubscribe();}catch(e){}
+  }
+
+  // Subscribe to new messages for this session
+  const dbClient=window.clientSb||sb;
+  const tableName=clienteSecciones[idx]?.tabla||'conversaciones';
+  window[`waActiveSession_${idx}`]=sessionId;
+
+  window[`waChannel_${idx}`]=dbClient
+    .channel(`wa-${idx}-${sessionId}`)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:tableName,
+      filter:`session_id=eq.${sessionId}`
+    }, payload=>{
+      const m=payload.new;
+      // Add message to stored session
+      const sessions=window[`waSessions_${idx}`]||{};
+      if(sessions[sessionId]){
+        sessions[sessionId].mensajes.push(m);
+        sessions[sessionId].ultimo=m.mensaje||m.contenido||'';
+        sessions[sessionId].fecha=m.created_at;
+      }
+      // Append bubble to chat
+      appendWABubble(idx,m);
+      // Update contact preview in list
+      updateWAContactPreview(idx,sessionId,m);
+    })
+    .subscribe();
+}
+
+function appendWABubble(idx,m){
+  const msgsEl=document.getElementById(`wa-msgs-${idx}`);
+  if(!msgsEl)return;
+  const fecha=new Date(m.created_at);
+  const timeStr=fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const isAgente=m.rol==='agente';
+  const rol=m.rol||'cliente';
+  let msgContent=m.mensaje||m.contenido||'';
+  if(m.tipo_mensaje&&m.tipo_mensaje!=='text'&&m.tipo_mensaje!=='texto'){
+    const icons={audio:'🎵',image:'🖼️',imagen:'🖼️',video:'🎥',document:'📄',sticker:'🎭',location:'📍'};
+    const icon=icons[(m.tipo_mensaje||'').toLowerCase()]||'📎';
+    msgContent=`<span class="wa-type-label">${icon} ${m.tipo_mensaje}</span>`;
+  } else {
+    msgContent=msgContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+  const div=document.createElement('div');
+  div.className=`wa-msg-wrap ${rol}`;
+  div.innerHTML=`<div class="wa-bubble ${rol}">
+    ${isAgente?'<div class="wa-bubble-sender">🤖 Agente IA</div>':''}
+    ${msgContent}
+    <div class="wa-bubble-time">${timeStr}${isAgente?' ✓✓':''}</div>
+  </div>`;
+  msgsEl.appendChild(div);
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+
+function updateWAContactPreview(idx,sessionId,m){
+  const el=document.querySelector(`#wa-contacts-${idx} .wa-contact[data-sid="${sessionId}"] .wa-contact-preview`);
+  if(el)el.textContent=(m.mensaje||m.contenido||'').substring(0,40);
+  // Move contact to top
+  const contact=document.querySelector(`#wa-contacts-${idx} .wa-contact[data-sid="${sessionId}"]`);
+  const list=document.getElementById(`wa-contacts-${idx}`);
+  if(contact&&list)list.prepend(contact);
 }
 
 
