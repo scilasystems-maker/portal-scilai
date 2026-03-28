@@ -348,6 +348,51 @@ input[type="date"],input[type="time"]{position:relative;cursor:pointer}
 .alert-banner-sub{font-size:12px;color:var(--text2)}
 .alert-banner-close{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px}
 
+/* CONVERSATIONS */
+.conv-layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 110px);gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.conv-list-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.conv-list-header{padding:14px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.conv-search{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.conv-search input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none}
+.conv-search input:focus{border-color:var(--cyan)}
+.conv-list-items{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.conv-item{padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative}
+.conv-item:hover{background:rgba(255,255,255,.04)}
+.conv-item.active{background:rgba(0,229,204,.06);border-left:3px solid var(--cyan)}
+.conv-item-name{font-size:14px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-item-phone{font-size:11px;color:var(--text3);margin-bottom:4px}
+.conv-item-preview{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-item-time{position:absolute;top:13px;right:12px;font-size:10px;color:var(--text3);font-weight:500}
+.conv-unread{position:absolute;bottom:13px;right:12px;width:7px;height:7px;background:var(--cyan);border-radius:50%}
+.conv-detail{display:flex;flex-direction:column;overflow:hidden}
+.conv-detail-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:rgba(255,255,255,.02)}
+.conv-back-btn{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.conv-back-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.conv-detail-avatar{width:38px;height:38px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.conv-detail-info{flex:1;min-width:0}
+.conv-detail-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-detail-phone{font-size:12px;color:var(--text2)}
+.conv-detail-badge{font-size:10px;padding:3px 9px;background:rgba(0,229,204,.08);border:1px solid rgba(0,229,204,.2);border-radius:20px;color:var(--cyan);font-weight:600;flex-shrink:0}
+.conv-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.conv-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--text3)}
+.conv-empty-icon{font-size:48px;opacity:.2}
+.msg-row{display:flex;align-items:flex-end;gap:8px;animation:fadeUp .2s ease both}
+.msg-row.cliente{justify-content:flex-start}
+.msg-row.agente{justify-content:flex-end}
+.msg-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.msg-avatar.cliente{background:rgba(255,255,255,.08);color:var(--text2)}
+.msg-avatar.agente{background:rgba(0,229,204,.2);color:var(--cyan)}
+.msg-bubble{max-width:68%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;position:relative}
+.msg-bubble.cliente{background:rgba(255,255,255,.07);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text)}
+.msg-bubble.agente{background:linear-gradient(135deg,rgba(0,229,204,.2),rgba(0,200,180,.15));border:1px solid rgba(0,229,204,.2);border-bottom-right-radius:4px;color:var(--text)}
+.msg-time{font-size:10px;color:var(--text3);margin-top:3px;text-align:right}
+.msg-type-label{font-size:12px;color:var(--text2);font-style:italic;display:flex;align-items:center;gap:6px}
+.conv-date-sep{text-align:center;margin:8px 0}
+.conv-date-sep span{font-size:11px;color:var(--text3);background:var(--bg3);padding:3px 12px;border-radius:20px;font-weight:500}
+.conv-realtime-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--green);font-weight:600}
+.conv-realtime-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@media(max-width:768px){.conv-layout{grid-template-columns:1fr}.conv-list-panel{display:none}.conv-list-panel.mobile-show{display:flex}.conv-detail{display:none}.conv-detail.mobile-show{display:flex}}
+
 /* EXPORT */
 .export-btn{padding:5px 12px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--text2);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;font-weight:500}
 .export-btn:hover{border-color:var(--cyan);color:var(--cyan)}
@@ -451,6 +496,9 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
           <span class="nav-item-icon">💬</span>Mensajes
           <span class="nav-item-badge" id="msg-count" style="display:none">0</span>
         </button>
+        <button class="nav-item" onclick="switchAdminTab('conversaciones',this)">
+          <span class="nav-item-icon">🤖</span>Conversaciones IA
+        </button>
       </nav>
       <div class="sidebar-footer">
         <div class="user-chip">
@@ -513,6 +561,28 @@ body.theme-light .theme-opt{color:#3a4560}.theme-light .theme-opt:hover{backgrou
             <div class="err-box" id="nc-err" style="display:none"></div>
           </div>
         </div>
+        <div id="tab-conversaciones" class="page">
+          <div class="conv-layout">
+            <div class="conv-list-panel" id="conv-ia-list-panel">
+              <div class="conv-list-header">
+                <span>Conversaciones WhatsApp</span>
+                <span class="conv-realtime-badge"><span class="conv-realtime-dot"></span>Realtime</span>
+              </div>
+              <div class="conv-search">
+                <input type="text" id="conv-ia-search" placeholder="Buscar por nombre o teléfono..." oninput="filterConvIA(this.value)">
+              </div>
+              <div class="conv-list-items" id="conv-ia-list"><div class="loading"><div class="spin"></div>Cargando...</div></div>
+            </div>
+            <div class="conv-detail" id="conv-ia-detail">
+              <div class="conv-empty">
+                <div class="conv-empty-icon">💬</div>
+                <div style="font-size:14px;font-weight:600">Selecciona una conversación</div>
+                <div style="font-size:12px">Haz clic en un contacto para ver el chat</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="tab-mensajes" class="page">
           <div style="display:grid;grid-template-columns:260px 1fr;gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;height:580px">
             <div style="border-right:1px solid var(--border);display:flex;flex-direction:column">
@@ -2333,6 +2403,168 @@ function renderCharts(){
   }
 }
 
+// ── CONVERSATIONS IA ──
+let convIAData=[], convIAChannel=null, activeSessionId=null;
+
+async function loadConvIA(){
+  const{data,error}=await sb.rpc('get_last_conversations').catch(()=>({data:null,error:true}));
+  // Fallback if RPC not available
+  const{data:rows}=await sb.from('conversaciones')
+    .select('session_id,telefono,nombre_cliente,mensaje,created_at,rol')
+    .order('created_at',{ascending:false});
+
+  if(!rows){document.getElementById('conv-ia-list').innerHTML='<div class="pro-empty"><div class="pro-empty-icon">⚠️</div><div class="pro-empty-title">Error al cargar</div></div>';return;}
+
+  // Group by session_id, keep last message
+  const sessions={};
+  rows.forEach(r=>{
+    if(!sessions[r.session_id]){
+      sessions[r.session_id]={
+        session_id:r.session_id,
+        telefono:r.telefono,
+        nombre:r.nombre_cliente||r.telefono||'Desconocido',
+        ultimo:r.mensaje,
+        fecha:r.created_at,
+        rol:r.rol
+      };
+    }
+  });
+  convIAData=Object.values(sessions).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  renderConvIAList(convIAData);
+
+  // Realtime for new conversations
+  sb.channel('conv-ia-global')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'conversaciones'},payload=>{
+      loadConvIA();
+      if(activeSessionId===payload.new.session_id) appendConvIAMessage(payload.new);
+    }).subscribe();
+}
+
+function renderConvIAList(items){
+  const el=document.getElementById('conv-ia-list');
+  if(!items.length){el.innerHTML='<div class="pro-empty"><div class="pro-empty-icon">💬</div><div class="pro-empty-title">Sin conversaciones</div></div>';return;}
+  el.innerHTML=items.map(c=>{
+    const hoy=new Date();
+    const fecha=new Date(c.fecha);
+    const isToday=fecha.toDateString()===hoy.toDateString();
+    const timeStr=isToday?fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):fecha.toLocaleDateString('es-ES',{day:'2-digit',month:'short'});
+    const initials=(c.nombre||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    const preview=c.ultimo?c.ultimo.substring(0,50)+(c.ultimo.length>50?'...':''):'Sin mensajes';
+    return `<div class="conv-item${activeSessionId===c.session_id?' active':''}" onclick="openConvIA('${c.session_id}','${c.nombre.replace(/'/g,"\'")}','${c.telefono}')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div class="conv-item-name">${c.nombre}</div>
+          <div class="conv-item-phone">📱 ${c.telefono||''}</div>
+          <div class="conv-item-preview">${c.rol==='agente'?'🤖 ':'👤 '}${preview}</div>
+        </div>
+      </div>
+      <div class="conv-item-time">${timeStr}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterConvIA(q){
+  const ql=q.toLowerCase();
+  const filtered=convIAData.filter(c=>(c.nombre||'').toLowerCase().includes(ql)||(c.telefono||'').toLowerCase().includes(ql));
+  renderConvIAList(filtered);
+}
+
+async function openConvIA(sessionId,nombre,telefono){
+  activeSessionId=sessionId;
+  // Mark active in list
+  document.querySelectorAll('.conv-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.conv-item').forEach(el=>{
+    if(el.onclick?.toString().includes(sessionId)) el.classList.add('active');
+  });
+
+  const detail=document.getElementById('conv-ia-detail');
+  const initials=nombre.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  detail.innerHTML=`
+    <div class="conv-detail-header">
+      <div class="conv-detail-avatar">${initials}</div>
+      <div class="conv-detail-info">
+        <div class="conv-detail-name">${nombre}</div>
+        <div class="conv-detail-phone">📱 ${telefono}</div>
+      </div>
+      <span class="conv-realtime-badge"><span class="conv-realtime-dot"></span>En vivo</span>
+    </div>
+    <div class="conv-messages" id="conv-ia-messages"><div class="loading"><div class="spin"></div>Cargando mensajes...</div></div>`;
+
+  // Load messages
+  const{data:msgs}=await sb.from('conversaciones')
+    .select('*').eq('session_id',sessionId).order('created_at',{ascending:true});
+
+  renderConvIAMessages(msgs||[]);
+}
+
+function renderConvIAMessages(msgs){
+  const el=document.getElementById('conv-ia-messages');
+  if(!el)return;
+  if(!msgs.length){el.innerHTML='<div class="conv-empty"><div class="conv-empty-icon">💬</div><div>Sin mensajes</div></div>';return;}
+
+  let html='', lastDate='';
+  msgs.forEach(m=>{
+    const fecha=new Date(m.created_at);
+    const hoy=new Date();
+    const isToday=fecha.toDateString()===hoy.toDateString();
+    const dateLabel=isToday?'Hoy':fecha.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+    if(dateLabel!==lastDate){
+      html+=`<div class="conv-date-sep"><span>${dateLabel}</span></div>`;
+      lastDate=dateLabel;
+    }
+    const timeStr=fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    const isAgente=m.rol==='agente';
+    const initials=isAgente?'IA':(m.nombre_cliente||'?').charAt(0).toUpperCase();
+
+    let msgContent=m.mensaje||'';
+    if(m.tipo_mensaje&&m.tipo_mensaje!=='text'&&m.tipo_mensaje!=='texto'){
+      const icons={audio:'🎵',image:'🖼️',imagen:'🖼️',video:'🎥',document:'📄',documento:'📄',sticker:'🎭',location:'📍',ubicacion:'📍'};
+      const icon=icons[m.tipo_mensaje.toLowerCase()]||'📎';
+      msgContent=`<span class="msg-type-label">${icon} [${m.tipo_mensaje.charAt(0).toUpperCase()+m.tipo_mensaje.slice(1)}]</span>`;
+    } else {
+      msgContent=msgContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    }
+
+    html+=`<div class="msg-row ${m.rol}">
+      ${!isAgente?`<div class="msg-avatar cliente">${initials}</div>`:''}
+      <div>
+        <div class="msg-bubble ${m.rol}">${msgContent}</div>
+        <div class="msg-time">${timeStr}</div>
+      </div>
+      ${isAgente?`<div class="msg-avatar agente">IA</div>`:''}
+    </div>`;
+  });
+  el.innerHTML=html;
+  el.scrollTop=el.scrollHeight;
+}
+
+function appendConvIAMessage(msg){
+  const el=document.getElementById('conv-ia-messages');
+  if(!el)return;
+  // Remove loading if present
+  if(el.querySelector('.loading'))el.innerHTML='';
+  const fecha=new Date(msg.created_at);
+  const timeStr=fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const isAgente=msg.rol==='agente';
+  const initials=isAgente?'IA':(msg.nombre_cliente||'?').charAt(0).toUpperCase();
+  let msgContent=msg.mensaje||'';
+  if(msg.tipo_mensaje&&msg.tipo_mensaje!=='text'&&msg.tipo_mensaje!=='texto'){
+    const icons={audio:'🎵',image:'🖼️',imagen:'🖼️',video:'🎥',document:'📄',sticker:'🎭',location:'📍'};
+    const icon=icons[msg.tipo_mensaje.toLowerCase()]||'📎';
+    msgContent=`<span class="msg-type-label">${icon} [${msg.tipo_mensaje}]</span>`;
+  } else {
+    msgContent=msgContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+  const div=document.createElement('div');
+  div.className='msg-row '+msg.rol;
+  div.innerHTML=`${!isAgente?`<div class="msg-avatar cliente">${initials}</div>`:''}
+    <div><div class="msg-bubble ${msg.rol}">${msgContent}</div><div class="msg-time">${timeStr}</div></div>
+    ${isAgente?`<div class="msg-avatar agente">IA</div>`:''}`;
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+}
+
 // ── MOBILE MENU ──
 function toggleMobileMenu(){
   const menu=document.getElementById('mobile-menu-client');
@@ -2745,9 +2977,10 @@ document.addEventListener('click',function(e){
 const _origSwitchAdminTab=switchAdminTab;
 function switchAdminTab(tab,btn){
   _origSwitchAdminTab(tab,btn);
-  const titles={'clientes':'Clientes','nuevo':'Nuevo cliente','mensajes':'Mensajes'};
+  const titles={'clientes':'Clientes','nuevo':'Nuevo cliente','mensajes':'Mensajes','conversaciones':'Conversaciones IA'};
   const el=document.getElementById('admin-page-title');
   if(el)el.textContent=titles[tab]||tab;
+  if(tab==='conversaciones'&&!convIAData.length) loadConvIA();
 }
 </script>
 </body>
